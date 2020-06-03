@@ -1,0 +1,50 @@
+<?php
+
+
+namespace App\Http\Controllers\Admin;
+
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreRequest;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
+class AddAgentUserController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+        $user['fee']=json_decode($user['fee'],true);
+        return view('addAgent.list',['user'=>$user]);
+    }
+
+    /**
+     * 效验账号是否存在
+     */
+    public function checkUnique(StoreRequest $request)
+    {
+        //获取数据
+        $userName = $request->input('userName');
+        $user = User::where("username",'=',$userName)->first();
+        if($user){
+            return ['msg'=>'该账户已存在','status'=>1];
+        }else{
+            return ['msg'=>'该账户可以使用','status'=>0];
+        }
+    }
+
+
+    public function store(StoreRequest $request){
+        $data = $request->all();
+        unset($data['_token']);
+        unset($data['pwd']);
+        $data['password']=bcrypt($data['password']);
+        $data['fee']=json_encode($data['fee']);
+        $count = User::insert($data);
+        if($count){
+            return ['msg'=>'操作成功！','status'=>1];
+        }else{
+            return ['msg'=>'操作失败！','status'=>0];
+        }
+    }
+}
