@@ -73,6 +73,7 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/czrecord','CzController');//会员充值查询
     Route::resource('/removeAgent','RemoveAgentController');//已删代理
     Route::resource('/removeUser', 'RemoveUserController');//已删会员
+    Route::resource('/online','OnlineUserController');//在线玩家
 });
 
 Route::get('/phpinfo',function (Request $request){
