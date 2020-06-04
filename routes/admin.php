@@ -71,6 +71,8 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::get('/hqUser/czCord/{id}',   'HqUserController@czCord');//在线充值提现界面
     Route::resource('/draw','DrawController');//会员提现查询
     Route::resource('/czrecord','CzController');//会员充值查询
+    Route::resource('/removeAgent','RemoveAgentController');//已删代理
+    Route::resource('/removeUser', 'RemoveUserController');//已删会员
 });
 
 Route::get('/phpinfo',function (Request $request){
