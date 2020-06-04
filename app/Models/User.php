@@ -11,7 +11,7 @@ use App\Models\Traits\AdminUsersTrait;
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract, AdminUsersInterface
 {
     use Authenticatable, CanResetPassword, AdminUsersTrait;
-    protected $table = 'user';
+    protected $table = 'agent_users';
     protected $fillable = ['username', 'email', 'mobile', 'password'];
     protected $hidden = ['password', 'remember_token','token'];
     protected $userInfo;

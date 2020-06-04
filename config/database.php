@@ -42,17 +42,17 @@ return [
 
         'mysql' => [
             'read' => [
-                'host' => ['114.67.97.70'],
+                'host' => ['129.211.114.135'],
             ],
             'write' => [
-                'host' => ['114.67.97.70'],
+                'host' => ['129.211.114.135'],
             ],
 
             'sticky'    => false,
             'driver'    => 'mysql',
             'database'  => 'huanqiu',
             'username'  => 'huanqiu',
-            'password'  => 'huanqiu',
+            'password'  => 'lcf2954626',
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => 'hq_',
@@ -103,12 +103,11 @@ return [
         'client' => 'phpredis',
 
         'default' => [
-
             'host' => "127.0.0.1",
             //'password' => "lcf2954626",
             'port' => '6379',
             'database' => 0,
-            'prefix' => "hq_",
+            'prefix' => "",
         ],
 
     ],

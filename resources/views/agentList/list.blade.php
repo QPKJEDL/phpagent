@@ -47,10 +47,10 @@
             <tr>
                 <td class="hidden-xs">{{$info['username']}}</td>
                 <td class="hidden-xs">{{$info['nickname']}}</td>
-                <td class="hidden-xs">{{$info['']}}</td>
-                <td class="hidden-xs">{{$info['']}}</td>
+                <td class="hidden-xs">{{$info['balance']/100}}</td>
+                <td class="hidden-xs">{{$info['groupBalance']/100}}</td>
                 <td class="hidden-xs">{{$info['fee']['baccarat']}}%/{{$info['fee']['dragonTiger']}}%/{{$info['fee']['niuniu']}}%/{{$info['fee']['sangong']}}%/{{$info['fee']['A89']}}%</td>
-                <td class="hidden-xs">{{$info['']}}</td>
+                <td class="hidden-xs">{{$info['proportion']}}%</td>
                 <td class="hidden-xs">{{$info['created_at']}}</td>
                 <td class="hidden-xs">
                     @if($info['status']==0)
@@ -61,10 +61,12 @@
                 </td>
                 <td>
                     <div class="layui-inline">
-                        <button class="layui-btn layui-btn-small layui-btn-normal user" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}" data-desc="下级会员"><i class="layui-icon">下级会员</i></button>
-                        <button class="layui-btn layui-btn-small layui-btn-normal agent" data-id="{{$info['id']}}" data-desc="下级代理"><i class="layui-icon">下级代理</i></button>
-                        <button class="layui-btn layui-btn-small layui-btn-normal" data-id="{{$info['id']}}" data-desc="账号编辑" data-url="{{url('/admin/roles/'. $info['id'] .'/edit')}}"><i class="layui-icon">账号编辑</i></button>
-                        <button class="layui-btn layui-btn-small layui-btn-danger del-btn" data-id="{{$info['id']}}" data-url="{{url('/admin/roles/'.$info['id'])}}"><i class="layui-icon">修改密码</i></button>
+                        <button class="layui-btn layui-btn-small @if($info['userCount']==0)layui-btn-disabled @else layui-btn-normal @endif user" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}" @if($info['userCount']==0) disabled @endif data-desc="下级会员"><i class="layui-icon">下级会员</i></button>
+                        <button class="layui-btn layui-btn-small @if($info['id']==$user['id'])layui-btn-disabled @elseif($info['agentCount']==0) layui-btn-disabled @else layui-btn-normal @endif agent" data-id="{{$info['id']}}"@if($info['id']==$user['id'])disabled @elseif($info['agentCount']==0) disabled @endif data-name="{{$info['nickname']}}" data-desc="下级代理"><i class="layui-icon">下级代理</i></button>
+                        @if($info['id']!=$user['id'])
+                            <button class="layui-btn layui-btn-small layui-btn-normal agentEdit" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">账号编辑</i></button>
+                            <button class="layui-btn layui-btn-small layui-btn-danger resetPwd" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">修改密码</i></button>
+                        @endif
                     </div>
                 </td>
             </tr>
@@ -102,9 +104,50 @@
                 });
                 layer.full(index);
             });
+            //下级代理
+            $(".agent").click(function () {
+                var id = $(this).attr('data-id');
+                var nickname = $(this).attr('data-name');
+                var index = layer.open({
+                    type:2,
+                    title:nickname + '的下级代理',
+                    shadeClose: true,
+                    offset: '10%',
+                    area: ['60%','80%'],
+                    content:'/admin/agentList/agent/' + id
+                });
+                layer.full(index);
+            });
             $(".reset").click(function(){
                 $("input[name='username']").val('');
                 $("input[name='nickname']").val('');
+            });
+            //修改密码
+            $(".resetPwd").click(function () {
+                var id = $(this).attr('data-id');
+                var name = $(this).attr('data-name');
+                layer.open({
+                    type:2,
+                    title:name + '修改密码',
+                    shadeClose:true,
+                    offset:'10%',
+                    area:['60%','80%'],
+                    content:'/admin/agentList/resetAgentPwd/' + id
+                });
+            });
+            //代理账号编辑
+            $('.agentEdit').click(function () {
+                var id = $(this).attr('data-id');
+                var name = $(this).attr('data-name');
+                var index = layer.open({
+                    type:2,
+                    title:name + '账号编辑',
+                    shadeClose:true,
+                    offset:'10%',
+                    area:['60%','80%'],
+                    content:'/admin/agentEdit/'+id
+                });
+                layer.full(index);
             });
             form.render();
             form.on('switch(switchTest)',function(data){

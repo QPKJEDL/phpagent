@@ -53,9 +53,14 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/permissions',     'PermissionController');
     //账户管理模块
     Route::resource('/agentList',       'AgentListController');//代理列表
+    Route::get('/agentEdit/{id}',       'AgentListController@agentEdit');//代理账号编辑
+    Route::post('/saveAgentEdit',       'AgentListController@saveAgentEdit');//代理账号编辑保存
     Route::post('/agentList/changeStatus','AgentListController@changeStatus');//代理启用停用
     Route::post('/agentList/changeUserStatus','AgentListController@changeUserStatus');//用户停用启用
     Route::get('/agentList/user/{id}','AgentListController@user');//下级会员
+    Route::get('/agentList/agent/{id}','AgentListController@getAgentChildren');//下级代理
+    Route::get('/agentList/resetAgentPwd/{id}','AgentListController@agentPasswordEdit');//代理修改密码界面
+    Route::post('/agentList/saveAgentPwd','AgentListController@resetAgentPwd');//保存代理密码修改
     Route::get('/agentList/resetPwd/{id}','AgentListController@resetPwd');//修改会员密码界面
     Route::post('/agentList/savePwd',     'AgentListController@savePwd');//保存修改密码
     Route::get('/agentList/userEdit/{id}','AgentListController@userEdit');//会员编辑
@@ -64,7 +69,8 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/addUser',             'AddUserController');//添加会员
     Route::resource('/hqUser',          'HqUserController');//会员列表
     Route::get('/hqUser/czCord/{id}',   'HqUserController@czCord');//在线充值提现界面
-    Route::resource('/draw','DrawController');//提现查询
+    Route::resource('/draw','DrawController');//会员提现查询
+    Route::resource('/czrecord','CzController');//会员充值查询
 });
 
 Route::get('/phpinfo',function (Request $request){

@@ -7,6 +7,7 @@ use App\Models\HqUser;
 use App\Models\UserAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 
 class HqUserController extends Controller
 {
@@ -26,11 +27,21 @@ class HqUserController extends Controller
         }
         $data = $sql->paginate(10)->appends($request->all());
         foreach($data as $key=>$value){
+            $data[$key]['online']=$this->getUserOnline($value['user_id']);
             $data[$key]['cz']=$this->getUserCzCord($value['user_id']);
             $data[$key]['fee']=json_decode($value['fee'],true);
-            $data[$key]['creatime']=$value['creatime'];
+            $data[$key]['creatime']=date('Y-m-d H:i:s');
         }
         return view('agentList.userList',['list'=>$data,'input'=>$request->all()]);
+    }
+
+    /**
+     * 根据userId来检查用户是否存在
+     * @param $userId
+     * @return mixed
+     */
+    public function getUserOnline($userId){
+        return Redis::get('isonline_'.$userId);
     }
 
      /**

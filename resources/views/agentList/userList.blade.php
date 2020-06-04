@@ -54,7 +54,13 @@
                 <td class="hidden-xs">{{$info['fee']['baccarat']}}/{{$info['fee']['dragonTiger']}}/{{$info['fee']['niuniu']}}/{{$info['fee']['sangong']}}/{{$info['fee']['A89']}}</td>
                 <td class="hidden-xs">{{$info['creatime']}}</td>
                 <td class="hidden-xs">{{$info['last_ip']}}</td>
-                <td class="hidden-xs">{{$info['']}}</td>
+                <td class="hidden-xs">
+                    @if($info['online']==1)
+                        <span style="color: green;">在线</span>
+                    @else
+                        离线
+                    @endif
+                </td>
                 <td class="hidden-xs">
                     @if($info['is_over']==0)
                         <input type="checkbox" checked="" name="open" value="{{$info['user_id']}}" lay-skin="switch" lay-filter="switchTest" lay-text="正常|停用">

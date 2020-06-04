@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRequest;
+use App\Models\Game;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,8 @@ class AddAgentUserController extends Controller
     {
         $user = Auth::user();
         $user['fee']=json_decode($user['fee'],true);
-        return view('addAgent.list',['user'=>$user]);
+        $game = Game::getGameList();
+        return view('addAgent.list',['user'=>$user,'game'=>$game]);
     }
 
     /**
@@ -40,6 +42,10 @@ class AddAgentUserController extends Controller
         unset($data['pwd']);
         $data['password']=bcrypt($data['password']);
         $data['fee']=json_encode($data['fee']);
+        $data['limit']=json_encode($data['limit']);
+        $data['bjlbets_fee'] = json_encode($data['bjlbets_fee']);
+        $data['lhbets_fee'] = json_encode($data['lhbets_fee']);
+        $data['nnbets_fee']= json_encode($data['nnbets_fee']);
         $count = User::insert($data);
         if($count){
             return ['msg'=>'操作成功！','status'=>1];
