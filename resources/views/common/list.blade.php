@@ -8,6 +8,7 @@
     <title>@yield('title') | {{ Config::get('app.name') }}</title>
     <link rel="stylesheet" type="text/css" href="/static/admin/layui/css/layui.css" />
     <link rel="stylesheet" type="text/css" href="/static/admin/css/admin.css" />
+    <link href="/static/admin/css/bootstrap.min.css" rel="stylesheet">
     <script src="/static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/admin/js/common.js?fsfd=1" type="text/javascript" charset="utf-8"></script>
 </head>

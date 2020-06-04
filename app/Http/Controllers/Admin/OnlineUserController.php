@@ -43,10 +43,22 @@ class OnlineUserController extends Controller
             $data[$key]['address']=$result['addr'];
             $data[$key]['savetime']=date('Y-m-d H:i:s');
         }
-        return view('online.list',['list'=>$data,'input'=>$request->all(),'desk'=>$this->getAllDeskList()]);
+        return view('online.list',['list'=>$data,'input'=>$request->all(),'desk'=>$this->getAllDeskList(),'onlineUserCount'=>count($data),'money'=>$this->getOnlineUserMoney($data)]);
     }
 
+    /**
+     * 获取所有台桌
+     * @return Desk[]|\Illuminate\Database\Eloquent\Collection
+     */
     public function getAllDeskList(){
         return Desk::where('status','=',0)->get();
+    }
+
+    public function getOnlineUserMoney($data){
+        $money = 0;
+        foreach ($data as $key=>$value){
+            $money = $money + $value['balance'];
+        }
+        return $money;
     }
 }

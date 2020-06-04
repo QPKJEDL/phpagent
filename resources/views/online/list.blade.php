@@ -1,7 +1,83 @@
 @section('title', '会员列表')
 @section('header')
+    <div class="wrap-container welcome-container">
+        <div class="row">
+            <div class="welcome-left-container col-lg-9">
+                <div class="data-show">
+                    <ul class="clearfix">
+                        <li class="col-sm-12 col-md-3 col-xs-12">
+                            <a href="javascript:;" class="clearfix">
+                                <div class="icon-bg bg-org f-l">
+                                    <span class="iconfont">&#xe605;</span>
+                                </div>
+                                <div class="right-text-con">
+                                    <p class="name">总人数</p>
+                                    <p><span class="color-org">{{$onlineUserCount}}</span></p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="col-sm-12 col-md-3 col-xs-12">
+                            <a href="javascript:;" class="clearfix">
+                                <div class="icon-bg bg-blue f-l">
+                                    <span class="iconfont">&#xe602;</span>
+                                </div>
+                                <div class="right-text-con">
+                                    <p class="name">电脑版</p>
+                                    <p><span class="color-blue">0</span></p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="col-sm-12 col-md-3 col-xs-12">
+                            <a href="javascript:;" class="clearfix">
+                                <div class="icon-bg bg-green f-l">
+                                    <span class="iconfont">&#xe605;</span>
+                                </div>
+                                <div class="right-text-con">
+                                    <p class="name">苹果版</p>
+                                    <p><span class="color-green">0</span></p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="col-sm-12 col-md-3 col-xs-12">
+                            <a href="javascript:;" class="clearfix">
+                                <div class="icon-bg bg-green f-l">
+                                    <span class="iconfont">&#xe605;</span>
+                                </div>
+                                <div class="right-text-con">
+                                    <p class="name">安卓版</p>
+                                    <p><span class="color-green">0</span></p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="col-sm-12 col-md-3 col-xs-12">
+                            <a href="javascript:;" class="clearfix">
+                                <div class="icon-bg bg-green f-l">
+                                    <span class="iconfont">&#xe605;</span>
+                                </div>
+                                <div class="right-text-con">
+                                    <p class="name">网页版</p>
+                                    <p><span class="color-green">0</span></p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="col-sm-12 col-md-3 col-xs-12">
+                            <a href="javascript:;" class="clearfix">
+                                <div class="icon-bg bg-green f-l">
+                                    <span class="iconfont">&#xe600;</span>
+                                </div>
+                                <div class="right-text-con">
+                                    <p class="name">总金额</p>
+                                    <p><span class="color-green">{{$money}}</span></p>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="layui-inline">
-        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#x1002;</i></button>
+        <button class="layui-btn layui-btn-small layui-btn  -warm freshBtn"><i class="layui-icon">&#x1002;</i></button>
     </div>
     <div class="layui-inline">
         <input type="text" lay-verify="username" value="{{ $input['username'] or '' }}" name="username" placeholder="代理账号" autocomplete="off" class="layui-input">
