@@ -14,4 +14,11 @@ class Game extends Model
         }
         return $data;
     }
+    /**
+     * 获取type等于1的数据
+     */
+    public static function getGameByType(){
+        $data = Game::where('type','=',1)->get();
+        return $data;
+    }
 }

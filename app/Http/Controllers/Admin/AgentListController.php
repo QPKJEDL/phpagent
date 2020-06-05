@@ -328,11 +328,33 @@ class AgentListController extends Controller
     public function agentEdit($id){
         $data = $id?User::find($id):[];
         $data['fee']=json_decode($data['fee'],true);
-        return view('agentList.AgentEdit',['id'=>$id,'info'=>$data]);
+        $data['limit']=json_decode($data['limit'],true);
+        $user =Auth::user();
+        $user['bjlbets_fee']=json_decode($user['bjlbets_fee'],true);
+        $user['lhbets_fee']=json_decode($user['lhbets_fee'],true);
+        $user['nnbets_fee']=json_decode($user['nnbets_fee'],true);
+        return view('agentList.AgentEdit',['id'=>$id,'info'=>$data,'user'=>$user]);
     }
 
     public function saveAgentEdit(StoreRequest $request){
         $id = $request->input('id');
-        dump($request->all());
+        $data = $request->all();
+        unset($data['_token']);
+        unset($data['id']);
+        $data['fee']=json_encode($data['fee']);
+        $data['limit']=json_encode($data['limit']);
+        $data['bjlbets_fee']=json_encode($data['bjlbets_fee']);
+        $data['lhbets_fee']=json_encode($data['lhbets_fee']);
+        $data['nnbets_fee']=json_encode($data['nnbets_fee']);
+        //dump($data);
+        if(!empty($data['is_allow'])){
+            $data['is_allow']=1;
+        }
+        $count = User::where('id',$id)->update($data);
+        if($count){
+            return ['msg'=>'操作成功','status'=>1];
+        }else{
+            return ['msg'=>'操作失败','status'=>0];
+        }
     }
 }

@@ -74,6 +74,7 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/removeAgent','RemoveAgentController');//已删代理
     Route::resource('/removeUser', 'RemoveUserController');//已删会员
     Route::resource('/online','OnlineUserController');//在线玩家
+    Route::resource('/order', 'OrderController');//注单查询
 });
 
 Route::get('/phpinfo',function (Request $request){
