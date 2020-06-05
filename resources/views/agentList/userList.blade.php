@@ -46,7 +46,7 @@
         <tbody>
             @foreach($list as $info)
             <tr>
-                <td class="hidden-xs">{{$info['account']}}</td>
+                <td class="hidden-xs"><a class="a" data-id="{{$info['user_id']}}">{{$info['account']}}</a></td>
                 <td class="hidden-xs">{{$info['nickname']}}</td>
                 <td class="hidden-xs">{{$info['agentName']}}</td>
                 <td class="hidden-xs">{{$info['cz']['score']/100}}</td>
@@ -100,6 +100,17 @@
             $(".reset").click(function(){
                 $("input[name='account']").val('');
                 $("input[name='nickname']").val('');
+            });
+            $(".a").click(function () {
+                var id = $(this).attr('data-id');
+                layer.open({
+                    type:2,
+                    title:'关系结构',
+                    shadeClose:true,
+                    offset:'10%',
+                    area:['30%','50%'],
+                    content:'/admin/agentList/getUserRelation/'+id
+                });
             });
             $(".update").click(function(){
                 var id = $(this).attr('data-id');

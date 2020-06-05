@@ -46,11 +46,17 @@ class AddAgentUserController extends Controller
         $data['bjlbets_fee'] = json_encode($data['bjlbets_fee']);
         $data['lhbets_fee'] = json_encode($data['lhbets_fee']);
         $data['nnbets_fee']= json_encode($data['nnbets_fee']);
+        $data['ancestors']= $this->getUserAncestors($data['parent_id']);
         $count = User::insert($data);
         if($count){
             return ['msg'=>'操作成功！','status'=>1];
         }else{
             return ['msg'=>'操作失败！','status'=>0];
         }
+    }
+
+    public function getUserAncestors($parentId){
+        $info = $parentId?User::find($parentId):[];
+        return $info['parent_id'].','.$parentId;
     }
 }

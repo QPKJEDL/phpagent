@@ -357,4 +357,41 @@ class AgentListController extends Controller
             return ['msg'=>'操作失败','status'=>0];
         }
     }
+
+    /**
+     * 代理结构关系
+     * @param $id
+     * @return Factory|Application|View
+     */
+    public function getRelationalStruct($id){
+        $info = $id?User::find($id):[];
+        $arr = array();
+        if ($info['parent_id']!=0){
+            $data = explode(",",$info['ancestors']);
+            unset($data[0]);
+            foreach ($data as $key=>$value){
+                $a = $value?User::find($value):[];
+                $arr[] = $a;
+            }
+        }
+        return view('agentList.agentRelation',['info'=>$info,'parent'=>$arr]);
+    }
+
+    public function getUserRelational($id){
+        $info = $id?HqUser::find($id):[];
+        $info['creatime']=date('Y-m-d H:i:s',$info['creatime']);
+        $arr = array();
+        //获得上级代理
+        $agent = $info['agent_id']?User::find($info['agent_id']):[];
+        $arr[]=$agent;
+        if ($agent['parent_id']!=0){
+            $data = explode(',',$info['ancestors']);
+            unset($data[0]);
+            foreach ($data as $key=>$value){
+                $a = $value?User::find($value):[];
+                $arr[] = $a;
+            }
+        }
+        return view('agentList.userRelation',['info'=>$info,'parent'=>$arr]);
+    }
 }

@@ -45,7 +45,7 @@
         <tbody>
         @foreach($list as $info)
             <tr>
-                <td class="hidden-xs">{{$info['username']}}</td>
+                <td class="hidden-xs"><a class="a" data-id="{{$info['id']}}">{{$info['username']}}</a></td>
                 <td class="hidden-xs">{{$info['nickname']}}</td>
                 <td class="hidden-xs">{{$info['balance']/100}}</td>
                 <td class="hidden-xs">{{$info['groupBalance']/100}}</td>
@@ -90,6 +90,17 @@
                 element = layui.element;
             ;
             laydate({istoday: true});
+            $(".a").click(function () {
+                var id = $(this).attr('data-id');
+                layer.open({
+                    type:2,
+                    title:'结构关系',
+                    shadeClose:true,
+                    offset:'10%',
+                    area:['30%','50%'],
+                    content:'/admin/agentList/getRelationalStruct/'+id
+                });
+            });
             //下级用户
             $(".user").click(function(){
                 var id = $(this).attr('data-id');

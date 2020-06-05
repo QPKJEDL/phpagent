@@ -59,6 +59,8 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::post('/agentList/changeUserStatus','AgentListController@changeUserStatus');//用户停用启用
     Route::get('/agentList/user/{id}','AgentListController@user');//下级会员
     Route::get('/agentList/agent/{id}','AgentListController@getAgentChildren');//下级代理
+    Route::get('/agentList/getRelationalStruct/{id}','AgentListController@getRelationalStruct');//代理结构关系
+    Route::get('/agentList/getUserRelation/{id}','AgentListController@getUserRelational');//用户结构关系
     Route::get('/agentList/resetAgentPwd/{id}','AgentListController@agentPasswordEdit');//代理修改密码界面
     Route::post('/agentList/saveAgentPwd','AgentListController@resetAgentPwd');//保存代理密码修改
     Route::get('/agentList/resetPwd/{id}','AgentListController@resetPwd');//修改会员密码界面
