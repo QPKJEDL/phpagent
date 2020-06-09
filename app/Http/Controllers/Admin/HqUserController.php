@@ -27,7 +27,7 @@ class HqUserController extends Controller
         }
         $data = $sql->paginate(10)->appends($request->all());
         foreach($data as $key=>$value){
-            $data[$key]['online']=$this->getUserOnline($value['user_id']);
+            //$data[$key]['online']=$this->getUserOnline($value['user_id']);
             $data[$key]['cz']=$this->getUserCzCord($value['user_id']);
             $data[$key]['fee']=json_decode($value['fee'],true);
             $data[$key]['creatime']=date('Y-m-d H:i:s');

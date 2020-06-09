@@ -55,7 +55,7 @@
                 <td class="hidden-xs">{{$info['creatime']}}</td>
                 <td class="hidden-xs">{{$info['last_ip']}}</td>
                 <td class="hidden-xs">
-                    @if($info['online']==1)
+                    @if($info['is_online']==1)
                         <span style="color: green;">在线</span>
                     @else
                         离线

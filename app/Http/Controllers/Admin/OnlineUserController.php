@@ -43,7 +43,7 @@ class OnlineUserController extends Controller
             $data[$key]['address']=$result['addr'];
             $data[$key]['savetime']=date('Y-m-d H:i:s');
         }
-        return view('online.list',['list'=>$data,'input'=>$request->all(),'desk'=>$this->getAllDeskList(),'onlineUserCount'=>count($data),'money'=>$this->getOnlineUserMoney($data)]);
+        return view('online.list',['list'=>$data,'input'=>$request->all(),'desk'=>$this->getAllDeskList(),'onlineUserCount'=>count($data),'money'=>$this->getOnlineUserMoney($data)/100,'pc'=>$this->getOnlineCount($data,1),'ios'=>$this->getOnlineCount($data,2),'android'=>$this->getOnlineCount($data,3),'h5'=>$this->getOnlineCount($data,4)]);
     }
 
     /**
@@ -54,11 +54,26 @@ class OnlineUserController extends Controller
         return Desk::where('status','=',0)->get();
     }
 
+    /**
+     * 获取在线用户金额
+     * @param $data
+     * @return int
+     */
     public function getOnlineUserMoney($data){
         $money = 0;
         foreach ($data as $key=>$value){
             $money = $money + $value['balance'];
         }
         return $money;
+    }
+
+    public function getOnlineCount($data,$type){
+        $count = 0;
+        foreach ($data as $key=>$datum){
+            if($datum['online_type']==$type){
+                $count = $count + 1;
+            }
+        }
+        return $count;
     }
 }

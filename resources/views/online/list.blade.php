@@ -23,7 +23,7 @@
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">电脑版</p>
-                                    <p><span class="color-blue">0</span></p>
+                                    <p><span class="color-blue">{{$pc}}</span></p>
                                 </div>
                             </a>
                         </li>
@@ -34,7 +34,7 @@
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">苹果版</p>
-                                    <p><span class="color-green">0</span></p>
+                                    <p><span class="color-green">{{$ios}}</span></p>
                                 </div>
                             </a>
                         </li>
@@ -45,7 +45,7 @@
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">安卓版</p>
-                                    <p><span class="color-green">0</span></p>
+                                    <p><span class="color-green">{{$android}}</span></p>
                                 </div>
                             </a>
                         </li>
@@ -56,7 +56,7 @@
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">网页版</p>
-                                    <p><span class="color-green">0</span></p>
+                                    <p><span class="color-green">{{$h5}}</span></p>
                                 </div>
                             </a>
                         </li>
