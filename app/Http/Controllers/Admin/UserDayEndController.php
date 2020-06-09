@@ -22,6 +22,10 @@ class UserDayEndController extends Controller
         }else{
             $tableName = date('Ymd',time());
         }
+        if (true==$request->has('account')){
+            $info = HqUser::where('account','=',$request->input('account'))->first();
+            $map['user.user_id']=$info['user_id'];
+        }
         $order = new Order();
         $order->setTable('order_'.$tableName);
         $sql = $order->leftJoin('user','user.user_id','=','order_'.$tableName.'.user_id')

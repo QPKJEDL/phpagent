@@ -6,9 +6,9 @@
     <div class="layui-inline">
         <input class="layui-input" lay-verify="begin" name="begin" placeholder="日期" onclick="layui.laydate({elem: this, festival: true,min:'{{$min}}'})" value="{{ $input['begin'] or '' }}" autocomplete="off">
     </div>
-    <div class="layui-inline">
+    {{--<div class="layui-inline">
         <input type="text" lay-verify="account" value="{{ $input['account'] or '' }}" name="account" placeholder="游戏类型" autocomplete="off" class="layui-input">
-    </div>
+    </div>--}}
     <div class="layui-inline">
         <input type="text" lay-verify="account" value="{{ $input['account'] or '' }}" name="account" placeholder="会员账号" autocomplete="off" class="layui-input">
     </div>
@@ -87,8 +87,7 @@
             laydate({istoday: true});
             $(".reset").click(function(){
                 $("input[name='begin']").val('');
-                $("select[name='desk_id']").val(''); 
-                $("input[name='boot']").val('');
+                $("input[name='account']").val('');
             });
             $(".dayInfo").click(function () {
                 var id = $(this).attr('data-id');
