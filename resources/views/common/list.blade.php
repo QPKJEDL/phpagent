@@ -8,9 +8,12 @@
     <title>@yield('title') | {{ Config::get('app.name') }}</title>
     <link rel="stylesheet" type="text/css" href="/static/admin/layui/css/layui.css" />
     <link rel="stylesheet" type="text/css" href="/static/admin/css/admin.css" />
-    <link href="/static/admin/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/jquery.treetable.css">
+    <link rel="stylesheet" type="text/css" href="/static/admin/css/jquery.treetable.theme.default.css">
     <script src="/static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/admin/js/common.js?fsfd=1" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/admin/js/jquery-2.1.1.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/admin/js/jquery.treetable.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
 <div class="wrap-container clearfix">

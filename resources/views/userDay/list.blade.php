@@ -49,18 +49,22 @@
         <tbody>
         @foreach($list as $info)
             <tr>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
-                <td class="hidden-xs"></td>
+                <td class="hidden-xs">全部</td>
+                <td class="hidden-xs">{{$info['nickname']}}</td>
+                <td class="hidden-xs">{{$info['account']}}</td>
+                <td class="hidden-xs">{{$info['balance']/100}}</td>
+                <td class="hidden-xs">{{$info['betCount']}}</td>
+                <td class="hidden-xs">{{$info['betMoney']/100}}</td>
+                <td class="hidden-xs">{{$info['betCode']/100}}</td>
+                <td class="hidden-xs">{{$info['money']/100}}</td>
+                <td class="hidden-xs">0.00</td>
+                <td class="hidden-xs">{{$info['maid']/100}}</td>
+                <td class="hidden-xs">0.00</td>
+                <td class="hidden-xs">
+                    <div class="layui-inline">
+                        <button class="layui-btn layui-btn-small dayInfo" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">详情</i></button>
+                    </div>
+                </td>
             </tr>
         @endforeach
         @if(!$list[0])
@@ -85,6 +89,26 @@
                 $("input[name='begin']").val('');
                 $("select[name='desk_id']").val(''); 
                 $("input[name='boot']").val('');
+            });
+            $(".dayInfo").click(function () {
+                var id = $(this).attr('data-id');
+                var name = $(this).attr('data-name');
+                var creatTime = $("input[name='begin']").val();
+                var time;
+                if(creatTime=="" || creatTime==null){
+                    time = new Date().toLocaleDateString().split("/").join('-');
+                }else{
+                    time = creatTime;
+                }
+                var index = layer.open({
+                    type:2,
+                    title:name+'下注详情',
+                    shadeClose:true,
+                    offset:'10%',
+                    area:['60%','80%'],
+                    content:'/admin/userOrderList/' + id + '/'+time
+                });
+                layer.full(index);
             });
             form.render();
             form.on('submit(formDemo)', function(data) {

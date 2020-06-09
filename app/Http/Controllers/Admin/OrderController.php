@@ -64,7 +64,51 @@ class OrderController extends Controller
         return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>$min]);
     }
 
+    public function getOrderListByUserId($id,$time,Request $request){
+        $request->offsetSet('begin',$time);
+        $tableName = date('Ymd',strtotime($time));
+        $map = array();
+        $map['user_id']=$id;
+        if(true==$request->has('desk_id')){
+            $map['desk_id']=$request->input('desk_id');
+        }
+        if(true==$request->has('type')){
+            $map['game_type']=$request->input('type');
+        }
+        if(true==$request->has('status')){
+            $map['status']=$request->input('status');
+        }
+        $order = new Order();
+        $order->setTable('order_'.$tableName);
+        $data = $order->where($map)->paginate(10)->appends($request->all());
+        foreach($data as $key=>&$value){
+            $data[$key]['creatime']=date('Y-m-d H:m:s',$value['creatime']);
+            $data[$key]['bill']=Billflow::getBillflowByOrderSn($value['order_sn'],$tableName);
+            $data[$key]['user']=HqUser::getUserInfoByUserId($value['user_id']);
+            //下注金额
+            $data[$key]['money']=$this->getMoney($value['bet_money']);
+            //获取表名
+            $tableName=$this->getGameRecordTableNameByRecordSn($value['record_sn']);
+            $winner = $this->getGameRecordInfo($tableName,$value['record_sn']);
+            if($data[$key]['game_type']==1){
+                $data[$key]['result']=$this->getBaccaratParseJson($winner);
+                $data[$key]['bet_money']=$this->getBaccaratBetMoney($value['bet_money']);
+            }else if($data[$key]['game_type']==2){
+                $data[$key]['result']=$this->getDragonTigerJson($winner);
+                $data[$key]['bet_money']=$this->getDragonTieTiger($value['bet_money']);
+            }else if($data[$key]['game_type']==3){
+                $data[$key]['result']=$this->getFullParseJson($winner);
+                $data[$key]['bet_money'] = $this->getNiuNiuBetMoney($value['bet_money']);
+            }else if($data[$key]['game_type']==4){
 
+            }else{
+                $data[$key]['bet_money']=$this->getA89BetMoney($value['bet_money']);
+            }
+        }
+        //dump($data);
+        $min=config('admin.min_date');
+        return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>$min]);
+    }
     /**
      * 获取所有台桌
      */
