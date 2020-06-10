@@ -182,6 +182,9 @@ class AgentListController extends Controller
 
     /**
      * 下级会员列表
+     * @param $id
+     * @param Request $request
+     * @return Factory|Application|View
      */
     public function user($id,Request $request){
         $map = array();
