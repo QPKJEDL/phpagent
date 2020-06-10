@@ -202,7 +202,6 @@ class AgentListController extends Controller
             $data[$key]['fee']=json_decode($data[$key]['fee'],true);
             $data[$key]['creatime']=date('Y-m-d H:i:s',$value['creatime']);
         }
-        //dump($data);
         return view('agentList.userList',['list'=>$data,'input'=>$request->all()]);
     }
 

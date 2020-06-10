@@ -75,7 +75,7 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        Log::addLogs(trans('fzs.login.login_info'),'/admin/login',$user->id);
+        Log::addLogs(trans('fzs.login.login_info'),'/admin/login',$user->id,$request->ip());
         return $this->oriAuthenticated($request, $user);
     }
 

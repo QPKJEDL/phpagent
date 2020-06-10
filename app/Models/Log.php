@@ -3,14 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+
 class Log extends Model
 {
-    protected $table = 'admin_logs';
+    protected $table = 'agent_logs';
     public function user()
     {
         return $this->hasOne(config('auth.providers.users.model'), 'id', 'admin_id');
     }
-    public static function addLogs($content,$url,$id = ''){
+    public static function addLogs($content,$url,$id = '',$ip){
         if(!$id){
             $admin = new Admin();
             $id = $admin->userId();
@@ -19,7 +21,7 @@ class Log extends Model
             'admin_id'=>$id,
             'log_info'=>$content,
             'log_url'=>$url,
-            'log_ip'=>$_SERVER['REMOTE_ADDR'],
+            'log_ip'=>$ip,
             'log_time'=>date('Y-m-d H:i:s',time()),
             'type'=>1,
         ];
