@@ -45,6 +45,12 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">占股率：</label>
+        <div class="layui-input-inline">
+            <input type="number" name="proportion" lay-verify="proportion" autocomplete="off" data-value="{{$info['proportion']}}" value="{{$info['proportion']}}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label">最小限红：</label>
             <div class="layui-input-block">
@@ -216,7 +222,12 @@
                 ,$ = layui.jquery;
             form.render();
             form.verify({
-                
+                proportion:function (value) {
+                    var v = $("input[name='proportion']").attr('data-value');
+                    if (value>v && value<0){
+                        return '请重新输入，格式错误'
+                    }
+                }
             });
             form.on('submit(formDemo)', function(data) {
                 var data = $('form').serializeArray();

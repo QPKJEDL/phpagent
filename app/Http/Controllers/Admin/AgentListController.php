@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRequest;
+use App\Models\AgentProportion;
 use App\Models\Czrecord;
 use App\Models\HqUser;
 use App\Models\User;
@@ -348,12 +349,16 @@ class AgentListController extends Controller
         $data['bjlbets_fee']=json_encode($data['bjlbets_fee']);
         $data['lhbets_fee']=json_encode($data['lhbets_fee']);
         $data['nnbets_fee']=json_encode($data['nnbets_fee']);
-        //dump($data);
+        //获取修改前的日志
+        $info = $id?User::find($id):[];
         if(!empty($data['is_allow'])){
             $data['is_allow']=1;
         }
         $count = User::where('id',$id)->update($data);
         if($count){
+            if ($info['proportion']!=$data['proportion']){
+                AgentProportion::insertAgentProportionLog($id,$data['proportion'],$info['proportion']);
+            }
             return ['msg'=>'操作成功','status'=>1];
         }else{
             return ['msg'=>'操作失败','status'=>0];

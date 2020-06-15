@@ -163,7 +163,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">占股率：</label>
         <div class="layui-input-inline">
-            <input type="number" name="proportion" readonly lay-verify="title" autocomplete="off" value="0" class="layui-input">
+            <input type="number" name="proportion" lay-verify="title" autocomplete="off" value="0" class="layui-input">
         </div>
         <div class="layui-form-mid layui-word-aux">小于或等于所属代理的占股率(%)。默认:0</div>
     </div>
