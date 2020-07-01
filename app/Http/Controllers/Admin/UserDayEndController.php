@@ -100,12 +100,12 @@ class UserDayEndController extends Controller
                 }
             }
         }
-        if ($sql=="" || $sql==null){
+        if ($sql!="" || $sql!=null){
             if (true==$request->has('account')){
                 $dataSql = 'select t1.user_id,sum(t1.get_money) as getMoney,count(t1.user_id) as `count`,u.nickname,u.account,ua.balance from ( select * from ('.$sql.') t where t.creatime between '.$begin.' and '.$endTime.' ) t1 
         left join hq_user u on t1.user_id = u.user_id
         left join hq_user_account ua on ua.user_id = u.user_id
-        where u.account = "'.$request->input('account').'"
+        where u.account = "'.$request->input('account').'" and u.agent_id = '.Auth::id().'
         group by t1.user_id
         LIMIT '.(($curr - 1) * 10).',10
         ';
@@ -113,18 +113,20 @@ class UserDayEndController extends Controller
                 $dataPages = 'select t1.user_id,sum(t1.get_money) as getMoney,count(t1.user_id) as `count`,u.nickname,u.account,ua.balance from ( select * from ('.$sql.') t where t.creatime between '.$begin.' and '.$endTime.' ) t1 
         left join hq_user u on t1.user_id = u.user_id
         left join hq_user_account ua on ua.user_id = u.user_id
-        where u.account = "'.$request->input('account').'"
+        where u.account = "'.$request->input('account').'" and u.agent_id = '.Auth::id().'
         group by t1.user_id';
             }else{
                 $dataSql = 'select t1.user_id,sum(t1.get_money) as getMoney,count(t1.user_id) as `count`,u.nickname,u.account,ua.balance from ( select * from ('.$sql.') t where t.creatime between '.$begin.' and '.$endTime.' ) t1 
         left join hq_user u on t1.user_id = u.user_id
         left join hq_user_account ua on ua.user_id = u.user_id
+        where u.agent_id = '.Auth::id().'
         group by t1.user_id
         LIMIT '.(($curr - 1) * 10).',10
         ';
                 $dataPages = 'select t1.user_id,sum(t1.get_money) as getMoney,count(t1.user_id) as `count`,u.nickname,u.account,ua.balance from ( select * from ('.$sql.') t where t.creatime between '.$begin.' and '.$endTime.' ) t1 
         left join hq_user u on t1.user_id = u.user_id
         left join hq_user_account ua on ua.user_id = u.user_id
+        where u.agent_id = '.Auth::id().'
         group by t1.user_id';
             }
             $pages = Db::select($dataPages);
