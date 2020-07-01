@@ -332,10 +332,17 @@ class AgentListController extends Controller
         $data = $id?User::find($id):[];
         $data['fee']=json_decode($data['fee'],true);
         $data['limit']=json_decode($data['limit'],true);
+        $data['bjlbets_fee'] = json_decode($data['bjlbets_fee'],true);
+        $data['lhbets_fee'] = json_decode($data['lhbets_fee'],true);
+        $data['nnbets_fee']=json_decode($data['nnbets_fee'],true);
+        $data['sgbets_fee']=json_decode($data['sgbets_fee'],true);
+        $data['a89bets_fee']=json_decode($data['a89bets_fee'],true);
         $user =Auth::user();
         $user['bjlbets_fee']=json_decode($user['bjlbets_fee'],true);
         $user['lhbets_fee']=json_decode($user['lhbets_fee'],true);
         $user['nnbets_fee']=json_decode($user['nnbets_fee'],true);
+        $user['sgbets_fee'] = json_decode($user['sgbets_fee'],true);
+        $user['a89bets_fee'] = json_decode($user['a89bets_fee'],true);
         return view('agentList.AgentEdit',['id'=>$id,'info'=>$data,'user'=>$user]);
     }
 

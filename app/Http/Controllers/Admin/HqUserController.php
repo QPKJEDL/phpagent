@@ -25,7 +25,7 @@ class HqUserController extends Controller
         if(true ==$request->has('nickname')){
             $sql->where('user.nickname','like','%'.$request->input('nickname').'%');
         }
-        $data = $sql->paginate(10)->appends($request->all());
+        $data = $sql->paginate(1)->appends($request->all());
         foreach($data as $key=>$value){
             //$data[$key]['online']=$this->getUserOnline($value['user_id']);
             $data[$key]['cz']=$this->getUserCzCord($value['user_id']);

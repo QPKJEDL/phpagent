@@ -5,7 +5,7 @@
             <div class="welcome-left-container col-lg-9">
                 <div class="data-show">
                     <ul class="clearfix">
-                        <li class="col-sm-12 col-md-3 col-xs-12">
+                        <li class="col-sm-2 col-md-3 col-xs-2">
                             <a href="javascript:;" class="clearfix">
                                 <div class="icon-bg bg-org f-l">
                                     <span class="iconfont">&#xe605;</span>
@@ -16,7 +16,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="col-sm-12 col-md-3 col-xs-12">
+                        <li class="col-sm-2 col-md-3 col-xs-2">
                             <a href="javascript:;" class="clearfix">
                                 <div class="icon-bg bg-blue f-l">
                                     <span class="iconfont">&#xe602;</span>
@@ -27,7 +27,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="col-sm-12 col-md-3 col-xs-12">
+                        <li class="col-sm-2 col-md-3 col-xs-2">
                             <a href="javascript:;" class="clearfix">
                                 <div class="icon-bg bg-green f-l">
                                     <span class="iconfont">&#xe605;</span>
@@ -38,7 +38,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="col-sm-12 col-md-3 col-xs-12">
+                        <li class="col-sm-2 col-md-3 col-xs-2">
                             <a href="javascript:;" class="clearfix">
                                 <div class="icon-bg bg-green f-l">
                                     <span class="iconfont">&#xe605;</span>
@@ -49,7 +49,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="col-sm-12 col-md-3 col-xs-12">
+                        <li class="col-sm-2 col-md-3 col-xs-2">
                             <a href="javascript:;" class="clearfix">
                                 <div class="icon-bg bg-green f-l">
                                     <span class="iconfont">&#xe605;</span>
@@ -60,7 +60,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="col-sm-12 col-md-3 col-xs-12">
+                        <li class="col-sm-2 col-md-3 col-xs-2">
                             <a href="javascript:;" class="clearfix">
                                 <div class="icon-bg bg-green f-l">
                                     <span class="iconfont">&#xe600;</span>

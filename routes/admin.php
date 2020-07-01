@@ -78,7 +78,7 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/online','OnlineUserController');//在线玩家
     Route::resource('/order', 'OrderController');//注单查询
     Route::resource('/userDay','UserDayEndController');//会员日结表
-    Route::get('/userOrderList/{id}','UserDayEndController@infoList');//下注详情
+    Route::get('/userOrderList/{id}/{begin}/{end}','OrderController@getOrderListByUserId');//下注详情
 });
 
 Route::get('/phpinfo',function (Request $request){

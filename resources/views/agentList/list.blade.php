@@ -49,7 +49,7 @@
                 <td class="hidden-xs">{{$info['nickname']}}</td>
                 <td class="hidden-xs">{{$info['balance']/100}}</td>
                 <td class="hidden-xs">{{$info['groupBalance']/100}}</td>
-                <td class="hidden-xs">{{$info['fee']['baccarat']}}%/{{$info['fee']['dragonTiger']}}%/{{$info['fee']['niuniu']}}%/{{$info['fee']['sangong']}}%/{{$info['fee']['A89']}}%</td>
+                <td class="hidden-xs">{{$info['fee']['baccarat']}}/{{$info['fee']['dragonTiger']}}/{{$info['fee']['niuniu']}}/{{$info['fee']['sangong']}}/{{$info['fee']['A89']}}</td>
                 <td class="hidden-xs">{{$info['proportion']}}%</td>
                 <td class="hidden-xs">{{$info['created_at']}}</td>
                 <td class="hidden-xs">

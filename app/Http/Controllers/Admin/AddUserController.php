@@ -59,11 +59,20 @@ class AddUserController extends Controller
                 $nn['Double']=$data['nnbets_fee']['Double']*100;
                 $nn['SuperDouble']=$data['nnbets_fee']['SuperDouble']*100;
                 $data['nnbets_fee']=json_encode($nn);
+                $sg['Equal']=$data['sgbets_fee']['Equal']*100;
+                $sg['Double']=$data['sgbets_fee']['Double']*100;
+                $sg['SuperDouble'] = $data['sgbets_fee']['SuperDouble']*100;
+                $data['sgbets_fee']=json_encode($sg);
+                $a89['Equal'] = $data['a89bets_fee']['Equal']*100;
+                $a89['Double']=97;
+                $a89['SuperDouble'] = $data['a89bets_fee']['SuperDouble'] * 100;
+                $data['a89bets_fee']=json_encode($a89);
                 if (!empty($data['is_show'])){
                     $data['is_show']=1;
                 }
                 $data['creatime']=time();
                 $data['savetime']=$data['creatime'];
+                $data['user_type']=1;
                 $count = HqUser::insert($data);
                 if($count){
                     return ['msg'=>'操作成功','status'=>1];
