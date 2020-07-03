@@ -14,6 +14,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class OrderController extends Controller
@@ -125,71 +126,79 @@ class OrderController extends Controller
         return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'curr'=>$curr,'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>$min,'pages'=>ceil(count($count)/10)]);
     }
 
-    public function getOrderListByUserId($id,$begin,$end,Request $request)
-    {
+    public function getOrderListByUserId($id,$begin,$end,Request $request){
+        $request->offsetSet('begin',$begin);
+        $request->offsetSet('end',$end);
         if (true==$request->has('pageNum')){
             $curr = $request->input('pageNum');
         }else{
-            $curr = 1;
+            $curr =1;
         }
-        $sql = "";
         $dateArr = $this->getDateTimePeriodByBeginAndEnd($begin,$end);
-        for ($i=0;$i<count($dateArr);$i++){
-            if ($sql==""){
-                $sql = "select * from hq_order_".$dateArr[$i].' where user_id='.$id;
-            }else{
-                $sql = $sql.' union all select * from hq_order_'.$dateArr[$i].' where user_id='.$id;
-            }
-            if (true==$request->has('desk_id')){
-                $sql = $sql.' and desk_id ='.$request->input('desk_id');
-            }
-            if (true==$request->has('type')){
-                $sql = $sql.' and game_type='.$request->input('type');
-            }
-            if (true==$request->has('status')){
-                $sql = $sql.' and status='.$request->input('status');
-            }
-            if (true==$request->has('boot_num')){
-                $sql = $sql.' and boot_num='.$request->input('boot_num');
-            }
-            if (true==$request->has('pave_num')){
-                $sql = $sql.' and pave_num='.$request->input('pave_num');
-            }
-            if (true==$request->has('orderSn')){
-                $sql = $sql.' and order_sn='.$request->input('orderSn');
+        $sql ='';
+        for ($i=0;$i<count($dateArr);$i++)
+        {
+            if (Schema::hasTable('order_'.$dateArr[$i])){
+                if ($sql==""){
+                    $sql = "select * from hq_order_".$dateArr[$i].' where user_id='.$id;
+                }else{
+                    $sql = $sql.' union all select * from hq_order_'.$dateArr[$i].' where user_id='.$id;
+                }
+                if (true==$request->has('desk_id')){
+                    $sql = $sql.' and desk_id ='.$request->input('desk_id');
+                }
+                if (true==$request->has('type')){
+                    $sql = $sql.' and game_type='.$request->input('type');
+                }
+                if (true==$request->has('status')){
+                    $sql = $sql.' and status='.$request->input('status');
+                }
+                if (true==$request->has('boot_num')){
+                    $sql = $sql.' and boot_num='.$request->input('boot_num');
+                }
+                if (true==$request->has('pave_num')){
+                    $sql = $sql.' and pave_num='.$request->input('pave_num');
+                }
+                if (true==$request->has('orderSn')){
+                    $sql = $sql.' and order_sn='.$request->input('orderSn');
+                }
             }
         }
-        $dataSql = 'select * from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end).' limit '.(($curr-1) *10).',10';
-        $countSql = 'select id from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end);
-        $count = DB::select($countSql);
-        $data = DB::select($dataSql);
-        foreach ($data as $key=>$value){
-            $data[$key]->user = HqUser::getUserInfoByUserId($value->user_id);
-            $data[$key]->money = $this->getSumBetMoney($value);
-            //获取表名
-            $tableName = $this->getGameRecordTableNameByRecordSn($value->record_sn);
-            $winner = $this->getGameRecordInfo($tableName,$value->record_sn);
-            $data[$key]->bill=Billflow::getBillflowByOrderSn($value->order_sn,$tableName);
-            if ($data[$key]->game_type==1){
-                $data[$key]->result=$this->getBaccaratParseJson($winner);
-                $data[$key]->bet_money=$this->getBaccaratBetMoney($value->bet_money);
-            }else if($data[$key]->game_type==2){
-                $data[$key]->result=$this->getDragonTigerJson($winner);
-                $data[$key]->bet_money=$this->getDragonTieTiger($value->bet_money);
-            }else if($data[$key]->game_type==3){
-                $data[$key]->result=$this->getFullParseJson($winner);
-                $data[$key]->bet_money=$this->getNiuNiuBetMoney($value->bet_money);
-            }else if($data[$key]->game_type==4){
-                $data[$key]->result = $this->getSanGongResult($winner);
-                $data[$key]->bet_money=$this->getSanGongMoney($value->bet_money);
-            }else if($data[$key]->game_type==5){
-                $data[$key]->result=$this->getA89Result($winner);
-                $data[$key]->bet_money=$this->getA89BetMoney($value->bet_money);
+        if ($sql!='' || $sql!=null){
+            $dataSql = 'select * from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end).' limit '.(($curr-1) * 10).',10';
+            $countSql = 'select * from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end);
+            $count = DB::select($countSql);
+            $data = DB::select($dataSql);
+            foreach ($data as $key=>$value){
+                $data[$key]->user = HqUser::getUserInfoByUserId($value->user_id);
+                $data[$key]->money = $this->getSumBetMoney($value);
+                //获取表名
+                $tableName = $this->getGameRecordTableNameByRecordSn($value->record_sn);
+                $winner = $this->getGameRecordInfo($tableName,$value->record_sn);
+                $data[$key]->bill=Billflow::getBillflowByOrderSn($value->order_sn,$tableName);
+                if ($data[$key]->game_type==1){
+                    $data[$key]->result=$this->getBaccaratParseJson($winner);
+                    $data[$key]->bet_money=$this->getBaccaratBetMoney($value->bet_money);
+                }else if($data[$key]->game_type==2){
+                    $data[$key]->result=$this->getDragonTigerJson($winner);
+                    $data[$key]->bet_money=$this->getDragonTieTiger($value->bet_money);
+                }else if($data[$key]->game_type==3){
+                    $data[$key]->result=$this->getFullParseJson($winner);
+                    $data[$key]->bet_money=$this->getNiuNiuBetMoney($value->bet_money);
+                }else if($data[$key]->game_type==4){
+                    $data[$key]->result = $this->getSanGongResult($winner);
+                    $data[$key]->bet_money=$this->getSanGongMoney($value->bet_money);
+                }else if($data[$key]->game_type==5){
+                    $data[$key]->result=$this->getA89Result($winner);
+                    $data[$key]->bet_money=$this->getA89BetMoney($value->bet_money);
+                }
+                $data[$key]->creatime = date('Y-m-d H:i:s',$value->creatime);
             }
-            $data[$key]->creatime = date('Y-m-d H:i:s',$value->creatime);
+            return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'curr'=>$curr,'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>config('admin.min_date'),'pages'=>ceil(count($count)/10)]);
+        }else{
+            $data=array();
+            return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'curr'=>$curr,'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>config('admin.min_date'),'pages'=>1]);
         }
-        $min = config('admin.min_date');
-        return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'curr'=>$curr,'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>$min,'pages'=>ceil(count($count)/10)]);
     }
     /**
      * 根据开始时间结束时间获取中间得时间段

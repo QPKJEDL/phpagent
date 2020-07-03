@@ -79,6 +79,9 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/order', 'OrderController');//注单查询
     Route::resource('/userDay','UserDayEndController');//会员日结表
     Route::get('/userOrderList/{id}/{begin}/{end}','OrderController@getOrderListByUserId');//下注详情
+    Route::resource('/agentDay','AgentDayController');//代理日结
+    Route::get('/agentDays/{id}/{begin}/{end}','AgentDayController@getIndexByParentId');//下级代理日结
+    Route::get('/userDays/{id}/{begin}/{end}','UserDayEndController@getUserDayEndByAgentId');//下级会员日结
 });
 
 Route::get('/phpinfo',function (Request $request){
