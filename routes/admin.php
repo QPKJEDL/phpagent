@@ -70,6 +70,7 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::post('/checkUniqueUserName', 'AddAgentUserController@checkUnique');//添加代理效验账号是否存在
     Route::resource('/addUser',             'AddUserController');//添加会员
     Route::resource('/hqUser',          'HqUserController');//会员列表
+    Route::post('/hqUser/userUpdate','HqUserController@userUpdate');//会员编辑保存
     Route::get('/hqUser/czCord/{id}',   'HqUserController@czCord');//在线充值提现界面
     Route::resource('/draw','DrawController');//会员提现查询
     Route::resource('/czrecord','CzController');//会员充值查询

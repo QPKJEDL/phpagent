@@ -295,7 +295,18 @@ class AgentListController extends Controller
     public function userEdit($id){
         $user = $id?HqUser::find($id):[];
         $user['fee'] = json_decode($user['fee'],true);
-        return view('agentList.edit',['id'=>$id,'info'=>$user]);
+        $user['nnbets_fee'] = json_decode($user['nnbets_fee'],true);
+        $user['lhbets_fee'] = json_decode($user['lhbets_fee'],true);
+        $user['bjlbets_fee'] = json_decode($user['bjlbets_fee'],true);
+        $user['a89bets_fee'] = json_decode($user['a89bets_fee'],true);
+        $user['sgbets_fee'] = json_decode($user['sgbets_fee'],true);
+        $agent = Auth::user();
+        $agent['nnbets_fee'] = json_decode($agent['nnbets_fee'],true);
+        $agent['lhbets_fee'] = json_decode($agent['lhbets_fee'],true);
+        $agent['bjlbets_fee'] = json_decode($agent['bjlbets_fee'],true);
+        $agent['a89bets_fee'] = json_decode($agent['a89bets_fee'],true);
+        $agent['sgbets_fee'] = json_decode($agent['sgbets_fee'],true);
+        return view('agentList.edit',['id'=>$id,'info'=>$user,'user'=>$agent]);
     }
 
     public function agentPasswordEdit($id){

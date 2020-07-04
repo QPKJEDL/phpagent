@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreRequest;
 use App\Models\Czrecord;
 use App\Models\HqUser;
 use App\Models\UserAccount;
@@ -25,7 +26,7 @@ class HqUserController extends Controller
         if(true ==$request->has('nickname')){
             $sql->where('user.nickname','like','%'.$request->input('nickname').'%');
         }
-        $data = $sql->paginate(1)->appends($request->all());
+        $data = $sql->paginate(10)->appends($request->all());
         foreach($data as $key=>$value){
             //$data[$key]['online']=$this->getUserOnline($value['user_id']);
             $data[$key]['cz']=$this->getUserCzCord($value['user_id']);
@@ -59,5 +60,45 @@ class HqUserController extends Controller
         $data = $userId?HqUser::find($userId):[];
         $userAccount = UserAccount::getUserAccountInfo($userId);
         return view('hquser.edit',['user'=>Auth::user(),'info'=>$data,'id'=>$userId,'balance'=>$userAccount['balance']]);
+    }
+
+    public function userUpdate(StoreRequest $request){
+        $data = $request->all();
+        $id = $data['id'];
+        unset($data['_token']);
+        unset($data['id']);
+        $bjl['player']=(int)$data['bjlbets_fee']['player'] * 100;
+        $bjl['playerPair']=(int)$data['bjlbets_fee']['playerPair'] * 100;
+        $bjl['tie']=(int)$data['bjlbets_fee']['tie'] * 100;
+        $bjl['banker']=(int)$data['bjlbets_fee']['banker'] *100;
+        $bjl['bankerPair']=(int)$data['bjlbets_fee']['bankerPair'] * 100;
+        $data['bjlbets_fee']=json_encode($bjl);
+        $lh['dragon']=(int)$data['lhbets_fee']['dragon'] * 100;
+        $lh['tie']=(int)$data['lhbets_fee']['tie'] *100;
+        $lh['tiger']=(int)$data['lhbets_fee']['tiger']*100;
+        $data['lhbets_fee']=json_encode($lh);
+        $nn['Equal']=(int)$data['nnbets_fee']['Equal'] *100;
+        $nn['Double']=(int)$data['nnbets_fee']['Double'] *100;
+        $nn['SuperDouble']=(int)$data['nnbets_fee']['SuperDouble']*100;
+        $data['nnbets_fee']=json_encode($nn);
+        $sg['Equal']=(int)$data['sgbets_fee']['Equal']*100;
+        $sg['Double']=(int)$data['sgbets_fee']['Double']*100;
+        $sg['SuperDouble']=(int)$data['sgbets_fee']['SuperDouble']*100;
+        $data['sgbets_fee']=json_encode($sg);
+        $a89['Equal']=(int)$data['a89bets_fee']['Equal']*100;
+        $a89['Double']=95;
+        $a89['SuperDouble']=(int)$data['a89bets_fee']['SuperDouble']*100;
+        $data['a89bets_fee']=json_encode($a89);
+        if ($data['is_show']=='on'){
+            $data['is_show']=1;
+        }else{
+            $data['is_show']=0;
+        }
+        $count = HqUser::where('user_id','=',$id)->update($data);
+        if ($count!==false){
+            return ['msg'=>'操作成功','status'=>1];
+        }else{
+            return ['msg'=>'操作失败','status'=>0];
+        }
     }
 }
