@@ -83,6 +83,7 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/agentDay','AgentDayController');//代理日结
     Route::get('/agentDays/{id}/{begin}/{end}','AgentDayController@getIndexByParentId');//下级代理日结
     Route::get('/userDays/{id}/{begin}/{end}','UserDayEndController@getUserDayEndByAgentId');//下级会员日结
+    Route::post('/czSave','HqUserController@czSave');//在线提现充值
 });
 
 Route::get('/phpinfo',function (Request $request){

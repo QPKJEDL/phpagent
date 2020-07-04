@@ -4,7 +4,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">账户余额：</label>
         <div class="layui-input-inline">
-            <label>{{$balance/100}}</label>
+            <label id="userB">{{$balance/100}}</label>
         </div>
     </div>
     <div class="layui-form-item">
@@ -27,14 +27,14 @@
     <div class="layui-form-item">
         <label class="layui-form-label">充值/提现金额：</label>
         <div class="layui-input-inline">
-          <input type="text" name="money" style="width: 150px;" placeholder="请输入充值/提现金额" autocomplete="off" class="layui-input">
+          <input type="text" name="money" lay-verify="money" style="width: 150px;" pattern="\d" placeholder="请输入充值/提现金额" autocomplete="off" class="layui-input">
         </div>
         <div class="layui-form-mid"><h4 id="h4" style="color: red;"></h4></div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label"></label>
         <div class="layui-input-inline">
-            <div class="layui-form-mid layui-word-aux">您的可用额度：{{$user['balace']/100}}元</div>
+            <div class="layui-form-mid layui-word-aux">您的可用额度：<b id="balance">{{$user['balance']/100}}</b>元</div>
         </div>
     </div>
 @endsection
@@ -46,6 +46,44 @@
                 ,layer = layui.layer
                 ,$ = layui.jquery;
             form.render();
+            form.verify({
+                money:function (value) {
+                    var regu = /^[0-9]+\.?[0-9]*$/;
+                    if (value=="" || value==null){
+                        return '必须输入大于0，且小于余额的整数';
+                    }else{
+                        var v = $('input:radio[name="type"]:checked').val();
+                        if(v==1){
+                            if(value<=0){
+                                return '必须大于0，且小于余额的整数';
+                            }else{
+                                if (!regu.test(value)){
+                                    return '请输入整数';
+                                }else{
+                                    var balance = $("#balance").html();
+                                    if(balance<value){
+                                        return '余额不足'
+                                    }
+                                }
+                            }
+                        }else{
+                            if (value<=0){
+                                return '必须大于0，且小于用户余额的整数'
+                            }else{
+                                if(!regu.test(value)){
+                                    return '请输入整数';
+                                }else{
+                                    var userB = $("#userB").html();
+                                    if (userB<value){
+                                        return '余额不足'
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            });
             var id = $("input[name='id']").val();
             var index = parent.layer.getFrameIndex(window.name);
             form.on('radio(type)',function(data){
@@ -62,7 +100,24 @@
                 $('#h4').html(str);
             });
             form.on('submit(formDemo)', function(data) {
-                console.log(DX(100));
+                $.ajax({
+                    url:"{{url('/admin/czSave')}}",
+                    data:$('form').serialize(),
+                    type:'post',
+                    dataType:'json',
+                    success:function(res){
+                        if(res.status == 1){
+                            layer.msg(res.msg,{icon:6});
+                            var index = parent.layer.getFrameIndex(window.name);
+                            setTimeout('parent.layer.close('+index+')',2000);
+                        }else{
+                            layer.msg(res.msg,{shift: 6,icon:5});
+                        }
+                    },
+                    error : function(XMLHttpRequest, textStatus, errorThrown) {
+                        layer.msg('网络失败', {time: 1000});
+                    }
+                });
                 return false;
             });
             function DX(n) {

@@ -3,12 +3,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRequest;
+use App\Models\AgentBill;
+use App\Models\Billflow;
 use App\Models\Czrecord;
 use App\Models\HqUser;
+use App\Models\User;
 use App\Models\UserAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use mysql_xdevapi\Exception;
 
 class HqUserController extends Controller
 {
@@ -55,13 +60,208 @@ class HqUserController extends Controller
 
     /**
      * 会员充值提现页面
+     * @param $userId
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\View\View
      */
     public function czCord($userId){
         $data = $userId?HqUser::find($userId):[];
         $userAccount = UserAccount::getUserAccountInfo($userId);
         return view('hquser.edit',['user'=>Auth::user(),'info'=>$data,'id'=>$userId,'balance'=>$userAccount['balance']]);
     }
+    public function czSave(StoreRequest $request){
+        $data = $request->all();
+        $userAccount = UserAccount::getUserAccountInfo($data['id']);
+        $agent = User::getUserInfo(Auth::user()['username']);
+        if ($data['type']==1){
+            if ($agent['balance']<$data['money']){
+                return ['msg'=>'余额不足，不能进行充值','status'=>0];
+            }else{
+                $bool = $this->redissionLock($data['id']);
+                if ($bool){
+                    DB::beginTransaction();//开启事务
+                    try {
+                        $result = DB::table('user_account')->where('user_id','=',$data['id'])->increment('balance',$data['money']*100);
+                        if ($result){
+                            $count = $this->insertUserBillflow($data['id'],$data['money']*100,$userAccount['balance'],$userAccount['balance']+$data['money']*100,1,'代理代充');
+                            if ($count){
+                                $kc = DB::table('agent_users')->where('id','=',$agent['id'])->decrement('balance',$data['money']*100);
+                                if ($kc){
+                                    $add = $this->insertAgentBillFlow($agent['id'],$data['id'],$data['money']*100,$agent['balance'],$agent['balance']-$data['money']*100,$data['type'],$data['payType'],'用户充值扣除');
+                                    if ($add){
+                                        DB::commit();
+                                        $this->unRedissLock($data['id']);
+                                        return ['msg'=>'操作成功！','status'=>1];
+                                    }else{
+                                        DB::rollBack();
+                                        $this->unRedissLock($data['id']);
+                                        return ['msg'=>'操作失败','status'=>0];
+                                    }
+                                }else{
+                                    DB::rollBack();
+                                    $this->unRedissLock($data['id']);
+                                    return ['msg'=>'操作失败','status'=>0];
+                                }
+                            }else{
+                                DB::rollBack();
+                                $this->unRedissLock($data['id']);
+                                return ['msg'=>'操作失败','status'=>0];
+                            }
+                        }else{
+                            DB::rollBack();
+                            $this->unRedissLock($data['id']);
+                            return ['msg'=>'操作异常，请稍后再试','status'=>0];
+                        }
+                    }catch (Exception $e){
+                        DB::rollBack();
+                        $this->unRedissLock($data['id']);
+                        return ['msg'=>'操作异常！请稍后再试','status'=>0];
+                    }
+                }else{
+                    return ['msg'=>'请忽频繁提交','status'=>0];
+                }
+            }
+        }else{
+            if ($userAccount['balance']<$data['money']){
+                return ['msg'=>'余额不足，不能提现','status'=>0];
+            }else{
+                $bool = $this->redissionLock($data['id']);
+                if ($bool){
+                    DB::beginTransaction();//开启事务
+                    try {
+                        $result = DB::table('user_account')->where('user_id','=',$data['id'])->decrement('balance',$data['money']*100);
+                        if ($result){
+                            $count = $this->insertUserBillflow($data['id'],$data['money']*100,$userAccount['balance'],$userAccount['balance']+$data['money']*100,3,'代理代提现');
+                            if ($count){
+                                $add =  DB::table('agent_users')->where('id','=',$agent['id'])->increment('balance',$data['money']*100);
+                                if ($add){
+                                    $ls = $this->insertAgentBillFlow($agent['id'],$data['id'],$data['money']*100,$agent['balance'],$agent['balance']+$data['money']*100,$data['type'],0,'用户提现添加');
+                                    if ($ls){
+                                        DB::commit();
+                                        $this->unRedissLock($data['id']);
+                                        return ['msg'=>'操作成功','status'=>1];
+                                    }else{
+                                        DB::rollBack();
+                                        $this->unRedissLock($data['id']);
+                                        return ['msg'=>'操作失败','status'=>0];
+                                    }
+                                }else{
+                                    DB::rollBack();
+                                    $this->unRedissLock($data['id']);
+                                    return ['msg'=>'操作失败','status'=>0];
+                                }
+                            }else{
+                                DB::rollBack();
+                                $this->unRedissLock($data['id']);
+                                return ['msg'=>'操作失败','status'=>0];
+                            }
+                        }else{
+                            DB::rollBack();
+                            $this->unRedissLock($data['id']);
+                            return ['msg'=>'操作失败','status'=>0];
+                        }
+                    }catch (Exception $e){
+                        DB::rollBack();
+                        $this->unRedissLock($data['id']);
+                        return ['msg'=>'操作异常，请稍后再试','status'=>0];
+                    }
+                }else{
+                    $this->unRedissLock($data['id']);
+                    return ['msg'=>'请忽频繁提交','status'=>0];
+                }
+            }
+        }
+    }
 
+    /**
+     * redis队列锁
+     * @param $userId
+     * @return bool
+     */
+    public function redissionLock($userId){
+        $code=time().rand(100000,999999);
+        //锁入列
+        Redis::rPush('cz_user_lock_'.$userId,$code);
+
+        //锁出列
+        $codes = Redis::LINDEX('cz_user_lock_'.$userId,0);
+        if ($code!=$codes){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    /**
+     * 解锁
+     * @param $userId
+     */
+    public function unRedissLock($userId)
+    {
+        Redis::del('cz_user_lock_'.$userId);
+    }
+    /**无缓存的唯一订单号
+     * @return string
+     */
+    public function getrequestId(){
+        @date_default_timezone_set("PRC");
+        return date("YmdHis").rand(11111111,99999999);
+    }
+
+    /**
+     * 插入流水
+     * @param $userId 操作用户
+     * @param $money  金额
+     * @param $before 操作前金额
+     * @param $after  操作后金额
+     * @param $status
+     * @param $remark 备注
+     * @return bool
+     */
+    public function insertUserBillflow($userId,$money,$before,$after,$status,$remark){
+        $data['user_id']=$userId;
+        $data['order_sn']=$this->getrequestId();
+        $data['score']=$money;
+        $data['bet_before']=$before;
+        $data['bet_after']=$after;
+        $data['status']=$status;
+        $data['remark']=$remark;
+        $data['creatime']=time();
+
+        $tableName = date('Ymd',time());
+        $bill = new Billflow();
+        $bill->setTable('user_billflow_'.$tableName);
+        return $bill->insert($data);
+    }
+
+    /**
+     * 插入代理流水
+     * @param $agentId 代理id
+     * @param $userId  用户id
+     * @param $money   操作金额
+     * @param $before  操作前金额
+     * @param $after   操作后金额
+     * @param $status  操作类型
+     * @param $type    充值类型
+     * @param $remark  备注
+     * @return bool
+     */
+    public function insertAgentBillFlow($agentId,$userId,$money,$before,$after,$status,$type,$remark){
+        $data['agent_id']=$agentId;
+        $data['user_id']=$userId;
+        $data['money']=$money;
+        $data['bet_before']=$before;
+        $data['bet_after']=$after;
+        $data['status']=$status;
+        $data['type']=$type;
+        $data['remark']=$remark;
+        $data['creatime']=time();
+        return AgentBill::insert($data);
+    }
+    /**
+     * 会员编辑保存
+     * @param StoreRequest $request
+     * @return array
+     */
     public function userUpdate(StoreRequest $request){
         $data = $request->all();
         $id = $data['id'];
