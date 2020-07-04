@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRequest;
 use App\Models\Game;
 use App\Models\HqUser;
+use App\Models\UserAccount;
 use Illuminate\Support\Facades\Auth;
 
 class AddUserController extends Controller
@@ -73,9 +74,19 @@ class AddUserController extends Controller
                 $data['creatime']=time();
                 $data['savetime']=$data['creatime'];
                 $data['user_type']=1;
-                $count = HqUser::insert($data);
+                $count = HqUser::insertGetId($data);
                 if($count){
-                    return ['msg'=>'操作成功','status'=>1];
+                    $account['user_id']=$count;
+                    $account['balance']=0;
+                    $account['tol_recharge']=0;
+                    $account['drawMoney']=0;
+                    $account['creatime']=time();
+                    $num = UserAccount::insert($account);
+                    if ($num){
+                        return ['msg'=>'操作成功','status'=>1];
+                    }else{
+                        return ['msg'=>'操作失败','status'=>0];
+                    }
                 }else{
                     return ['msg'=>'操作失败','status'=>0];
                 }
