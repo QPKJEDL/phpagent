@@ -296,7 +296,7 @@
                 //console.log(Math.random().toString().slice(-6));
                 //清空数据
                 $("input[name='account']").val('');
-                $("input[name='account']").val(Math.random().toString().slice(-6));
+                $("input[name='account']").val(Math.random().toString().slice(-11));
             });
             form.render();
             form.verify({
