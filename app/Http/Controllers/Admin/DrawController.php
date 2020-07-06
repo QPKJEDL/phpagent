@@ -34,7 +34,7 @@ class DrawController extends Controller
                 $excel[$key]['creatime']=date('Y-m-d H:i:s',$value['creatime']);
                 $excel[$key]['nickname']=$value['nickname'].'['.$value['account'].']';
                 $excel[$key]['agentName']=$value['agentName'].'['.$value['username'].']';
-                $excel[$key]['bet_before']=$value['bet_before']/100;
+                $excel[$key]['bet_before']=$value['bet_ before']/100;
                 $excel[$key]['money']=$value['money']/100;
                 $excel[$key]['bet_after']=$value['bet_after']/100;
                 unset($excel[$key]['account']);
