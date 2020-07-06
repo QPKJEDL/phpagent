@@ -121,7 +121,7 @@ class HqUserController extends Controller
                 }
             }
         }else{
-            if ($userAccount['balance']<$data['money']){
+            if ($userAccount['balance']<$data['money']*100){
                 return ['msg'=>'余额不足，不能提现','status'=>0];
             }else{
                 $bool = $this->redissionLock($data['id']);
