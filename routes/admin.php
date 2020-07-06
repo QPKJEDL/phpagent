@@ -53,6 +53,8 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/permissions',     'PermissionController');
     //账户管理模块
     Route::resource('/agentList',       'AgentListController');//代理列表
+    Route::get('/agentCzEdit/{id}','AgentListController@czEdit');//代理充值提现
+    Route::post('/agentCzSave','AgentListController@agentCzSave');//代理充值提现保存
     Route::get('/agentEdit/{id}',       'AgentListController@agentEdit');//代理账号编辑
     Route::post('/saveAgentEdit',       'AgentListController@saveAgentEdit');//代理账号编辑保存
     Route::post('/agentList/changeStatus','AgentListController@changeStatus');//代理启用停用
