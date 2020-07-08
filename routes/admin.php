@@ -53,6 +53,8 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/permissions',     'PermissionController');
     //账户管理模块
     Route::resource('/agentList',       'AgentListController');//代理列表
+    Route::get('/agentCzEdit/{id}','AgentListController@czEdit');//代理充值提现
+    Route::post('/agentCzSave','AgentListController@agentCzSave');//代理充值提现保存
     Route::get('/agentEdit/{id}',       'AgentListController@agentEdit');//代理账号编辑
     Route::post('/saveAgentEdit',       'AgentListController@saveAgentEdit');//代理账号编辑保存
     Route::post('/agentList/changeStatus','AgentListController@changeStatus');//代理启用停用
@@ -70,6 +72,7 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::post('/checkUniqueUserName', 'AddAgentUserController@checkUnique');//添加代理效验账号是否存在
     Route::resource('/addUser',             'AddUserController');//添加会员
     Route::resource('/hqUser',          'HqUserController');//会员列表
+    Route::post('/hqUser/userUpdate','HqUserController@userUpdate');//会员编辑保存
     Route::get('/hqUser/czCord/{id}',   'HqUserController@czCord');//在线充值提现界面
     Route::resource('/draw','DrawController');//会员提现查询
     Route::resource('/czrecord','CzController');//会员充值查询
@@ -78,7 +81,11 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/online','OnlineUserController');//在线玩家
     Route::resource('/order', 'OrderController');//注单查询
     Route::resource('/userDay','UserDayEndController');//会员日结表
-    Route::get('/userOrderList/{id}','UserDayEndController@infoList');//下注详情
+    Route::get('/userOrderList/{id}/{begin}/{end}','OrderController@getOrderListByUserId');//下注详情
+    Route::resource('/agentDay','AgentDayController');//代理日结
+    Route::get('/agentDays/{id}/{begin}/{end}','AgentDayController@getIndexByParentId');//下级代理日结
+    Route::get('/userDays/{id}/{begin}/{end}','UserDayEndController@getUserDayEndByAgentId');//下级会员日结
+    Route::post('/czSave','HqUserController@czSave');//在线提现充值
 });
 
 Route::get('/phpinfo',function (Request $request){

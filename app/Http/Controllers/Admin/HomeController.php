@@ -9,7 +9,9 @@
 namespace App\Http\Controllers\Admin;
 use App\Models\Admin;
 use App\Models\Adminrole;
+use App\Models\AgentRole;
 use App\Models\AgentRoleMenu;
+use App\Models\AgentRoleUser;
 use App\Models\Buscount;
 use App\Models\Menu;
 use App\Models\Order;
@@ -162,7 +164,36 @@ class HomeController extends BaseController
         $y2=array_values($done_order);
         $data['y2']=json_encode($y2);*/
         $sysinfo=$this->getSysInfo();
-        return view('admin.welcome',['sysinfo'=>$sysinfo]);
+        $user = Auth::user();
+        $roleId = AgentRoleUser::getRoleIdByUserId($user['id']);
+        $user['role_name']=AgentRole::getNameByRoleId($roleId);
+        $user['login_time']=date('Y-m-d H:i:s',time());
+        if ($user['baccarat']==1){
+            $user['baccarat']='有';
+        }else{
+            $user['baccarat']='没有';
+        }
+        if ($user['dragon_tiger']==1){
+            $user['dragon_tiger']='有';
+        }else{
+            $user['dragon_tiger']='没有';
+        }
+        if ($user['niuniu']==1){
+            $user['niuniu']='有';
+        }else{
+            $user['niuniu']='没有';
+        }
+        if ($user['sangong']==1){
+            $user['sangong']='有';
+        }else{
+            $user['sangong']='没有';
+        }
+        if ($user['A89']==1){
+            $user['A89']='有';
+        }else{
+            $user['A89']='没有';
+        }
+        return view('admin.welcome',['sysinfo'=>$sysinfo,'user'=>$user]);
     }
     /**
      * 排序

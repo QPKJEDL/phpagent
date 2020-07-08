@@ -4,37 +4,37 @@
     <div class="layui-form-item">
         <label class="layui-form-label">账户余额：</label>
         <div class="layui-input-inline">
-            <label id="userB">{{$balance/100}}</label>
+            <label id="userB">{{$info['balance']/100}}</label>
         </div>
     </div>
     <div class="layui-form-item">
         <div class="layui-input-block">
-          <input type="radio" name="type" value="1" title="充值" lay-filter="type" checked="">
-          <input type="radio" name="type" value="2" title="提现" lay-filter="type">
+            <input type="radio" name="type" value="1" title="充值" lay-filter="type" checked="">
+            <input type="radio" name="type" value="2" title="提现" lay-filter="type">
         </div>
     </div>
     <div class="layui-form-item" id="payType">
         <label class="layui-form-label">充值类型：</label>
         <div class="layui-input-block">
-          <input type="radio" name="payType" value="1" title="到款" checked="">
-          <input type="radio" name="payType" value="2" title="签单">
-          <input type="radio" name="payType" value="3" title="移分">
-          <input type="radio" name="payType" value="4" title="按比例">
-          <input type="radio" name="payType" value="5" title="支付宝">
-          <input type="radio" name="payType" value="6" title="微信">
+            <input type="radio" name="payType" value="1" title="到款" checked="">
+            <input type="radio" name="payType" value="2" title="签单">
+            <input type="radio" name="payType" value="3" title="移分">
+            <input type="radio" name="payType" value="4" title="按比例">
+            <input type="radio" name="payType" value="5" title="支付宝">
+            <input type="radio" name="payType" value="6" title="微信">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">充值/提现金额：</label>
         <div class="layui-input-inline">
-          <input type="text" name="money" lay-verify="money" style="width: 150px;" pattern="\d" placeholder="请输入充值/提现金额" autocomplete="off" class="layui-input">
+            <input type="text" name="money" lay-verify="money" style="width: 150px;" pattern="\d" placeholder="请输入充值/提现金额" autocomplete="off" class="layui-input">
         </div>
         <div class="layui-form-mid"><h4 id="h4" style="color: red;"></h4></div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label"></label>
         <div class="layui-input-inline">
-            <div class="layui-form-mid layui-word-aux">您的可用额度：<b id="balance">{{$user['balance']/100}}</b>元</div>
+            <div class="layui-form-mid layui-word-aux">您的可用额度：<b id="balance">{{$balance/100}}</b>元</div>
         </div>
     </div>
 @endsection
@@ -101,7 +101,7 @@
             });
             form.on('submit(formDemo)', function(data) {
                 $.ajax({
-                    url:"{{url('/admin/czSave')}}",
+                    url:"{{url('/admin/agentCzSave')}}",
                     data:$('form').serialize(),
                     type:'post',
                     dataType:'json',
@@ -139,11 +139,11 @@
                 unit = unit.substr(unit.length - n.length);
                 for (var i = 0; i < n.length; i++)
                     str += '零壹贰叁肆伍陆柒捌玖'.charAt(n.charAt(i)) + unit.charAt(i);
-                    if (a > 0) {
-                        return str.replace(/零(仟|佰|拾|角)/g, "零").replace(/(零)+/g, "零").replace(/零(万|亿|元)/g, "$1").replace(/(亿)万|壹(拾)/g, "$1$2").replace(/^元零?|零分/g, "").replace(/元$/g, "元整");
-                    } else {
-                        return "负" + str.replace(/零(仟|佰|拾|角)/g, "零").replace(/(零)+/g, "零").replace(/零(万|亿|元)/g, "$1").replace(/(亿)万|壹(拾)/g, "$1$2").replace(/^元零?|零分/g, "").replace(/元$/g, "元整");
-                    }
+                if (a > 0) {
+                    return str.replace(/零(仟|佰|拾|角)/g, "零").replace(/(零)+/g, "零").replace(/零(万|亿|元)/g, "$1").replace(/(亿)万|壹(拾)/g, "$1$2").replace(/^元零?|零分/g, "").replace(/元$/g, "元整");
+                } else {
+                    return "负" + str.replace(/零(仟|佰|拾|角)/g, "零").replace(/(零)+/g, "零").replace(/零(万|亿|元)/g, "$1").replace(/(亿)万|壹(拾)/g, "$1$2").replace(/^元零?|零分/g, "").replace(/元$/g, "元整");
+                }
             }
         });
     </script>

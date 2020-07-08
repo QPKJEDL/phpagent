@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRequest;
+use App\Models\AgentBill;
 use App\Models\AgentProportion;
 use App\Models\Czrecord;
 use App\Models\HqUser;
@@ -14,6 +15,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\View\View;
 
@@ -295,7 +297,18 @@ class AgentListController extends Controller
     public function userEdit($id){
         $user = $id?HqUser::find($id):[];
         $user['fee'] = json_decode($user['fee'],true);
-        return view('agentList.edit',['id'=>$id,'info'=>$user]);
+        $user['nnbets_fee'] = json_decode($user['nnbets_fee'],true);
+        $user['lhbets_fee'] = json_decode($user['lhbets_fee'],true);
+        $user['bjlbets_fee'] = json_decode($user['bjlbets_fee'],true);
+        $user['a89bets_fee'] = json_decode($user['a89bets_fee'],true);
+        $user['sgbets_fee'] = json_decode($user['sgbets_fee'],true);
+        $agent = Auth::user();
+        $agent['nnbets_fee'] = json_decode($agent['nnbets_fee'],true);
+        $agent['lhbets_fee'] = json_decode($agent['lhbets_fee'],true);
+        $agent['bjlbets_fee'] = json_decode($agent['bjlbets_fee'],true);
+        $agent['a89bets_fee'] = json_decode($agent['a89bets_fee'],true);
+        $agent['sgbets_fee'] = json_decode($agent['sgbets_fee'],true);
+        return view('agentList.edit',['id'=>$id,'info'=>$user,'user'=>$agent]);
     }
 
     public function agentPasswordEdit($id){
@@ -332,10 +345,17 @@ class AgentListController extends Controller
         $data = $id?User::find($id):[];
         $data['fee']=json_decode($data['fee'],true);
         $data['limit']=json_decode($data['limit'],true);
+        $data['bjlbets_fee'] = json_decode($data['bjlbets_fee'],true);
+        $data['lhbets_fee'] = json_decode($data['lhbets_fee'],true);
+        $data['nnbets_fee']=json_decode($data['nnbets_fee'],true);
+        $data['sgbets_fee']=json_decode($data['sgbets_fee'],true);
+        $data['a89bets_fee']=json_decode($data['a89bets_fee'],true);
         $user =Auth::user();
         $user['bjlbets_fee']=json_decode($user['bjlbets_fee'],true);
         $user['lhbets_fee']=json_decode($user['lhbets_fee'],true);
         $user['nnbets_fee']=json_decode($user['nnbets_fee'],true);
+        $user['sgbets_fee'] = json_decode($user['sgbets_fee'],true);
+        $user['a89bets_fee'] = json_decode($user['a89bets_fee'],true);
         return view('agentList.AgentEdit',['id'=>$id,'info'=>$data,'user'=>$user]);
     }
 
@@ -400,5 +420,171 @@ class AgentListController extends Controller
             }
         }
         return view('agentList.userRelation',['info'=>$info,'parent'=>$arr]);
+    }
+    /**
+     * redis队列锁
+     * @param $userId
+     * @return bool
+     */
+    public function redissionLock($userId){
+        $code=time().rand(100000,999999);
+        //锁入列
+        Redis::rPush('cz_agent_lock_'.$userId,$code);
+
+        //锁出列
+        $codes = Redis::LINDEX('cz_agent_lock_'.$userId,0);
+        if ($code!=$codes){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    /**
+     * 解锁
+     * @param $userId
+     */
+    public function unRedissLock($userId)
+    {
+        Redis::del('cz_agent_lock_'.$userId);
+    }
+    /**
+     * 代理提现充值
+     * @param $id
+     * @return Factory|Application|View
+     */
+    public function czEdit($id)
+    {
+        $data = $id?User::find($id):[];
+        return view('agentList.cz',['info'=>$data,'balance'=>Auth::user()['balance'],'id'=>$id]);
+    }
+    /**
+     * 插入代理流水
+     * @param $agentId 代理id
+     * @param $userId  用户id
+     * @param $money   操作金额
+     * @param $before  操作前金额
+     * @param $after   操作后金额
+     * @param $status  操作类型
+     * @param $type    充值类型
+     * @param $remark  备注
+     * @return bool
+     */
+    public function insertAgentBillFlow($agentId,$userId,$money,$before,$after,$status,$type,$remark){
+        $data['agent_id']=$agentId;
+        $data['user_id']=$userId;
+        $data['money']=$money;
+        $data['bet_before']=$before;
+        $data['bet_after']=$after;
+        $data['status']=$status;
+        $data['type']=$type;
+        $data['remark']=$remark;
+        $data['creatime']=time();
+        return AgentBill::insert($data);
+    }
+    public function agentCzSave(StoreRequest $request){
+        $data = $request->all();
+        //获取当前登录
+        $user = Auth::user();
+        $agent = $data['id']?User::find($data['id']):[];
+        unset($data['_token']);
+        if ($data['type']==1){
+            if ($user['balance']<$data['money']){
+                return ['msg'=>'余额不足','status'=>0];
+            }else{
+                $bool = $this->redissionLock($agent['id']);
+                if ($bool){
+                    DB::beginTransaction();
+                    try {
+                        $result = DB::table('agent_users')->where('id','=',$agent['id'])->increment('balance',$data['money']*100);
+                        if ($result){
+                            $count = $this->insertAgentBillFlow($agent['id'],0,$data['money']*100,$agent['balance'],$agent['balance']+$data['money']*100,$data['type'],$data['payType'],$user['username'].'给'.$agent['username'].'充值');
+                            if ($count){
+                                $a = DB::table('agent_users')->where('id','=',$user['id'])->decrement('balance',$data['money']*100);
+                                if ($a){
+                                    $c = $this->insertAgentBillFlow($user['id'],0,$data['money']*100,$user['balance'],$user['balance']-$data['money']*100,$data['type'],$data['payType'],$user['username'].'给'.$agent['username'].'充值扣除');
+                                    if ($c){
+                                        DB::commit();
+                                        $this->unRedissLock($agent['id']);
+                                        return ['msg'=>'操作成功','status'=>1];
+                                    }else{
+                                        DB::rollBack();
+                                        $this->unRedissLock($agent['id']);
+                                        return ['msg'=>'操作失败','status'=>0];
+                                    }
+                                }else{
+                                    DB::rollBakc();
+                                    $this->unRedissLock($agent['id']);
+                                    return ['msg'=>'操作失败','status'=>0];
+                                }
+                            }else{
+                                DB::rollBakc();
+                                $this->unRedissLock($agent['id']);
+                                return ['msg'=>'操作失败','status'=>0];
+                            }
+                        }else{
+                            DB::rollBack();
+                            $this->unRedissLock($agent['id']);
+                            return ['msg'=>'操作失败！','status'=>0];
+                        }
+                    }catch (\Exception $exception){
+                        DB::rollBack();
+                        $this->unRedissLock($agent['id']);
+                        return ['msg'=>'发生异常，请稍后再试','status'=>0];
+                    }
+                }else{
+                    return ['msg'=>'请忽频繁提交','status'=>0];
+                }
+            }
+        }else{
+            if ($agent['balance']<$data['money']*100){
+                return ['msg'=>'余额不足','status'=>0];
+            }else{
+                $bool = $this->redissionLock($agent['id']);
+                if ($bool){
+                    DB::beginTransaction();//开启事务
+                    try {
+                        $result = DB::table('agent_users')->where('id','=',$agent['id'])->decrement('balance',$data['money']*100);
+                        if ($result){
+                            $count=$this->insertAgentBillFlow($agent['id'],0,$data['money']*100,$agent['balance'],$agent['balance']-$data['money']*100,$data['type'],$data['payType'],$user['username'].'对'.$agent['username'].'进行提现');
+                            if ($count){
+                                $a = DB::table('agent_users')->where('id','=',$user['id'])->increment('balance',$data['money']*100);
+                                if ($a){
+                                    $n = $this->insertAgentBillFlow($user['id'],0,$data['money']*100,$user['balance'],$user['balance']+$data['money']*100,$data['type'],$data['payType'],$user['username'].'对'.$agent['username'].'提现到账');
+                                    if ($n){
+                                        DB::commit();
+                                        $this->unRedissLock($agent['id']);
+                                        return ['msg'=>'操作成功','status'=>1];
+                                    }else{
+                                        DB::rollBakc();
+                                        $this->unRedissLock($agent['id']);
+                                        return ['msg'=>'操作失败','status'=>0];
+                                    }
+                                }else{
+                                    DB::rollBakc();
+                                    $this->unRedissLock($agent['id']);
+                                    return ['msg'=>'操作失败','status'=>0];
+                                }
+                            }else{
+                                DB::rollBakc();
+                                $this->unRedissLock($agent['id']);
+                                return ['msg'=>'操作失败','status'=>0];
+                            }
+                        }else{
+                            DB::rollBakc();
+                            $this->unRedissLock($agent['id']);
+                            return ['msg'=>'操作失败','status'=>0];
+                        }
+                    }catch (\Exception $e){
+                        DB::rollBack();
+                        $this->unRedissLock($agent['id']);
+                        return ['msg'=>'操作异常','status'=>0];
+                    }
+                    $result = DB::table('agent_users')->where('id','=',$agent['id'])->de;
+                }else{
+                    return ['msg'=>'请忽频繁提交','status'=>0];
+                }
+            }
+        }
     }
 }

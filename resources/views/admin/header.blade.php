@@ -6,6 +6,12 @@
     </div>
     <ul class="layui-nav" lay-filter="rightNav">
         <li class="layui-nav-item">
+            <button type="button" class="layui-btn">在线客户</button>
+        </li>
+        <li class="layui-nav-item">
+            <div class="hidden-xs" data-desc="管理员信息" data-url="{{url('/admin/userinfo')}}">&nbsp;{{\Illuminate\Support\Facades\Auth::user()['username']}}&nbsp;</div>
+        </li>
+        <li class="layui-nav-item">
             <div class="addBtn hidden-xs" data-desc="管理员信息" data-url="{{url('/admin/userinfo')}}">&nbsp;<i class="layui-icon">&#xe612;</i>&nbsp;管理员&nbsp;</div>
         </li>
         <li class="layui-nav-item"><a href="{{url('/admin/logout')}}">退出</a></li>
