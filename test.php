@@ -1,2 +1,3 @@
 <?php
-print_r(date('Y-m-d',1592203883));
+$danhao = date('Ymd').substr(implode(NULL, array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 8);
+print_r($danhao);
