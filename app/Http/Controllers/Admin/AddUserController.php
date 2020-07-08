@@ -17,6 +17,8 @@ class AddUserController extends Controller
         $user['nnbets_fee']=json_decode($user['nnbets_fee'],true);
         $user['lhbets_fee']=json_decode($user['lhbets_fee'],true);
         $user['bjlbets_fee']=json_decode($user['bjlbets_fee'],true);
+        $user['sgbets_fee']=json_decode($user['sgbets_fee'],true);
+        $user['a89bets_fee']=json_decode($user['a89bets_fee'],true);
         return view('addUser.list',['user'=>$user]);
     }
 
@@ -76,6 +78,7 @@ class AddUserController extends Controller
                 $data['user_type']=1;
                 $count = HqUser::insertGetId($data);
                 if($count){
+                    $account = array();
                     $account['user_id']=$count;
                     $account['balance']=0;
                     $account['tol_recharge']=0;

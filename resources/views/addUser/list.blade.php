@@ -269,6 +269,60 @@
                 </div>
             </div>
         </div>
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+            <legend>三公游戏赔率</legend>
+        </fieldset>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">平倍：</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    @if($user['sangong']==1)
+                        <input type="number" name="sgbets_fee[Equal]" lay-verify="equal" placeholder="" data-v="{{$user['sgbets_fee']['Equal']/100}}" value="{{$user['sgbets_fee']['Equal']/100}}"autocomplete="off" class="layui-input">
+                    @else
+                        <input readonly type="number" name="sgbets_fee[Equal]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" placeholder="" value="{{$user['sgbets_fee']['Equal']/100}}"autocomplete="off" class="layui-input">
+                    @endif
+                </div>
+                <div class="layui-form-mid">翻倍：</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    @if($user['sangong']==1)
+                        <input type="number" name="sgbets_fee[Double]" lay-verify='double' placeholder="" data-v="{{$user['sgbets_fee']['Double']/100}}" value="{{$user['sgbets_fee']['Double']/100}}"  autocomplete="off" class="layui-input">
+                    @else
+                        <input readonly type="number" name="sgbets_fee[Double]" placeholder="" value="{{$user['sgbets_fee']['Double']/100}}" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" autocomplete="off" class="layui-input">
+                    @endif
+                </div>
+                <div class="layui-form-mid">超倍：</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    @if($user['sangong']==1)
+                        <input type="number" name="sgbets_fee[SuperDouble]" lay-verify="superDouble" placeholder="" data-v="{{$user['sgbets_fee']['SuperDouble']/100}}" value="{{$user['sgbets_fee']['SuperDouble']/100}}"  autocomplete="off" class="layui-input">
+                    @else
+                        <input readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" type="number" name="sgbets_fee[SuperDouble]" placeholder="" value="{{$user['sgbets_fee']['SuperDouble']/100}}"  autocomplete="off" class="layui-input">
+                    @endif
+                </div>
+            </div>
+        </div>
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+            <legend>A89游戏赔率</legend>
+        </fieldset>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">平倍：</label>
+                <div class="layui-input-inline" style="width: 100px;">
+                    @if($user['A89']==1)
+                        <input type="number" name="a89bets_fee[Equal]" lay-verify="equal" placeholder="" data-v="{{$user['a89bets_fee']['Equal']/100}}" value="{{$user['a89bets_fee']['Equal']/100}}"autocomplete="off" class="layui-input">
+                    @else
+                        <input readonly type="number" name="a89bets_fee[Equal]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" placeholder="" value="{{$user['a89bets_fee']['Equal']/100}}"autocomplete="off" class="layui-input">
+                    @endif
+                </div>
+                <div class="layui-form-mid">超倍：</div>
+                <div class="layui-input-inline" style="width: 100px;">
+                    @if($user['A89']==1)
+                        <input type="number" name="a89bets_fee[SuperDouble]" lay-verify="superDouble" placeholder="" data-v="{{$user['a89bets_fee']['SuperDouble']/100}}" value="{{$user['a89bets_fee']['SuperDouble']/100}}"  autocomplete="off" class="layui-input">
+                    @else
+                        <input readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" type="number" name="a89bets_fee[SuperDouble]" placeholder="" value="{{$user['a89bets_fee']['SuperDouble']/100}}"  autocomplete="off" class="layui-input">
+                    @endif
+                </div>
+            </div>
+        </div>
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <input type="checkbox" name="is_show" id="isShow" title="报表中显示洗码量">
