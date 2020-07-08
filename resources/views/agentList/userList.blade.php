@@ -30,7 +30,7 @@
         <thead>
             <input type="hidden" id="token" value="{{csrf_token()}}">
         <tr>
-            <th class="hidden-xs">会员账号</th>
+            <th class="hidden-xs">会员账号3</th>
             <th class="hidden-xs">姓名</th>
             <th class="hidden-xs">所属代理</th>
             <th class="hidden-xs">最近充值</th>
