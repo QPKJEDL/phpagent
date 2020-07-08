@@ -75,17 +75,30 @@ class AgentDayController extends Controller
             left join hq_user u on t1.user_id = u.user_id
             inner join (select id from hq_agent_users where del_flag=0 and (id='.$value['id'].' or id IN (select t.id from hq_agent_users t where FIND_IN_SET('.$value['id'].',ancestors)))) a on a.id=u.agent_id
             ';
+            $ssql = 'select IFNULL(SUM(t1.get_money),0) as money,a.id AS agentId from (select * from('.$dateSql.') s where s.creatime between '.strtotime($startDate).' and '.strtotime($endDate).') t1 
+            left join hq_user u on t1.user_id = u.user_id
+            RIGHT join (select id from hq_agent_users where del_flag=0 and (id='.$value['id'].' or id IN (select t.id from hq_agent_users t where FIND_IN_SET('.$value['id'].',ancestors)))) a on a.id=u.agent_id group by a.id
+            ';
             $asql = 'select ifnull(sum(l.money),0) as money from hq_live_reward l
                 left join hq_user u on u.user_id = l.user_id
                 inner join (select id from hq_agent_users where del_flag=0 and (id='.$value['id'].' or id IN (select t.id from hq_agent_users t where FIND_IN_SET('.$value['id'].',ancestors)))) a on a.id=u.agent_id';
             $data[$key]['reward']=DB::select($asql);
             $data[$key]['fee']=json_decode($value['fee'],true);
             if ($sql!="" || $sql!=null){
-                $userData = DB::select($sql);;
+                $money=0;
+                $moneyData = DB::select($ssql);
+                $userData = DB::select($sql);
                 $data[$key]['sum_betMoney'] = $this->getSumBetMoney($userData);
                 $data[$key]['win_money']=$this->getWinMoney($userData);
                 $data[$key]['code']=$this->getSumCode($userData);
                 $data[$key]['pump']=$this->getSumPump($userData,$value['id']);
+                foreach ($moneyData as $k=>$datum){
+                    //$money = $money + $datum->money;
+                    if ($datum->money<0){
+                        $money = $money + $datum->money * $value['proportion']/100;
+                    }
+                }
+                $data[$key]['kesun'] = $money;
             }
         }
         return view('agentDay.list',['list'=>$data,'input'=>$request->all(),'min'=>config('admin.min_date')]);
@@ -124,17 +137,30 @@ class AgentDayController extends Controller
             left join hq_user u on t1.user_id = u.user_id
             inner join (select id from hq_agent_users where del_flag=0 and (id='.$value['id'].' or id IN (select t.id from hq_agent_users t where FIND_IN_SET('.$value['id'].',ancestors)))) a on a.id=u.agent_id
             ';
+            $ssql = 'select IFNULL(SUM(t1.get_money),0) as money,a.id AS agentId from (select * from('.$dataSql.') s where s.creatime between '.strtotime($startDate).' and '.strtotime($endDate).') t1 
+            left join hq_user u on t1.user_id = u.user_id
+            RIGHT join (select id from hq_agent_users where del_flag=0 and (id='.$value['id'].' or id IN (select t.id from hq_agent_users t where FIND_IN_SET('.$value['id'].',ancestors)))) a on a.id=u.agent_id group by a.id
+            ';
             $asql = 'select ifnull(sum(l.money),0) as money from hq_live_reward l
                 left join hq_user u on u.user_id = l.user_id
                 inner join (select id from hq_agent_users where del_flag=0 and (id='.$value['id'].' or id IN (select t.id from hq_agent_users t where FIND_IN_SET('.$value['id'].',ancestors)))) a on a.id=u.agent_id';
             $data[$key]['reward']=DB::select($asql);
             $data[$key]['fee']=json_decode($value['fee'],true);
             if ($sql!="" || $sql!=null){
-                $userData = DB::select($sql);;
+                $money=0;
+                $moneyData = DB::select($ssql);
+                $userData = DB::select($sql);
                 $data[$key]['sum_betMoney'] = $this->getSumBetMoney($userData);
                 $data[$key]['win_money']=$this->getWinMoney($userData);
                 $data[$key]['code']=$this->getSumCode($userData);
                 $data[$key]['pump']=$this->getSumPump($userData,$value['id']);
+                foreach ($moneyData as $k=>$datum){
+                    //$money = $money + $datum->money;
+                    if ($datum->money<0){
+                        $money = $money + $datum->money * $value['proportion']/100;
+                    }
+                }
+                $data[$key]['kesun'] = $money;
             }
         }
         return view('agentDay.list',['list'=>$data,'min'=>config('admin.min_date'),'input'=>$request->all()]);
@@ -984,5 +1010,21 @@ class AgentDayController extends Controller
             $arr[] = date('Ymd',$i);
         }
         return $arr;
+    }
+    /**
+     * 获取昨天的开始时间
+     * @return false|int
+     */
+    public function getYesterdayBeginTime(){
+        return strtotime(date("Y-m-d",strtotime("-1 day")));
+    }
+
+    /**
+     * 根据昨天的开始时间获取到结束时间
+     * @param $time 昨天的开始时间
+     * @return float|int
+     */
+    public function getYesterdayEndTime($time){
+        return $time+24 * 60 * 60-1;
     }
 }
