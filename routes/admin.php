@@ -28,6 +28,7 @@ use Illuminate\Http\Request;
 Route::get('/verify',                   'Admin\HomeController@verify');
 //登陆模块
 Route::group(['namespace'  => "Auth"], function () {
+    //Route::get('/agentRegister',        '1');//代理激活
     Route::get('/register',             'BindController@index');    //绑定谷歌验证码
     Route::post('/valAccount',          'BindController@checkAccount'); //效验账号是否存在
     Route::post('/valUser',             'BindController@checkUserLogin');//效验账号密码的真实性
@@ -89,7 +90,10 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/agentDraw','AgentDrawController');//代理提现查询
     Route::resource('/agentCz','AgentCzController');//代理充值查询
 });
-
+Route::group(['namespace'=>"Online",'middleware'=>['auth','permission']],function (){
+    Route::resource('/onAddAgent','OnAddAgentController');//新增下级代理
+    Route::resource('/onDelAgent','OnDelAgentController');//线上已删代理
+});
 Route::get('/phpinfo',function (Request $request){
    phpinfo();
 });
