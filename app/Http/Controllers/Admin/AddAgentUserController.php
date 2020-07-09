@@ -40,13 +40,15 @@ class AddAgentUserController extends Controller
         $data = $request->all();
         unset($data['_token']);
         unset($data['pwd']);
-        dump($data);
+        //dump($data);
         $data['password']=bcrypt($data['password']);
         $data['fee']=json_encode($data['fee']);
         $data['limit']=json_encode($data['limit']);
         $data['bjlbets_fee'] = json_encode($data['bjlbets_fee']);
         $data['lhbets_fee'] = json_encode($data['lhbets_fee']);
         $data['nnbets_fee']= json_encode($data['nnbets_fee']);
+        $data['sgbets_fee']=json_encode($data['sgbets_fee']);
+        $data['a89bets_fee']=json_encode($data['a89bets_fee']);
         $data['ancestors']= $this->getUserAncestors($data['parent_id']);
         $count = User::insert($data);
         if($count){

@@ -267,29 +267,29 @@ class HqUserController extends Controller
         $id = $data['id'];
         unset($data['_token']);
         unset($data['id']);
-        $bjl['player']=(int)$data['bjlbets_fee']['player'] * 100;
-        $bjl['playerPair']=(int)$data['bjlbets_fee']['playerPair'] * 100;
-        $bjl['tie']=(int)$data['bjlbets_fee']['tie'] * 100;
-        $bjl['banker']=(int)$data['bjlbets_fee']['banker'] *100;
-        $bjl['bankerPair']=(int)$data['bjlbets_fee']['bankerPair'] * 100;
+        $bjl['player']=intval($data['bjlbets_fee']['player'] * 100);
+        $bjl['playerPair']=intval($data['bjlbets_fee']['playerPair'] * 100);
+        $bjl['tie']=intval($data['bjlbets_fee']['tie'] * 100);
+        $bjl['banker']=intval($data['bjlbets_fee']['banker'] *100);
+        $bjl['bankerPair']=intval($data['bjlbets_fee']['bankerPair'] * 100);
         $data['bjlbets_fee']=json_encode($bjl);
-        $lh['dragon']=(int)$data['lhbets_fee']['dragon'] * 100;
-        $lh['tie']=(int)$data['lhbets_fee']['tie'] *100;
-        $lh['tiger']=(int)$data['lhbets_fee']['tiger']*100;
+        $lh['dragon']=intval($data['lhbets_fee']['dragon'] * 100);
+        $lh['tie']=intval($data['lhbets_fee']['tie'] *100);
+        $lh['tiger']=intval($data['lhbets_fee']['tiger']*100);
         $data['lhbets_fee']=json_encode($lh);
-        $nn['Equal']=(int)$data['nnbets_fee']['Equal'] *100;
-        $nn['Double']=(int)$data['nnbets_fee']['Double'] *100;
-        $nn['SuperDouble']=(int)$data['nnbets_fee']['SuperDouble']*100;
+        $nn['Equal']=intval($data['nnbets_fee']['Equal'] *100);
+        $nn['Double']=intval($data['nnbets_fee']['Double'] *100);
+        $nn['SuperDouble']=intval($data['nnbets_fee']['SuperDouble']*100);
         $data['nnbets_fee']=json_encode($nn);
-        $sg['Equal']=(int)$data['sgbets_fee']['Equal']*100;
-        $sg['Double']=(int)$data['sgbets_fee']['Double']*100;
-        $sg['SuperDouble']=(int)$data['sgbets_fee']['SuperDouble']*100;
+        $sg['Equal']=intval($data['sgbets_fee']['Equal']*100);
+        $sg['Double']=intval($data['sgbets_fee']['Double']*100);
+        $sg['SuperDouble']=intval($data['sgbets_fee']['SuperDouble']*100);
         $data['sgbets_fee']=json_encode($sg);
-        $a89['Equal']=(int)$data['a89bets_fee']['Equal']*100;
+        $a89['Equal']=intval($data['a89bets_fee']['Equal']*100);
         $a89['Double']=95;
-        $a89['SuperDouble']=(int)$data['a89bets_fee']['SuperDouble']*100;
+        $a89['SuperDouble']=intval($data['a89bets_fee']['SuperDouble']*100);
         $data['a89bets_fee']=json_encode($a89);
-        if ($data['is_show']=='on'){
+        if (!empty($data['is_show'])){
             $data['is_show']=1;
         }else{
             $data['is_show']=0;
