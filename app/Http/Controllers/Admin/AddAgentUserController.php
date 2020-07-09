@@ -40,6 +40,7 @@ class AddAgentUserController extends Controller
         $data = $request->all();
         unset($data['_token']);
         unset($data['pwd']);
+        dump($data);
         $data['password']=bcrypt($data['password']);
         $data['fee']=json_encode($data['fee']);
         $data['limit']=json_encode($data['limit']);
