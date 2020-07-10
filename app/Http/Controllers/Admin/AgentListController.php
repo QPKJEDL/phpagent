@@ -133,7 +133,7 @@ class AgentListController extends Controller
         foreach ($agentList as $key=>$value){
             if ($value['id']=$agentId){
                 return $agentList[$key]['balance'];
-                continue;
+                break;
             }
         }
     }
