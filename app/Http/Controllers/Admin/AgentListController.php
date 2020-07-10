@@ -34,6 +34,9 @@ class AgentListController extends Controller
         }
 
         $sql = User::query();
+        if(true == $request->has('nickname')){
+            $sql->where('nickname','like','%'.$request->input('nickname').'%');
+        }
         //判断数据权限
         if ($user['data_permission']==1){//当前为所有数据权限
             //条件
@@ -42,9 +45,6 @@ class AgentListController extends Controller
         }else{
             $map['parent_id']=$user['id'];
             $sql->where($map)->orWhere('id','=',$user['id']);
-        }
-        if(true == $request->has('nickname')){
-            $sql->where('nickname','like','%'.$request->input('nickname').'%');
         }
         $data = $sql->orderBy('created_at','asc')->paginate(10)->appends($request->all());
         foreach($data as $key=>$value){
