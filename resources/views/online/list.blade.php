@@ -107,7 +107,6 @@
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
-            <col class="hidden-xs" width="100">
         </colgroup>
         <thead>
         <tr>
@@ -116,7 +115,6 @@
             <th class="hidden-xs">直属上级</th>
             <th class="hidden-xs">当前余额</th>
             <th class="hidden-xs">登录IP</th>
-            <th class="hidden-xs">地区</th>
             <th class="hidden-xs">所在台桌</th>
             <th class="hidden-xs">登录时间</th>
             <th class="hidden-xs">客户端</th>
@@ -136,7 +134,6 @@
                 </td>
                 <td class="hidden-xs">{{$info['balance']/100}}</td>
                 <td class="hidden-xs">{{$info['last_ip']}}</td>
-                <td class="hidden-xs">{{$info['address']}}</td>
                 <td class="hidden-xs">
                     @if($info['desk_id']==0)
                         为入台
