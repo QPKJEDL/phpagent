@@ -13,6 +13,7 @@ use App\Models\Order;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
@@ -93,8 +94,14 @@ class OrderController extends Controller
                 $sql = $sql.' and order_sn='.$request->input('orderSn');
             }
         }
-        $dataSql = 'select * from ('.$sql.') t where t.creatime between '.$begin.' and '.$endTime.' limit '.(($curr-1) * 10).',10';
-        $countSql = 'select * from ('.$sql.') t where t.creatime between '.$begin.' and '.$endTime;
+        $dataSql = 'select t.* from ('.$sql.') t
+         left join hq_user u on u.user_id = t.user_id
+         inner join (SELECT id FROM hq_agent_users WHERE del_flag=0 and (id = '.Auth::id().' or id IN (SELECT t.id from hq_agent_users t WHERE FIND_IN_SET('.Auth::id().',ancestors)))) a on a.id=u.agent_id
+         where t.creatime between '.$begin.' and '.$endTime.' limit '.(($curr-1) * 10).',10';
+        $countSql = 'select t.id from ('.$sql.') t
+         left join hq_user u on u.user_id = t.user_id
+         inner join (SELECT id FROM hq_agent_users WHERE del_flag=0 and (id = '.Auth::id().' or id IN (SELECT t.id from hq_agent_users t WHERE FIND_IN_SET('.Auth::id().',ancestors)))) a on a.id=u.agent_id
+         where t.creatime between '.$begin.' and '.$endTime;
         $count = DB::select($countSql);
         $data = DB::select($dataSql);
         foreach ($data as $key=>$value){
