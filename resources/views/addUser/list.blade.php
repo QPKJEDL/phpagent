@@ -331,9 +331,10 @@
         <div class="layui-form-item">
             <div class="layui-input-block">
               <button type="submit" class="layui-btn" lay-submit="" lay-filter="formDemo">立即提交</button>
+                <button type="button" class="layui-btn close">关闭</button>
               <button type="reset" class="layui-btn layui-btn-primary">重置</button>
             </div>
-          </div>
+        </div>
     </form>
 @endsection
 @section('js')
@@ -343,7 +344,7 @@
                 $ = layui.jquery,
                 laydate = layui.laydate,
                 layer = layui.layer,
-                element = layui.element;
+                element = layui.element();
             ;
             laydate({istoday: true});
             $("#account").click(function(){
@@ -448,6 +449,9 @@
                     }
                 }
             });
+            $(".close").click(function () {
+                element.tabDelete('5','5');
+            });
             form.on('submit(formDemo)', function(data) {
                 var data = $('form').serializeArray();
                 $.ajax({
@@ -460,7 +464,7 @@
                             layer.msg(res.msg,{icon:6});
                             var index = parent.layer.getFrameIndex(window.name);
                             setTimeout('parent.layer.close('+index+')',2000);
-                            //parent.layer.close(index);
+                            parent.layer.close(index);
                         }else{
                             layer.msg(res.msg,{shift: 6,icon:5});
                         }

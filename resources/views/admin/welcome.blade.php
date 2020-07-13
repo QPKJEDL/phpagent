@@ -66,6 +66,10 @@
         </div>
     </div>
     <div class="row">
+        <input type="hidden" id="agentId" value="{{\Illuminate\Support\Facades\Auth::id()}}">
+        <div id="qrcode"></div>
+    </div>
+    <div class="row">
         <form class="layui-form layui-form-pane">
             <div class="layui-form-item">
                 <label class="layui-form-label">当前登录用户</label>
@@ -101,6 +105,7 @@
                     <input type="text" name="title" autocomplete="off" disabled style="width: 30%;" value="{{$user['balance']/100}}" placeholder="请输入标题" class="layui-input">
                 </div>
             </div>
+            @if($user['role_name']!="线上代理")
             <div class="layui-form-item">
                 <label class="layui-form-label">透支额度</label>
                 <div class="layui-input-block">
@@ -119,6 +124,14 @@
                     <input type="text" name="title" disabled autocomplete="off" style="width: 30%;" value="百家乐:{{$user['baccarat']}} 龙虎：{{$user['dragon_tiger']}} 牛牛：{{$user['niuniu']}} 三公：{{$user['sangong']}} A89：{{$user['A89']}}" placeholder="请输入标题" class="layui-input">
                 </div>
             </div>
+            @else
+            <div class="layui-form-item">
+                <label class="layui-form-label">抽水比例</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" disabled autocomplete="off" style="width: 30%;" value="{{$user['pump']}}%" placeholder="请输入标题" class="layui-input">
+                </div>
+            </div>
+            @endif
             <div class="layui-form-item">
                 <label class="layui-form-label">占股</label>
                 <div class="layui-input-block">
@@ -134,5 +147,9 @@
 <script src="/static/admin/lib/echarts/echarts.js"></script>
 <script src="/static/admin/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/admin/summernote/summernote.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/admin/js/qrcode.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    new QRCode(document.getElementById("qrcode"), window.location.host + '/admin/userRegister/'+ document.getElementById('agentId').value);  // 设置要生成二维码的链接
+</script>
 </body>
 </html>

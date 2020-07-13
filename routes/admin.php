@@ -28,7 +28,10 @@ use Illuminate\Http\Request;
 Route::get('/verify',                   'Admin\HomeController@verify');
 //登陆模块
 Route::group(['namespace'  => "Auth"], function () {
-    //Route::get('/agentRegister',        '1');//代理激活
+    Route::get('/userRegister/{id}','HqUserRegisterController@userRegister');//会员注册页面
+    Route::post('/userSave','HqUserRegisterController@userSave');//会员保存
+    Route::get('/agentRegister/{id}',        'OnAgentActController@actAgent');//代理激活页面
+    Route::post('/actAgent','OnAgentActController@actSave');//代理激活
     Route::get('/register',             'BindController@index');    //绑定谷歌验证码
     Route::post('/valAccount',          'BindController@checkAccount'); //效验账号是否存在
     Route::post('/valUser',             'BindController@checkUserLogin');//效验账号密码的真实性
@@ -93,6 +96,16 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
 Route::group(['namespace'=>"Online",'middleware'=>['auth','permission']],function (){
     Route::resource('/onAddAgent','OnAddAgentController');//新增下级代理
     Route::resource('/onDelAgent','OnDelAgentController');//线上已删代理
+    Route::resource('/onDelUser','OnDelUserController');//线上已删会员
+    Route::resource('/onAgentList','OnAgentListController');//代理列表
+    Route::get('/onAgent/showAgent/{id}','OnAgentListController@showAgent');//下级代理
+    Route::get('/onAgent/showUser/{id}','OnAgentListController@showUser');//下级会员
+    Route::get('/onAgentList/qrCode/{id}','OnAgentListController@qrCodeShow');//显示未激活代理的二维码
+    Route::resource('/onHqUser','OnHqUserController');//会员列表
+    Route::resource('/onOrder','OnOrderController');//注单查询
+    Route::resource('/onCz','OnCzController');//会员充值查询
+    Route::resource('/onAgentDay','OnAgentDayController');//线上代理日结
+    Route::get('/onAgentDayEnd/{id}/{begin}/{end}','OnAgentDayController@getIndexByParentId');//线上代理下级日结
 });
 Route::get('/phpinfo',function (Request $request){
    phpinfo();

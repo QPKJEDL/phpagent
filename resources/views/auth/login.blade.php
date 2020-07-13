@@ -47,7 +47,7 @@
                         <button type="reset" class="layui-btn layui-btn-primary">取消</button>
                     </div>
                 </div>
-                {{--<a href="{{url('/admin/register')}}" style="color: #1E9FFF">绑定谷歌验证码</a>--}}
+                {{--<a href="{{url('/admin/userRegister/28')}}" style="color: #1E9FFF">绑定谷歌验证码</a>--}}
             </form>
         </div>
         <p class="copyright">Copyright 2018-{{date("Y",time())}} by EPP</p>

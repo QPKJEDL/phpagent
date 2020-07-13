@@ -29,12 +29,14 @@ class OnAddAgentController extends Controller
             unset($data['_token']);
             unset($data['pwd']);
             $data['userType']=2;
+            $data['is_act']=0;
             $data['ancestors']=$this->getUserAncestors($data['parent_id']);
             $data['password']=bcrypt($data['password']);
             $data['limit']=json_encode($data['limit']);
-            $count = User::insert($data);
+            $data['created_at']=date('Y-m-d H:i:s',time());
+            $count = User::insertGetId($data);
             if($count){
-                return ['msg'=>'操作成功！','status'=>1];
+                return ['msg'=>'操作成功！','status'=>1,'agent_id'=>$count];
             }else{
                 return ['msg'=>'操作失败！','status'=>0];
             }

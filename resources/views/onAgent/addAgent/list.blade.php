@@ -76,6 +76,24 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">抽水：</label>
+            <div class="layui-input-inline" style="width: 100px;">
+                <input type="number" name="pump" lay-verify="pump" data-v="{{$user['pump']}}" placeholder="%" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">比如20%就填写20</div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">占比：</label>
+            <div class="layui-input-inline" style="width: 100px;">
+                <input type="number" name="proportion" lay-verify="proportion" data-v="{{$user['proportion']}}" placeholder="%" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">比如20%就填写20</div>
+        </div>
+    </div>
+    <div class="layui-form-item">
         <div class="layui-input-block">
           <button type="submit" class="layui-btn" lay-submit="" lay-filter="formDemo">立即提交</button>
           <button type="reset" class="layui-btn layui-btn-primary">重置</button>
@@ -113,6 +131,20 @@
                     if(value!=password){
                         return '必须与密码相同';
                     }
+                },
+                pump:function (value) {
+                    var pump = $("input[name='pump']").attr('data-v');
+                    if(value>=pump){
+                        return '不能大于当前代理'
+                    }else if(value<pump-10){
+                        return '不能低于当前代理的百分之十'
+                    }
+                },
+                proportion:function (value) {
+                    var proportion = $("input[name='proportion']").attr('data-v');
+                    if(value>proportion){
+                        return  '不能大于当前代理'
+                    }
                 }
             });
             $("#account").click(function(){
@@ -133,6 +165,14 @@
                             layer.msg(res.msg,{icon:6});
                             var index = parent.layer.getFrameIndex(window.name);
                             setTimeout('parent.layer.close('+index+')',2000);
+                            layer.open({
+                                type:2,
+                                title:"激活二维码",
+                                shadeClose:true,
+                                offset:'10%',
+                                area:['30%','50%'],
+                                content:'/admin/onAgentList/qrCode/' + res.agent_id
+                            });
                         }else{
                             layer.msg(res.msg,{shift: 6,icon:5});
                         }

@@ -14,6 +14,7 @@
     <script src="/static/admin/js/common.js?fsfd=1" type="text/javascript" charset="utf-8"></script>
     <script src="/static/admin/js/jquery-2.1.1.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/admin/js/jquery.treetable.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/admin/js/qrcode.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
 <div class="wrap-container clearfix">
