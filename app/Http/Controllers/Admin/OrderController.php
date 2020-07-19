@@ -70,64 +70,71 @@ class OrderController extends Controller
         $sql = '';
         for ($i=0;$i<count($dateArr);$i++)
         {
-            if ($sql==""){
-                $sql = "select * from hq_order_".$dateArr[$i];
-            }else{
-                $sql = $sql.' union all select * from hq_order_'.$dateArr[$i];
-            }
-            if (true==$request->has('desk_id')){
-                $sql = $sql.' and desk_id ='.$request->input('desk_id');
-            }
-            if (true==$request->has('type')){
-                $sql = $sql.' and game_type='.$request->input('type');
-            }
-            if (true==$request->has('status')){
-                $sql = $sql.' and status='.$request->input('status');
-            }
-            if (true==$request->has('boot_num')){
-                $sql = $sql.' and boot_num='.$request->input('boot_num');
-            }
-            if (true==$request->has('pave_num')){
-                $sql = $sql.' and pave_num='.$request->input('pave_num');
-            }
-            if (true==$request->has('orderSn')){
-                $sql = $sql.' and order_sn='.$request->input('orderSn');
+            if (Schema::hasTable('order_'.$dateArr[$i])){
+                if ($sql==""){
+                    $sql = "select * from hq_order_".$dateArr[$i];
+                }else{
+                    $sql = $sql.' union all select * from hq_order_'.$dateArr[$i];
+                }
+                if (true==$request->has('desk_id')){
+                    $sql = $sql.' and desk_id ='.$request->input('desk_id');
+                }
+                if (true==$request->has('type')){
+                    $sql = $sql.' and game_type='.$request->input('type');
+                }
+                if (true==$request->has('status')){
+                    $sql = $sql.' and status='.$request->input('status');
+                }
+                if (true==$request->has('boot_num')){
+                    $sql = $sql.' and boot_num='.$request->input('boot_num');
+                }
+                if (true==$request->has('pave_num')){
+                    $sql = $sql.' and pave_num='.$request->input('pave_num');
+                }
+                if (true==$request->has('orderSn')){
+                    $sql = $sql.' and order_sn='.$request->input('orderSn');
+                }
             }
         }
-        $dataSql = 'select t.* from ('.$sql.') t
+        if ($sql!="" || $sql!=null){
+            $dataSql = 'select t.* from ('.$sql.') t
          left join hq_user u on u.user_id = t.user_id
          inner join (SELECT id FROM hq_agent_users WHERE del_flag=0 and (id = '.Auth::id().' or id IN (SELECT t.id from hq_agent_users t WHERE FIND_IN_SET('.Auth::id().',ancestors)))) a on a.id=u.agent_id
          where t.creatime between '.$begin.' and '.$endTime.' limit '.(($curr-1) * 10).',10';
-        $countSql = 'select t.id from ('.$sql.') t
+            $countSql = 'select t.id from ('.$sql.') t
          left join hq_user u on u.user_id = t.user_id
          inner join (SELECT id FROM hq_agent_users WHERE del_flag=0 and (id = '.Auth::id().' or id IN (SELECT t.id from hq_agent_users t WHERE FIND_IN_SET('.Auth::id().',ancestors)))) a on a.id=u.agent_id
          where t.creatime between '.$begin.' and '.$endTime;
-        $count = DB::select($countSql);
-        $data = DB::select($dataSql);
-        foreach ($data as $key=>$value){
-            $data[$key]->user = HqUser::getUserInfoByUserId($value->user_id);
-            $data[$key]->money = $this->getSumBetMoney($value);
-            //获取表名
-            $tableName = $this->getGameRecordTableNameByRecordSn($value->record_sn);
-            $winner = $this->getGameRecordInfo($tableName,$value->record_sn);
-            $data[$key]->bill=Billflow::getBillflowByOrderSn($value->order_sn,$tableName);
-            if ($data[$key]->game_type==1){
-                $data[$key]->result=$this->getBaccaratParseJson($winner);
-                $data[$key]->bet_money=$this->getBaccaratBetMoney($value->bet_money);
-            }else if($data[$key]->game_type==2){
-                $data[$key]->result=$this->getDragonTigerJson($winner);
-                $data[$key]->bet_money=$this->getDragonTieTiger($value->bet_money);
-            }else if($data[$key]->game_type==3){
-                $data[$key]->result=$this->getFullParseJson($winner);
-                $data[$key]->bet_money=$this->getNiuNiuBetMoney($value->bet_money);
-            }else if($data[$key]->game_type==4){
-                $data[$key]->result = $this->getSanGongResult($winner);
-                $data[$key]->bet_money=$this->getSanGongMoney($value->bet_money);
-            }else if($data[$key]->game_type==5){
-                $data[$key]->result=$this->getA89Result($winner);
-                $data[$key]->bet_money=$this->getA89BetMoney($value->bet_money);
+            $count = DB::select($countSql);
+            $data = DB::select($dataSql);
+            foreach ($data as $key=>$value){
+                $data[$key]->user = HqUser::getUserInfoByUserId($value->user_id);
+                $data[$key]->money = $this->getSumBetMoney($value);
+                //获取表名
+                $tableName = $this->getGameRecordTableNameByRecordSn($value->record_sn);
+                $winner = $this->getGameRecordInfo($tableName,$value->record_sn);
+                $data[$key]->bill=Billflow::getBillflowByOrderSn($value->order_sn,$tableName);
+                if ($data[$key]->game_type==1){
+                    $data[$key]->result=$this->getBaccaratParseJson($winner);
+                    $data[$key]->bet_money=$this->getBaccaratBetMoney($value->bet_money);
+                }else if($data[$key]->game_type==2){
+                    $data[$key]->result=$this->getDragonTigerJson($winner);
+                    $data[$key]->bet_money=$this->getDragonTieTiger($value->bet_money);
+                }else if($data[$key]->game_type==3){
+                    $data[$key]->result=$this->getFullParseJson($winner);
+                    $data[$key]->bet_money=$this->getNiuNiuBetMoney($value->bet_money);
+                }else if($data[$key]->game_type==4){
+                    $data[$key]->result = $this->getSanGongResult($winner);
+                    $data[$key]->bet_money=$this->getSanGongMoney($value->bet_money);
+                }else if($data[$key]->game_type==5){
+                    $data[$key]->result=$this->getA89Result($winner);
+                    $data[$key]->bet_money=$this->getA89BetMoney($value->bet_money);
+                }
+                $data[$key]->creatime = date('Y-m-d H:i:s',$value->creatime);
             }
-            $data[$key]->creatime = date('Y-m-d H:i:s',$value->creatime);
+        }else{
+            $data = array();
+            $count=array();
         }
         $min = config('admin.min_date');
         return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'curr'=>$curr,'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>$min,'pages'=>ceil(count($count)/10)]);
