@@ -71,28 +71,30 @@ class OnOrderController extends Controller
         $sql = '';
         for ($i=0;$i<count($dateArr);$i++)
         {
-            if ($sql==""){
-                $sql = "select * from hq_order_".$dateArr[$i];
-            }else{
-                $sql = $sql.' union all select * from hq_order_'.$dateArr[$i];
-            }
-            if (true==$request->has('desk_id')){
-                $sql = $sql.' and desk_id ='.$request->input('desk_id');
-            }
-            if (true==$request->has('type')){
-                $sql = $sql.' and game_type='.$request->input('type');
-            }
-            if (true==$request->has('status')){
-                $sql = $sql.' and status='.$request->input('status');
-            }
-            if (true==$request->has('boot_num')){
-                $sql = $sql.' and boot_num='.$request->input('boot_num');
-            }
-            if (true==$request->has('pave_num')){
-                $sql = $sql.' and pave_num='.$request->input('pave_num');
-            }
-            if (true==$request->has('orderSn')){
-                $sql = $sql.' and order_sn='.$request->input('orderSn');
+            if (Schema::hasTable('order_'.$dateArr[$i])){
+                if ($sql==""){
+                    $sql = "select * from hq_order_".$dateArr[$i];
+                }else{
+                    $sql = $sql.' union all select * from hq_order_'.$dateArr[$i];
+                }
+                if (true==$request->has('desk_id')){
+                    $sql = $sql.' and desk_id ='.$request->input('desk_id');
+                }
+                if (true==$request->has('type')){
+                    $sql = $sql.' and game_type='.$request->input('type');
+                }
+                if (true==$request->has('status')){
+                    $sql = $sql.' and status='.$request->input('status');
+                }
+                if (true==$request->has('boot_num')){
+                    $sql = $sql.' and boot_num='.$request->input('boot_num');
+                }
+                if (true==$request->has('pave_num')){
+                    $sql = $sql.' and pave_num='.$request->input('pave_num');
+                }
+                if (true==$request->has('orderSn')){
+                    $sql = $sql.' and order_sn='.$request->input('orderSn');
+                }
             }
         }
         $dataSql = 'select t.* from ('.$sql.') t
