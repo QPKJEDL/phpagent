@@ -136,7 +136,7 @@
                 <td class="hidden-xs">{{$info['last_ip']}}</td>
                 <td class="hidden-xs">
                     @if($info['desk_id']==0)
-                        为入台
+                        未入台
                     @else
                         {{$info['desk_name']}}
                     @endif
