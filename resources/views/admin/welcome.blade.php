@@ -67,7 +67,7 @@
     </div>
     <div class="row">
         <input type="hidden" id="agentId" value="{{\Illuminate\Support\Facades\Auth::id()}}">
-        <div id="qrcode"></div>
+        <div id="qrcode" style="padding-left: 50px;"></div>
     </div>
     <div class="row">
         <form class="layui-form layui-form-pane">
