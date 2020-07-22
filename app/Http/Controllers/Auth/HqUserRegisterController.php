@@ -68,7 +68,7 @@ class HqUserRegisterController extends Controller
                     $account['creatime']=time();
                     $num = UserAccount::insert($account);
                     if ($num){
-                        return ['msg'=>'注册成功','status'=>1];
+                        return ['msg'=>'注册成功','status'=>1,'account'=>$data['account']];
                     }else{
                         return ['msg'=>'操作失败','status'=>0];
                     }
