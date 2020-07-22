@@ -331,7 +331,6 @@
         <div class="layui-form-item">
             <div class="layui-input-block">
               <button type="submit" class="layui-btn" lay-submit="" lay-filter="formDemo">立即提交</button>
-                <button type="button" class="layui-btn close">关闭</button>
               <button type="reset" class="layui-btn layui-btn-primary">重置</button>
             </div>
         </div>
@@ -351,7 +350,7 @@
                 //console.log(Math.random().toString().slice(-6));
                 //清空数据
                 $("input[name='account']").val('');
-                $("input[name='account']").val(Math.random().toString().slice(-11));
+                $("input[name='account']").val(Math.floor(Math.random() * (99999999-10000000)) + 10000000);
             });
             form.render();
             form.verify({
@@ -363,6 +362,10 @@
                 account:function(value){
                     if(value.length==0){
                         return '请输入账号';
+                    }
+                    if (value>9999999 && value< 100000000)
+                    {
+                        return '账号必须大于9999999，小于100000000'
                     }
                 },
                 password:function(value){
