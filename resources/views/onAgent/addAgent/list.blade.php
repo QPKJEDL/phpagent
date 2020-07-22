@@ -113,9 +113,12 @@
             form.render();
             form.verify({
                 username:function(value){
-                    var reg = new RegExp('^[0-9]{6}$');
+                    var reg = new RegExp('^[0-9]{7}$');
                     if (!reg.test(value)){
                         return '格式错误';
+                    }
+                    if(value>999999 && value<10000000){
+                        return '账号大于999999，并且小于10000000'
                     }
                 },
                 password:function(value){
@@ -151,7 +154,7 @@
                 //console.log(Math.random().toString().slice(-6));
                 //清空数据
                 $("input[name='username']").val('');
-                $("input[name='username']").val(Math.random().toString().slice(-6));
+                $("input[name='username']").val(Math.floor(Math.random() * (9999999-1000000)) + 1000000);
             });
             form.on('submit(formDemo)', function(data) {
                 var data = $('form').serializeArray();

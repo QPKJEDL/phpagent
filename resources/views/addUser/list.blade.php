@@ -360,8 +360,9 @@
                     }
                 },
                 account:function(value){
-                    if(value.length==0){
-                        return '请输入账号';
+                    var reg = new RegExp('^[0-9]{8}$');
+                    if (!reg.test(value)){
+                        return '格式错误';
                     }
                     if (value>9999999 && value< 100000000)
                     {

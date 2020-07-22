@@ -31,7 +31,7 @@ class HqUserRegisterController extends Controller
     {
         $data = $request->all();
         unset($data['_token']);
-        if (HqUser::where('account','=',$data['account'])->exists()){
+        if (HqUser::where('mobile','=',$data['account'])->exists()){
             return ['msg'=>'手机号已存在','status'=>0];
         }else{
             $code = '111';
@@ -40,6 +40,13 @@ class HqUserRegisterController extends Controller
             }else{
                 $info = $data['agent_id']?User::find($data['agent_id']):[];
                 unset($data['code']);
+                $data['mobile']=$data['account'];
+                $dataInfo = HqUser::where('user_type','=',2)->orderBy('creatime','desc')->first();
+                if (empty($dataInfo)){
+                    $data['account']="100000000";
+                }else{
+                    $data['account']=$dataInfo['account']+$this->getAccount();
+                }
                 $data['password']=md5($data['password']);
                 $data['reg_ip']=$request->ip();
                 $data['mobile']=$data['account'];
@@ -70,5 +77,14 @@ class HqUserRegisterController extends Controller
                 }
             }
         }
+    }
+
+    /**
+     * 生成一个1位或者2位随机数
+     * @return int
+     */
+    public function getAccount()
+    {
+        return mt_rand(1,10);
     }
 }
