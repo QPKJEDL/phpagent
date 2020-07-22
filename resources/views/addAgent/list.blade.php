@@ -318,6 +318,9 @@
                     if (!reg.test(value)){
                         return '格式错误';
                     }
+                    if(value<99999 && value>999999){
+                        return '请输入6位，并且大于100000，小于999999'
+                    }
                 },
                 password:function(value){
                     if(value.length==0){
