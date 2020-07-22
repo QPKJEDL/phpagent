@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Desk;
 use App\Models\HqUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 /**
  * 在线用户
  * Class OnlineUserController
@@ -16,6 +18,7 @@ class OnlineUserController extends Controller
 {
     public function index(Request $request){
         $map = array();
+        $map['user.parent_id']=Auth::id();
         $map['user.is_online']=1;
         if(true==$request->has('username')){
             $map['agent_users.username']=$request->input('username');
