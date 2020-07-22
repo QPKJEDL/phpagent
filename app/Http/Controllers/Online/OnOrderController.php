@@ -553,9 +553,8 @@ class OnOrderController extends Controller
     public function getBaccaratBetMoney($betMoney){
         $data = json_decode($betMoney,true);
         $str = '';
-        foreach ($data as $key=>$value) {
             if ($data['banker']>0) {
-                $str = "庄".$data['banker'];
+                $str = "庄".$data['banker']/100;
             }
             if ($data['bankerPair']>0) {
                 $str = $str."庄对".$data['bankerPair']/100;
@@ -569,7 +568,6 @@ class OnOrderController extends Controller
             if ($data['tie']>0) {
                 $str = $str."和".$data['tie']/100;
             }
-        }
         return $str;
     }
 
