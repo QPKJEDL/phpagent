@@ -338,7 +338,7 @@
                 //console.log(Math.random().toString().slice(-6));
                 //清空数据
                 $("input[name='username']").val('');
-                $("input[name='username']").val(Math.random().toString().slice(-6));
+                $("input[name='username']").val(Math.floor(Math.random() * (999999-100000)) + 100000);
             });
             form.on('submit(formDemo)', function(data) {
                 var data = $('form').serializeArray();
