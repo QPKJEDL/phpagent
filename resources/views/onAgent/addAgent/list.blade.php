@@ -43,11 +43,11 @@
         <div class="layui-inline">
           <label class="layui-form-label">限红范围：</label>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[min]" placeholder="￥" value="10" autocomplete="off" class="layui-input">
+            <input type="text" name="limit[min]" readonly placeholder="￥" value="10" autocomplete="off" class="layui-input">
           </div>
           <div class="layui-form-mid">-</div>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[max]" placeholder="￥" value="50000" autocomplete="off" class="layui-input">
+            <input type="text" name="limit[max]" readonly placeholder="￥" value="50000" autocomplete="off" class="layui-input">
           </div>
         </div>
     </div>
@@ -55,11 +55,11 @@
         <div class="layui-inline">
           <label class="layui-form-label">和限红范围：</label>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[tieMin]" placeholder="￥" autocomplete="off" value="10" class="layui-input">
+            <input type="text" name="limit[tieMin]" readonly placeholder="￥" autocomplete="off" value="10" class="layui-input">
           </div>
           <div class="layui-form-mid">-</div>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[tieMax]" placeholder="￥" autocomplete="off"  value="5000" class="layui-input">
+            <input type="text" name="limit[tieMax]" readonly placeholder="￥" autocomplete="off"  value="5000" class="layui-input">
           </div>
         </div>
     </div>
@@ -67,11 +67,11 @@
         <div class="layui-inline">
           <label class="layui-form-label">对限红范围：</label>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[pairMin]" placeholder="￥" autocomplete="off"  class="layui-input" value="10">
+            <input type="text" name="limit[pairMin]" readonly placeholder="￥" autocomplete="off"  class="layui-input" value="10">
           </div>
           <div class="layui-form-mid">-</div>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[pairMax]" placeholder="￥" autocomplete="off" class="layui-input" value="5000">
+            <input type="text" name="limit[pairMax]" readonly placeholder="￥" autocomplete="off" class="layui-input" value="5000">
           </div>
         </div>
     </div>
