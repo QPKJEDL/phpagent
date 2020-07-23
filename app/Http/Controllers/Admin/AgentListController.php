@@ -109,8 +109,8 @@ class AgentListController extends Controller
         $agentList = User::get();
         $userList = $this->getHqUserList();
         $userMoney = $this->getAgentUserMoney($agentId,$userList);
-        $info = $this->getAgentInfo($agentId,$agentList);
-        return $info + $userMoney + $this->getRecursiveBalance($agentId,$agentList,$userList);
+        $info = $agentId?User::find($agentId):[];
+        return $info['balance'] + $userMoney + $this->getRecursiveBalance($agentId,$agentList,$userList);
     }
     public function getAgentUserMoney($agentId,$userList){
         $arr = array();
@@ -130,9 +130,11 @@ class AgentListController extends Controller
         return $money;
     }
     public function getAgentInfo($agentId,$agentList){
+        dump($agentId);
+        dump($agentList);
         foreach ($agentList as $key=>$value){
             if ($value['id']=$agentId){
-                return $agentList[$key]['balance'];
+                return $value['balance'];
                 break;
             }
         }
