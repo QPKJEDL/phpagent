@@ -98,6 +98,7 @@ Route::group(['namespace'=>"Online",'middleware'=>['auth','permission']],functio
     Route::resource('/onDelAgent','OnDelAgentController');//线上已删代理
     Route::resource('/onDelUser','OnDelUserController');//线上已删会员
     Route::resource('/onAgentList','OnAgentListController');//代理列表
+    Route::post('/onAgentList/update','OnAgentListController@update');//编辑保存
     Route::get('/onAgent/showAgent/{id}','OnAgentListController@showAgent');//下级代理
     Route::get('/onAgent/showUser/{id}','OnAgentListController@showUser');//下级会员
     Route::get('/onAgentList/qrCode/{id}','OnAgentListController@qrCodeShow');//显示未激活代理的二维码

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Online;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreRequest;
 use App\Models\Czrecord;
 use App\Models\HqUser;
 use App\Models\User;
@@ -45,6 +46,27 @@ class OnAgentListController extends Controller
             $data[$key]['groupBalance']=$this->getGroupBalance($value['id'],$value['balance']);
         }
         return view('onAgent.agentList.list',['list'=>$data,'input'=>$request->all(),'user'=>$user]);
+    }
+
+    public function edit($id=0)
+    {
+        $info = $id?User::find($id):[];
+        return view('onAgent.agentList.edit',['info'=>$info,'id'=>$id,'user'=>Auth::user()]);
+    }
+
+    public function update(StoreRequest $request)
+    {
+        $data = $request->all();
+        $id = $data['id'];
+        unset($data['id']);
+        unset($data['_token']);
+        $data['limit']=json_encode($data['limit']);
+        $count = User::where('id','=',$id)->update($data);
+        if ($count){
+            return ['msg'=>'操作成功','status'=>1];
+        }else{
+            return ['msg'=>'操作失败','status'=>0];
+        }
     }
 
     public function showAgent($id,Request $request)
