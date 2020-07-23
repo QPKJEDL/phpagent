@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AgentBill;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * 代理充值
@@ -32,7 +33,7 @@ class AgentCzController extends Controller
             $end = strtotime($request->input('end'));
             $sql->whereBetween('agent_billflow.creatime',[$begin,$end]);
         }
-        $data = $sql->where($map)->orderBy('creatime','desc')->paginate(10)->appends($request->all());
+        $data = $sql->where($map)->where('agent_users.id','=',Auth::id())->orWhere('agent_users.parent_id','=',Auth::id())->orderBy('creatime','desc')->paginate(10)->appends($request->all());
         foreach ($data as $key=>$value)
         {
             $data[$key]['creatime']=date('Y-m-d H:i:s',$value['creatime']);
