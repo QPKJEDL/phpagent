@@ -65,12 +65,6 @@
             </div>
         </div>
     </div>
-    @if($user['role_name']=="线上代理")
-    <div class="row">
-        <input type="hidden" id="agentId" value="{{\Illuminate\Support\Facades\Auth::id()}}">
-        <div id="qrcode" style="padding-left: 50px;"></div>
-    </div>
-    @endif
     <div class="row">
         <form class="layui-form layui-form-pane">
             <div class="layui-form-item">
@@ -150,8 +144,5 @@
 <script src="/static/admin/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/admin/summernote/summernote.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/admin/js/qrcode.js" type="text/javascript" charset="utf-8"></script>
-<script type="text/javascript">
-    new QRCode(document.getElementById("qrcode"), window.location.host + '/admin/userRegister/'+ document.getElementById('agentId').value);  // 设置要生成二维码的链接
-</script>
 </body>
 </html>
