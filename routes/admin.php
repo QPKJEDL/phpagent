@@ -92,6 +92,8 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::post('/czSave','HqUserController@czSave');//在线提现充值
     Route::resource('/agentDraw','AgentDrawController');//代理提现查询
     Route::resource('/agentCz','AgentCzController');//代理充值查询
+
+    Route::resource('/qrocde','QrcodeController');//会员注册二维码
 });
 Route::group(['namespace'=>"Online",'middleware'=>['auth','permission']],function (){
     Route::resource('/onAddAgent','OnAddAgentController');//新增下级代理
