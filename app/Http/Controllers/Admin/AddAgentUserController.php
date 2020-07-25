@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRequest;
+use App\Models\AgentRoleUser;
 use App\Models\Game;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -38,9 +39,10 @@ class AddAgentUserController extends Controller
 
     public function store(StoreRequest $request){
         $data = $request->all();
+        $roleId = AgentRoleUser::where('user_id','=',Auth::id())->first()['role_id'];
         unset($data['_token']);
         unset($data['pwd']);
-        //dump($data);
+        $data['userType']=1;
         $data['password']=bcrypt($data['password']);
         $data['fee']=json_encode($data['fee']);
         $data['limit']=json_encode($data['limit']);
@@ -50,8 +52,16 @@ class AddAgentUserController extends Controller
         $data['sgbets_fee']=json_encode($data['sgbets_fee']);
         $data['a89bets_fee']=json_encode($data['a89bets_fee']);
         $data['ancestors']= $this->getUserAncestors($data['parent_id']);
-        $count = User::insert($data);
+        $data['created_at']=date('Y-m-d H:i:s',time());
+        if (!empty($data['is_allow']))
+        {
+             $data['is_allow']=1;
+        }else{
+            $data['is_allow']=0;
+        }
+        $count = User::insertGetId($data);
         if($count){
+            AgentRoleUser::insert(['user_id'=>$count,'role_id'=>$roleId]);
             return ['msg'=>'操作成功！','status'=>1];
         }else{
             return ['msg'=>'操作失败！','status'=>0];
