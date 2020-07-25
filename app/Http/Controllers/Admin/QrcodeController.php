@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class QrcodeController extends Controller
 {
-    public function codeEdit($id)
+    public function index(Request $request)
     {
-        return view('qrcode.qrocde',['id'=>$id]);
+        return view('qrcode.list',['id'=>Auth::id()]);
     }
 }
