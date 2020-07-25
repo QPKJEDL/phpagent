@@ -52,10 +52,11 @@ class LoginController extends Controller
         if(!$count){
             return redirect('/admin/login')->withErrors([trans('fzs.login.false_account')]);
         }
-        /*$user = new User();
-        if(!$this->verifyGooglex($request->input('ggkey'),htmlformat($request->input('username')))){
-            return redirect('/admin/login')->withErrors([trans('fzs.login.false_ggkey')]);
-        }*/
+        if ($count['userType']==2){
+            if ($count['is_act']==0){
+                return redirect('/admin/login')->withErrors([trans('fzs.login.false_act')]);
+            }
+        }
         if($request->input('verity')==session('code'))return $this->doLogin($request);
         else return redirect('/admin/login')->withErrors([trans('fzs.login.false_verify')]);
     }
