@@ -364,7 +364,7 @@
                     if (!reg.test(value)){
                         return '格式错误';
                     }
-                    if (value>9999999 && value< 100000000)
+                    if (!(value>9999999 && value< 100000000))
                     {
                         return '账号必须大于9999999，小于100000000'
                     }
