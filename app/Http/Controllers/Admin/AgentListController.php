@@ -487,16 +487,19 @@ class AgentListController extends Controller
     public function agentCzSave(StoreRequest $request){
         $data = $request->all();
         //获取当前登录
-        $user = Auth::user();
-        $agent = $data['id']?User::find($data['id']):[];
+        /*$user = Auth::user();
+        $agent = $data['id']?User::find($data['id']):[];*/
         unset($data['_token']);
         if ($data['type']==1){
+            DB::beginTransaction();
+            $user = User::where('id','=',Auth::id())->lockForUpdate()->first();
+            $agent = User::where('id','=',$data['id'])->lockForUpdate()->first();
             if ($user['balance']<$data['money']){
+                DB::rollBack();
                 return ['msg'=>'余额不足','status'=>0];
             }else{
                 $bool = $this->redissionLock($agent['id']);
                 if ($bool){
-                    DB::beginTransaction();
                     try {
                         $result = DB::table('agent_users')->where('id','=',$agent['id'])->increment('balance',$data['money']*100);
                         if ($result){
@@ -535,16 +538,20 @@ class AgentListController extends Controller
                         return ['msg'=>'发生异常，请稍后再试','status'=>0];
                     }
                 }else{
+                    DB::rollBack();
                     return ['msg'=>'请忽频繁提交','status'=>0];
                 }
             }
         }else{
+            DB::beginTransaction();//开启事务
+            $user = User::where('id','=',Auth::id())->lockForUpdate()->first();
+            $agent = User::where('id','=',$data['id'])->lockForUpdate()->first();
             if ($agent['balance']<$data['money']*100){
+                DB::rollBack();
                 return ['msg'=>'余额不足','status'=>0];
             }else{
                 $bool = $this->redissionLock($agent['id']);
                 if ($bool){
-                    DB::beginTransaction();//开启事务
                     try {
                         $result = DB::table('agent_users')->where('id','=',$agent['id'])->decrement('balance',$data['money']*100);
                         if ($result){
@@ -582,8 +589,8 @@ class AgentListController extends Controller
                         $this->unRedissLock($agent['id']);
                         return ['msg'=>'操作异常','status'=>0];
                     }
-                    $result = DB::table('agent_users')->where('id','=',$agent['id'])->de;
                 }else{
+                    DB::rollBack();
                     return ['msg'=>'请忽频繁提交','status'=>0];
                 }
             }

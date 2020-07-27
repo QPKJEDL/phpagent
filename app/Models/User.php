@@ -17,7 +17,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     protected $userInfo;
 
     public static function getUserInfo($account){
-        $user =User::where('username','=',$account)->first();
+        $user =User::where('username','=',$account)->lockForUpdate()->first();
         return $user;
     }
 }

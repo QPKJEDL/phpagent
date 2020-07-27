@@ -70,15 +70,16 @@ class HqUserController extends Controller
     }
     public function czSave(StoreRequest $request){
         $data = $request->all();
-        $userAccount = UserAccount::getUserAccountInfo($data['id']);
-        $agent = User::getUserInfo(Auth::user()['username']);
         if ($data['type']==1){
+            DB::beginTransaction();//开启事务
+            $userAccount = UserAccount::getUserAccountInfo($data['id']);
+            $agent = User::getUserInfo(Auth::user()['username']);
             if ($agent['balance']<$data['money']){
+                DB::rollBack();
                 return ['msg'=>'余额不足，不能进行充值','status'=>0];
             }else{
                 $bool = $this->redissionLock($data['id']);
                 if ($bool){
-                    DB::beginTransaction();//开启事务
                     try {
                         $result = DB::table('user_account')->where('user_id','=',$data['id'])->increment('balance',$data['money']*100);
                         if ($result){
@@ -117,10 +118,14 @@ class HqUserController extends Controller
                         return ['msg'=>'操作异常！请稍后再试','status'=>0];
                     }
                 }else{
+                    DB::rollBack();
                     return ['msg'=>'请忽频繁提交','status'=>0];
                 }
             }
         }else{
+            DB::beginTransaction();//开启事务
+            $userAccount = UserAccount::getUserAccountInfo($data['id']);
+            $agent = User::getUserInfo(Auth::user()['username']);
             if ($userAccount['balance']<$data['money']*100){
                 return ['msg'=>'余额不足，不能提现','status'=>0];
             }else{
@@ -165,6 +170,7 @@ class HqUserController extends Controller
                         return ['msg'=>'操作异常，请稍后再试','status'=>0];
                     }
                 }else{
+                    DB::rollBack();
                     $this->unRedissLock($data['id']);
                     return ['msg'=>'请忽频繁提交','status'=>0];
                 }
