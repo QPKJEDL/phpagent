@@ -518,12 +518,12 @@ class AgentListController extends Controller
                                         return ['msg'=>'操作失败','status'=>0];
                                     }
                                 }else{
-                                    DB::rollBakc();
+                                    DB::rollBack();
                                     $this->unRedissLock($agent['id']);
                                     return ['msg'=>'操作失败','status'=>0];
                                 }
                             }else{
-                                DB::rollBakc();
+                                DB::rollBack();
                                 $this->unRedissLock($agent['id']);
                                 return ['msg'=>'操作失败','status'=>0];
                             }
@@ -565,22 +565,22 @@ class AgentListController extends Controller
                                         $this->unRedissLock($agent['id']);
                                         return ['msg'=>'操作成功','status'=>1];
                                     }else{
-                                        DB::rollBakc();
+                                        DB::rollBack();
                                         $this->unRedissLock($agent['id']);
                                         return ['msg'=>'操作失败','status'=>0];
                                     }
                                 }else{
-                                    DB::rollBakc();
+                                    DB::rollBack();
                                     $this->unRedissLock($agent['id']);
                                     return ['msg'=>'操作失败','status'=>0];
                                 }
                             }else{
-                                DB::rollBakc();
+                                DB::rollBack();
                                 $this->unRedissLock($agent['id']);
                                 return ['msg'=>'操作失败','status'=>0];
                             }
                         }else{
-                            DB::rollBakc();
+                            DB::rollBack();
                             $this->unRedissLock($agent['id']);
                             return ['msg'=>'操作失败','status'=>0];
                         }
