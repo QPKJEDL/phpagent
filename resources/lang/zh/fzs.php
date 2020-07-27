@@ -20,7 +20,7 @@ return [
         'false_ggkey'          =>    '谷歌验证码错误',
         'login_info'           =>    '后台登陆',
         'root_directory'       =>    '一级菜单',
-        'false_act'            =>    '账号未激活'
+        'false_act'            =>    '账号未激活，请激活'
     ],
     'menus' => [
         'notdel'               =>    '该菜单不可以删除',

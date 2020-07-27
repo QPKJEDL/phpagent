@@ -31,6 +31,11 @@
                         <input type="button" class="layui-btn layui-btn-sm" id="sendMsg" style="float: right;" onclick="buttoncss(this)" value="点击发送">
                     </div>
                 </div>
+                @if (count($errors) > 0)
+                    @foreach ($errors->all() as $error)
+                        <div class="layui-form-mid layui-word-aux" style="color: red;">{{ $error }}</div>
+                    @endforeach
+                @endif
                 <div class="layui-form-item m-login-btn">
                     <div class="layui-inline">
                         <button class="layui-btn layui-btn-normal" id="act" lay-submit lay-filter="submit">激活</button>

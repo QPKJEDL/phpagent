@@ -54,7 +54,8 @@ class LoginController extends Controller
         }
         if ($count['userType']==2){
             if ($count['is_act']==0){
-                return redirect('/admin/login')->withErrors([trans('fzs.login.false_act')]);
+                $str = '/admin/agentRegister/'.$count['id'];
+                return redirect($str)->withErrors([trans('fzs.login.false_act')]);
             }
         }
         if($request->input('verity')==session('code'))return $this->doLogin($request);
