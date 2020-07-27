@@ -8,6 +8,6 @@ class UserAccount extends Model
     protected $table = 'user_account';
 
     public static function getUserAccountInfo($userId){
-        return UserAccount::where('user_id','=',$userId)->first();
+        return UserAccount::where('user_id','=',$userId)->first()->lockForUpdate();
     }
 }
