@@ -25,7 +25,7 @@
                 </div>
                 <div class="layui-form-item">
                     <div class="layui-inline">
-                        <input type="text" name="code" lay-verify="code" placeholder="验证码" autocomplete="off" class="layui-input">
+                        <input type="text" name="code" lay-verify="code" placeholder="验证码（写死的1111）" autocomplete="off" class="layui-input">
                     </div>
                     <div class="layui-inline">
                         <input type="button" class="layui-btn layui-btn-sm" id="sendMsg" style="float: right;" onclick="buttoncss(this)" value="点击发送">
