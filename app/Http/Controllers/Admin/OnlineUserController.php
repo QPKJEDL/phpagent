@@ -18,7 +18,7 @@ class OnlineUserController extends Controller
 {
     public function index(Request $request){
         $map = array();
-        $map['user.parent_id']=Auth::id();
+        $map['user.agent_id']=Auth::id();
         $map['user.is_online']=1;
         if(true==$request->has('username')){
             $map['agent_users.username']=$request->input('username');
