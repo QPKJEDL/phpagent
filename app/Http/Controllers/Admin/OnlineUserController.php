@@ -38,6 +38,10 @@ class OnlineUserController extends Controller
             ->leftJoin('user_account','user.user_id','=','user_account.user_id')
             ->leftJoin('desk','desk.id','=','user.desk_id')
             ->select('user.*','agent_users.username','desk.desk_name','user_account.balance')->where($map)->orderBy('user.savetime','desc')->paginate(10)->appends($request->all());
+        $countData = HqUser::query()->leftJoin('agent_users','user.agent_id','=','agent_users.id')
+            ->leftJoin('user_account','user.user_id','=','user_account.user_id')
+            ->leftJoin('desk','desk.id','=','user.desk_id')
+            ->select('user.*','agent_users.username','desk.desk_name','user_account.balance')->where($map)->orderBy('user.savetime','desc')->get();
         foreach ($data as $key=>$value){
             $url = "http://whois.pconline.com.cn/ipJson.jsp?ip=".$value['last_ip']."'&json=true";
             $result = file_get_contents($url);
@@ -46,7 +50,7 @@ class OnlineUserController extends Controller
             $data[$key]['address']=$result['addr'];
             $data[$key]['savetime']=date('Y-m-d H:i:s');
         }
-        return view('online.list',['list'=>$data,'input'=>$request->all(),'desk'=>$this->getAllDeskList(),'onlineUserCount'=>count($data),'money'=>$this->getOnlineUserMoney($data)/100,'pc'=>$this->getOnlineCount($data,1),'ios'=>$this->getOnlineCount($data,2),'android'=>$this->getOnlineCount($data,3),'h5'=>$this->getOnlineCount($data,4)]);
+        return view('online.list',['list'=>$data,'input'=>$request->all(),'desk'=>$this->getAllDeskList(),'onlineUserCount'=>count($countData),'money'=>$this->getOnlineUserMoney($countData)/100,'pc'=>$this->getOnlineCount($countData,1),'ios'=>$this->getOnlineCount($countData,2),'android'=>$this->getOnlineCount($countData,3),'h5'=>$this->getOnlineCount($countData,4)]);
     }
 
     /**
