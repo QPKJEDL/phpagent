@@ -22,23 +22,45 @@ class HqUserController extends Controller
         $map = array();
         $map['agent_id']=$user['id'];
         if(true==$request->has('account')){
-            $map['account']=$request->input('account');
+            $map['account']=HttpFilter($request->input('account'));
         }
-        $user = HqUser::query();
-        $sql = $user->leftJoin('agent_users','user.agent_id','=','agent_users.id')
+        $sql = HqUser::query();
+        $sql->leftJoin('agent_users','user.agent_id','=','agent_users.id')
             ->leftJoin('user_account','user.user_id','=','user_account.user_id')
             ->select('user.*','agent_users.nickname as agentName','user_account.balance')->where($map);
         if(true ==$request->has('nickname')){
-            $sql->where('user.nickname','like','%'.$request->input('nickname').'%');
+            $sql->where('user.nickname','like','%'.HttpFilter($request->input('nickname')).'%');
         }
-        $data = $sql->paginate(10)->appends($request->all());
+        if (true==$request->has('limit'))
+        {
+            $limit = (int)$request->input('limit');
+        }
+        else
+        {
+            $limit = 10;
+        }
+        $data = $sql->paginate($limit)->appends($request->all());
         foreach($data as $key=>$value){
-            //$data[$key]['online']=$this->getUserOnline($value['user_id']);
             $data[$key]['cz']=$this->getUserCzCord($value['user_id']);
             $data[$key]['fee']=json_decode($value['fee'],true);
             $data[$key]['creatime']=date('Y-m-d H:i:s');
         }
-        return view('agentList.userList',['list'=>$data,'input'=>$request->all()]);
+        return view('agentList.userList',['limit'=>$limit,'list'=>$data,'input'=>$request->all()]);
+    }
+
+    /**
+     * 效验会员账号是否存在
+     * @param StoreRequest $request
+     * @return array
+     */
+    public function checkAccountUnique(StoreRequest $request)
+    {
+        $account = HttpFilter($request->input('account'));
+        if (HqUser::where('account','=',$account)->exists())
+        {
+            return ['msg'=>$account.'账号已存在','status'=>0];
+        }
+        return ['msg'=>'可用','status'=>1];
     }
 
     /**
@@ -68,53 +90,84 @@ class HqUserController extends Controller
         $userAccount = UserAccount::getUserAccountInfo($userId);
         return view('hquser.edit',['user'=>Auth::user(),'info'=>$data,'id'=>$userId,'balance'=>$userAccount['balance']]);
     }
+
+    /**
+     * 效验会员是不是代理
+     * @param $ancestors
+     * @return bool
+     */
+    public function whetherAffiliatedAgent($ancestors)
+    {
+        $userId = Auth::id();
+        foreach ($ancestors as $key=>$value)
+        {
+            if ($userId==$value){
+                return true;
+                break;
+            }
+        }
+        return false;
+    }
     public function czSave(StoreRequest $request){
         $data = $request->all();
-        if ($data['type']==1){
+        $userInfo = (int)$data['id']?HqUser::find((int)$data['id']):[];
+        $agentInfo = $userInfo['agent_id']?User::find($userInfo['agent_id']):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'该会员的不属于你，操作失败','status'=>0];
+        }
+        if ((int)$data['type']==1){
             DB::beginTransaction();//开启事务
-            $userAccount = UserAccount::getUserAccountInfo($data['id']);
+            $userAccount = UserAccount::getUserAccountInfo((int)$data['id']);
             $agent = User::getUserInfo(Auth::user()['username']);
-            if ($agent['balance']<$data['money']){
+            if ($agent['balance']<(int)$data['money']){
                 DB::rollBack();
                 return ['msg'=>'余额不足，不能进行充值','status'=>0];
             }else{
-                $bool = $this->redissionLock($data['id']);
+                $bool = $this->redissionLock((int)$data['id']);
+                if ((int)$data['money']<0 && (int)$data['money']==0)
+                {
+                    $this->unRedissLock((int)$data['id']);
+                    return ['msg'=>'金额输入异常','status'=>0];
+                }
                 if ($bool){
                     try {
-                        $result = DB::table('user_account')->where('user_id','=',$data['id'])->increment('balance',$data['money']*100);
+                        $result = DB::table('user_account')->where('user_id','=',(int)$data['id'])->increment('balance',(int)$data['money']*100);
                         if ($result){
-                            $count = $this->insertUserBillflow($data['id'],$data['money']*100,$userAccount['balance'],$userAccount['balance']+$data['money']*100,1,'代理代充');
+                            $count = $this->insertUserBillflow((int)$data['id'],(int)$data['money']*100,(int)$userAccount['balance'],(int)$userAccount['balance']+(int)$data['money']*100,1,'代理代充');
                             if ($count){
-                                $kc = DB::table('agent_users')->where('id','=',$agent['id'])->decrement('balance',$data['money']*100);
+                                $kc = DB::table('agent_users')->where('id','=',(int)$agent['id'])->decrement('balance',(int)$data['money']*100);
                                 if ($kc){
-                                    $add = $this->insertAgentBillFlow($agent['id'],$data['id'],$data['money']*100,$agent['balance'],$agent['balance']-$data['money']*100,$data['type'],$data['payType'],'用户充值扣除');
+                                    $add = $this->insertAgentBillFlow((int)$agent['id'],(int)$data['id'],(int)$data['money']*100,(int)$agent['balance'],(int)$agent['balance']-(int)$data['money']*100,(int)$data['type'],(int)$data['payType'],'用户充值扣除');
                                     if ($add){
                                         DB::commit();
-                                        $this->unRedissLock($data['id']);
+                                        $this->unRedissLock((int)$data['id']);
                                         return ['msg'=>'操作成功！','status'=>1];
                                     }else{
                                         DB::rollBack();
-                                        $this->unRedissLock($data['id']);
+                                        $this->unRedissLock((int)$data['id']);
                                         return ['msg'=>'操作失败','status'=>0];
                                     }
                                 }else{
                                     DB::rollBack();
-                                    $this->unRedissLock($data['id']);
+                                    $this->unRedissLock((int)$data['id']);
                                     return ['msg'=>'操作失败','status'=>0];
                                 }
                             }else{
                                 DB::rollBack();
-                                $this->unRedissLock($data['id']);
+                                $this->unRedissLock((int)$data['id']);
                                 return ['msg'=>'操作失败','status'=>0];
                             }
                         }else{
                             DB::rollBack();
-                            $this->unRedissLock($data['id']);
+                            $this->unRedissLock((int)$data['id']);
                             return ['msg'=>'操作异常，请稍后再试','status'=>0];
                         }
                     }catch (Exception $e){
                         DB::rollBack();
-                        $this->unRedissLock($data['id']);
+                        $this->unRedissLock((int)$data['id']);
                         return ['msg'=>'操作异常！请稍后再试','status'=>0];
                     }
                 }else{
@@ -124,54 +177,59 @@ class HqUserController extends Controller
             }
         }else{
             DB::beginTransaction();//开启事务
-            $userAccount = UserAccount::getUserAccountInfo($data['id']);
+            $userAccount = UserAccount::getUserAccountInfo((int)$data['id']);
             $agent = User::getUserInfo(Auth::user()['username']);
-            if ($userAccount['balance']<$data['money']*100){
+            if ((int)$userAccount['balance']<(int)$data['money']*100){
                 return ['msg'=>'余额不足，不能提现','status'=>0];
             }else{
-                $bool = $this->redissionLock($data['id']);
+                $bool = $this->redissionLock((int)$data['id']);
+                if ((int)$data['money']<0 && (int)$data['money']==0)
+                {
+                    $this->unRedissLock((int)$data['id']);
+                    return ['msg'=>'金额输入异常','status'=>0];
+                }
                 if ($bool){
                     DB::beginTransaction();//开启事务
                     try {
-                        $result = DB::table('user_account')->where('user_id','=',$data['id'])->decrement('balance',$data['money']*100);
+                        $result = DB::table('user_account')->where('user_id','=',(int)$data['id'])->decrement('balance',(int)$data['money']*100);
                         if ($result){
                             $count = $this->insertUserBillflow($data['id'],$data['money']*100,$userAccount['balance'],$userAccount['balance']+$data['money']*100,3,'代理代提现');
                             if ($count){
-                                $add =  DB::table('agent_users')->where('id','=',$agent['id'])->increment('balance',$data['money']*100);
+                                $add =  DB::table('agent_users')->where('id','=',$agent['id'])->increment('balance',(int)$data['money']*100);
                                 if ($add){
                                     $ls = $this->insertAgentBillFlow($agent['id'],$data['id'],$data['money']*100,$agent['balance'],$agent['balance']+$data['money']*100,$data['type'],0,'用户提现添加');
                                     if ($ls){
                                         DB::commit();
-                                        $this->unRedissLock($data['id']);
+                                        $this->unRedissLock((int)$data['id']);
                                         return ['msg'=>'操作成功','status'=>1];
                                     }else{
                                         DB::rollBack();
-                                        $this->unRedissLock($data['id']);
+                                        $this->unRedissLock((int)$data['id']);
                                         return ['msg'=>'操作失败','status'=>0];
                                     }
                                 }else{
                                     DB::rollBack();
-                                    $this->unRedissLock($data['id']);
+                                    $this->unRedissLock((int)$data['id']);
                                     return ['msg'=>'操作失败','status'=>0];
                                 }
                             }else{
                                 DB::rollBack();
-                                $this->unRedissLock($data['id']);
+                                $this->unRedissLock((int)$data['id']);
                                 return ['msg'=>'操作失败','status'=>0];
                             }
                         }else{
                             DB::rollBack();
-                            $this->unRedissLock($data['id']);
+                            $this->unRedissLock((int)$data['id']);
                             return ['msg'=>'操作失败','status'=>0];
                         }
                     }catch (Exception $e){
                         DB::rollBack();
-                        $this->unRedissLock($data['id']);
+                        $this->unRedissLock((int)$data['id']);
                         return ['msg'=>'操作异常，请稍后再试','status'=>0];
                     }
                 }else{
                     DB::rollBack();
-                    $this->unRedissLock($data['id']);
+                    $this->unRedissLock((int)$data['id']);
                     return ['msg'=>'请忽频繁提交','status'=>0];
                 }
             }
@@ -203,7 +261,7 @@ class HqUserController extends Controller
      */
     public function unRedissLock($userId)
     {
-        Redis::del('cz_user_lock_'.$userId);
+        Redis::del('cz_user_lock_'.(int)$userId);
     }
     /**无缓存的唯一订单号
      * @return string
@@ -224,13 +282,13 @@ class HqUserController extends Controller
      * @return bool
      */
     public function insertUserBillflow($userId,$money,$before,$after,$status,$remark){
-        $data['user_id']=$userId;
+        $data['user_id']=(int)$userId;
         $data['order_sn']=$this->getrequestId();
-        $data['score']=$money;
-        $data['bet_before']=$before;
-        $data['bet_after']=$after;
-        $data['status']=$status;
-        $data['remark']=$remark;
+        $data['score']=(int)$money;
+        $data['bet_before']=(int)$before;
+        $data['bet_after']=(int)$after;
+        $data['status']=(int)$status;
+        $data['remark']=HttpFilter($remark);
         $data['creatime']=time();
 
         $tableName = date('Ymd',time());
@@ -252,14 +310,14 @@ class HqUserController extends Controller
      * @return bool
      */
     public function insertAgentBillFlow($agentId,$userId,$money,$before,$after,$status,$type,$remark){
-        $data['agent_id']=$agentId;
-        $data['user_id']=$userId;
-        $data['money']=$money;
-        $data['bet_before']=$before;
-        $data['bet_after']=$after;
-        $data['status']=$status;
-        $data['type']=$type;
-        $data['remark']=$remark;
+        $data['agent_id']=(int)$agentId;
+        $data['user_id']=(int)$userId;
+        $data['money']=(int)$money;
+        $data['bet_before']=(int)$before;
+        $data['bet_after']=(int)$after;
+        $data['status']=(int)$status;
+        $data['type']=(int)$type;
+        $data['remark']=HttpFilter($remark);
         $data['creatime']=time();
         return AgentBill::insert($data);
     }
