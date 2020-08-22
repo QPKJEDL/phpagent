@@ -145,7 +145,7 @@ class HqUserController extends Controller
                     try {
                         $result = DB::table('user_account')->where('user_id','=',(int)$data['id'])->increment('balance',(int)$data['money']*100);
                         if ($result){
-                            $count = $this->insertUserBillflow((int)$data['id'],(int)$data['money']*100,(int)$userAccount['balance'],(int)$userAccount['balance']+(int)$data['money']*100,1,$data['pay_type'],Auth::user()['username'].'[代理代充]');
+                            $count = $this->insertUserBillflow((int)$data['id'],(int)$data['money']*100,(int)$userAccount['balance'],(int)$userAccount['balance']+(int)$data['money']*100,1,$data['payType'],Auth::user()['username'].'[代理代充]');
                             if ($count){
                                 $kc = DB::table('agent_users')->where('id','=',(int)$agent['id'])->decrement('balance',(int)$data['money']*100);
                                 if ($kc){
