@@ -87,6 +87,14 @@ class HqUserController extends Controller
      */
     public function czCord($userId){
         $data = $userId?HqUser::find($userId):[];
+        $agentInfo = $data['agent_id']?User::find($data['agent_id']):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[]=$agentInfo['id'];
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'该会员的不属于你，操作失败','status'=>0];
+        }
         $userAccount = UserAccount::getUserAccountInfo($userId);
         return view('hquser.edit',['user'=>Auth::user(),'info'=>$data,'id'=>$userId,'balance'=>$userAccount['balance']]);
     }
@@ -116,7 +124,7 @@ class HqUserController extends Controller
         $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {
-            return ['msg'=>'该会员的不属于你，操作失败','status'=>0];
+            return ['msg'=>'你没有权限','status'=>0];
         }
         if ((int)$data['type']==1){
             DB::beginTransaction();//开启事务
@@ -136,7 +144,7 @@ class HqUserController extends Controller
                     try {
                         $result = DB::table('user_account')->where('user_id','=',(int)$data['id'])->increment('balance',(int)$data['money']*100);
                         if ($result){
-                            $count = $this->insertUserBillflow((int)$data['id'],(int)$data['money']*100,(int)$userAccount['balance'],(int)$userAccount['balance']+(int)$data['money']*100,1,'代理代充');
+                            $count = $this->insertUserBillflow((int)$data['id'],(int)$data['money']*100,(int)$userAccount['balance'],(int)$userAccount['balance']+(int)$data['money']*100,1,Auth::user()['username'].'[代理代充]');
                             if ($count){
                                 $kc = DB::table('agent_users')->where('id','=',(int)$agent['id'])->decrement('balance',(int)$data['money']*100);
                                 if ($kc){
@@ -328,7 +336,16 @@ class HqUserController extends Controller
      */
     public function userUpdate(StoreRequest $request){
         $data = $request->all();
-        $id = $data['id'];
+        $id = (int)$data['id'];
+        $userInfo = $id?HqUser::find($id):[];
+        $agentInfo = $userInfo['agent_id']?User::find($userInfo['agent_id']):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[]=$agentInfo['id'];
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'该会员的不属于你，操作失败','status'=>0];
+        }
         unset($data['_token']);
         unset($data['id']);
         $bjl['player']=intval($data['bjlbets_fee']['player'] * 100);
