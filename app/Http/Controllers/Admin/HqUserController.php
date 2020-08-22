@@ -145,11 +145,11 @@ class HqUserController extends Controller
                     try {
                         $result = DB::table('user_account')->where('user_id','=',(int)$data['id'])->increment('balance',(int)$data['money']*100);
                         if ($result){
-                            $count = $this->insertUserBillflow((int)$data['id'],(int)$data['money']*100,(int)$userAccount['balance'],(int)$userAccount['balance']+(int)$data['money']*100,1,Auth::user()['username'].'[代理代充]');
+                            $count = $this->insertUserBillflow((int)$data['id'],(int)$data['money']*100,(int)$userAccount['balance'],(int)$userAccount['balance']+(int)$data['money']*100,1,$data['pay_type'],Auth::user()['username'].'[代理代充]');
                             if ($count){
                                 $kc = DB::table('agent_users')->where('id','=',(int)$agent['id'])->decrement('balance',(int)$data['money']*100);
                                 if ($kc){
-                                    $add = $this->insertAgentBillFlow((int)$agent['id'],(int)$data['id'],(int)$data['money']*100,(int)$agent['balance'],(int)$agent['balance']-(int)$data['money']*100,(int)$data['type'],(int)$data['payType'],'用户充值扣除');
+                                    $add = $this->insertAgentBillFlow((int)$agent['id'],(int)$data['id'],(int)$data['money']*100,(int)$agent['balance'],(int)$agent['balance']-(int)$data['money']*100,(int)$data['type'],(int)$data['payType'],Auth::user()['username'].'[用户充值扣除]');
                                     if ($add){
                                         DB::commit();
                                         $this->unRedissLock((int)$data['id']);
@@ -202,11 +202,11 @@ class HqUserController extends Controller
                     try {
                         $result = DB::table('user_account')->where('user_id','=',(int)$data['id'])->decrement('balance',(int)$data['money']*100);
                         if ($result){
-                            $count = $this->insertUserBillflow($data['id'],$data['money']*100,$userAccount['balance'],$userAccount['balance']+$data['money']*100,3,'代理代提现');
+                            $count = $this->insertUserBillflow($data['id'],$data['money']*100,$userAccount['balance'],$userAccount['balance']+$data['money']*100,3,0,Auth::user()['username'].'代理代扣');
                             if ($count){
                                 $add =  DB::table('agent_users')->where('id','=',$agent['id'])->increment('balance',(int)$data['money']*100);
                                 if ($add){
-                                    $ls = $this->insertAgentBillFlow($agent['id'],$data['id'],$data['money']*100,$agent['balance'],$agent['balance']+$data['money']*100,$data['type'],0,'用户提现添加');
+                                    $ls = $this->insertAgentBillFlow($agent['id'],$data['id'],$data['money']*100,$agent['balance'],$agent['balance']+$data['money']*100,$data['type'],0,Auth::user()['username'].'用户提现增加');
                                     if ($ls){
                                         DB::commit();
                                         $this->unRedissLock((int)$data['id']);
@@ -287,16 +287,18 @@ class HqUserController extends Controller
      * @param $before 操作前金额
      * @param $after  操作后金额
      * @param $status
+     * @param $payType
      * @param $remark 备注
      * @return bool
      */
-    public function insertUserBillflow($userId,$money,$before,$after,$status,$remark){
+    public function insertUserBillflow($userId,$money,$before,$after,$status,$payType,$remark){
         $data['user_id']=(int)$userId;
         $data['order_sn']=$this->getrequestId();
         $data['score']=(int)$money;
         $data['bet_before']=(int)$before;
         $data['bet_after']=(int)$after;
         $data['status']=(int)$status;
+        $data['pay_type']=(int)$payType;
         $data['remark']=HttpFilter($remark);
         $data['creatime']=time();
 
