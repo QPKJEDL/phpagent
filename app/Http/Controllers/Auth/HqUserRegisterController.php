@@ -19,7 +19,7 @@ class HqUserRegisterController extends Controller
 {
     public function userRegister($id){
         $info = $id?User::find($id):[];
-        return view('auth.userRegister',['info'=>$info]);
+        return view('auth.userRegister',['info'=>$info['nickname'],'id'=>$id]);
     }
 
     /**
@@ -31,25 +31,25 @@ class HqUserRegisterController extends Controller
     {
         $data = $request->all();
         unset($data['_token']);
-        if (HqUser::where('mobile','=',$data['account'])->exists()){
+        if (HqUser::where('mobile','=',HttpFilter($data['account']))->exists()){
             return ['msg'=>'手机号已存在','status'=>0];
         }else{
             $code = '111';
-            if ($data['code']!=$code){
+            if (HttpFilter($data['code'])!=$code){
                 return ['msg'=>'验证码不正确','status'=>0];
             }else{
-                $info = $data['agent_id']?User::find($data['agent_id']):[];
+                $info = (int)$data['agent_id']?User::find((int)$data['agent_id']):[];
                 unset($data['code']);
-                $data['mobile']=$data['account'];
+                $data['mobile']=HttpFilter($data['account']);
                 $dataInfo = HqUser::where('user_type','=',2)->orderBy('creatime','desc')->first();
                 if (empty($dataInfo)){
                     $data['account']="100000000";
                 }else{
                     $data['account']=$dataInfo['account']+$this->getAccount();
                 }
-                $data['password']=md5($data['password']);
+                $data['password']=md5(HttpFilter($data['password']));
                 $data['reg_ip']=$request->ip();
-                $data['mobile']=$data['account'];
+                $data['mobile']=HttpFilter($data['account']);
                 $data['nnbets_fee']=$info['nnbets_fee'];
                 $data['lhbets_fee']=$info['lhbets_fee'];
                 $data['bjlbets_fee']=$info['bjlbets_fee'];
@@ -68,7 +68,7 @@ class HqUserRegisterController extends Controller
                     $account['creatime']=time();
                     $num = UserAccount::insert($account);
                     if ($num){
-                        return ['msg'=>'注册成功','status'=>1,'account'=>$data['account']];
+                        return ['msg'=>'注册成功','status'=>1,'account'=>HttpFilter($data['account'])];
                     }else{
                         return ['msg'=>'操作失败','status'=>0];
                     }
