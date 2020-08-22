@@ -24,14 +24,14 @@ class OnAddAgentController extends Controller
     public function store(StoreRequest $request)
     {
         $data = $request->all();
-        if ($data['password']==$data['pwd'])
+        if (HttpFilter($data['password'])==HttpFilter($data['pwd']))
         {
             unset($data['_token']);
             unset($data['pwd']);
             $data['userType']=2;
             $data['is_act']=0;
-            $data['ancestors']=$this->getUserAncestors($data['parent_id']);
-            $data['password']=bcrypt($data['password']);
+            $data['ancestors']=$this->getUserAncestors((int)$data['parent_id']);
+            $data['password']=bcrypt(HttpFilter($data['password']));
             $data['limit']=json_encode($data['limit']);
             $data['created_at']=date('Y-m-d H:i:s',time());
             $count = User::insertGetId($data);
