@@ -27,7 +27,7 @@ class AddAgentUserController extends Controller
     public function checkUnique(StoreRequest $request)
     {
         //获取数据
-        $userName = $request->input('userName');
+        $userName = HttpFilter($request->input('userName'));
         $user = User::where("username",'=',$userName)->first();
         if($user){
             return ['msg'=>'该账户已存在','status'=>1];
@@ -39,11 +39,10 @@ class AddAgentUserController extends Controller
 
     public function store(StoreRequest $request){
         $data = $request->all();
-        $roleId = AgentRoleUser::where('user_id','=',Auth::id())->first()['role_id'];
         unset($data['_token']);
         unset($data['pwd']);
         $data['userType']=1;
-        $data['password']=bcrypt($data['password']);
+        $data['password']=bcrypt(HttpFilter($data['password']));
         $data['fee']=json_encode($data['fee']);
         $data['limit']=json_encode($data['limit']);
         $data['bjlbets_fee'] = json_encode($data['bjlbets_fee']);
@@ -51,7 +50,7 @@ class AddAgentUserController extends Controller
         $data['nnbets_fee']= json_encode($data['nnbets_fee']);
         $data['sgbets_fee']=json_encode($data['sgbets_fee']);
         $data['a89bets_fee']=json_encode($data['a89bets_fee']);
-        $data['ancestors']= $this->getUserAncestors($data['parent_id']);
+        $data['ancestors']= $this->getUserAncestors((int)$data['parent_id']);
         $data['created_at']=date('Y-m-d H:i:s',time());
         if (!empty($data['is_allow']))
         {
@@ -61,7 +60,7 @@ class AddAgentUserController extends Controller
         }
         $count = User::insertGetId($data);
         if($count){
-            AgentRoleUser::insert(['user_id'=>$count,'role_id'=>$roleId]);
+            AgentRoleUser::insert(['user_id'=>$count,'role_id'=>38]);
             return ['msg'=>'操作成功！','status'=>1];
         }else{
             return ['msg'=>'操作失败！','status'=>0];
