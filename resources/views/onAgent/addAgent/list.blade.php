@@ -138,8 +138,8 @@
                     var pump = $("input[name='pump']").attr('data-v');
                     if(value>=pump){
                         return '不能大于当前代理'
-                    }else if(value<pump-10){
-                        return '不能低于当前代理的百分之十'
+                    }else if(value>0){
+                        return '必须大于0'
                     }
                 },
                 proportion:function (value) {
@@ -190,14 +190,6 @@
                             layer.msg(res.msg,{icon:6});
                             var index = parent.layer.getFrameIndex(window.name);
                             setTimeout('parent.layer.close('+index+')',2000);
-                            layer.open({
-                                type:2,
-                                title:"激活二维码",
-                                shadeClose:true,
-                                offset:'10%',
-                                area:['30%','50%'],
-                                content:'/admin/onAgentList/qrCode/' + res.agent_id
-                            });
                         }else{
                             layer.msg(res.msg,{shift: 6,icon:5});
                         }
