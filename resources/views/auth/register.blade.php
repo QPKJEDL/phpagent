@@ -54,6 +54,7 @@
         console.log(data)
         if(data=="false"){
             alert('该账号已被激活')
+            window.open('{{url('/admin/login')}}','_self');
             var sendMsg = document.getElementById('sendMsg')
             var act = document.getElementById('act');
             sendMsg.setAttribute('class','layui-btn layui-btn-disabled');
@@ -89,7 +90,7 @@
                     if(res.status == 1){
                         layer.msg(res.msg,{icon:6});
                         var index = parent.layer.getFrameIndex(window.name);
-                        setTimeout('window.open("{{url('/admin/login')}}",_self)',2000);
+                        setTimeout('window.open("{{url('/admin/login')}}","_self")',2000);
                     }else{
                         layer.msg(res.msg,{shift: 6,icon:5});
                     }
