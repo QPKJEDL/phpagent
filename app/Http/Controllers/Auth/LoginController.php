@@ -52,6 +52,9 @@ class LoginController extends Controller
         if(!$count){
             return redirect('/admin/login')->withErrors([trans('fzs.login.false_account')]);
         }
+        if ($count['status']==1){
+            return redirect('/admin/login')->withErrors([trans('fzs.login.false_status')]);
+        }
         if ($count['userType']==2){
             if ($count['is_act']==0){
                 $str = '/admin/agentRegister/'.$count['id'];
