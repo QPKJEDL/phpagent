@@ -43,11 +43,11 @@
         <div class="layui-inline">
           <label class="layui-form-label">限红范围：</label>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[min]" readonly placeholder="￥" value="10" autocomplete="off" class="layui-input">
+            <input type="text" name="limit[min]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly placeholder="￥" value="10" autocomplete="off" class="layui-input">
           </div>
           <div class="layui-form-mid">-</div>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[max]" readonly placeholder="￥" value="50000" autocomplete="off" class="layui-input">
+            <input type="text" name="limit[max]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly placeholder="￥" value="50000" autocomplete="off" class="layui-input">
           </div>
         </div>
     </div>
@@ -55,11 +55,11 @@
         <div class="layui-inline">
           <label class="layui-form-label">和限红范围：</label>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[tieMin]" readonly placeholder="￥" autocomplete="off" value="10" class="layui-input">
+            <input type="text" name="limit[tieMin]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly placeholder="￥" autocomplete="off" value="10" class="layui-input">
           </div>
           <div class="layui-form-mid">-</div>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[tieMax]" readonly placeholder="￥" autocomplete="off"  value="5000" class="layui-input">
+            <input type="text" name="limit[tieMax]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly placeholder="￥" autocomplete="off"  value="5000" class="layui-input">
           </div>
         </div>
     </div>
@@ -67,11 +67,11 @@
         <div class="layui-inline">
           <label class="layui-form-label">对限红范围：</label>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[pairMin]" readonly placeholder="￥" autocomplete="off"  class="layui-input" value="10">
+            <input type="text" name="limit[pairMin]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly placeholder="￥" autocomplete="off"  class="layui-input" value="10">
           </div>
           <div class="layui-form-mid">-</div>
           <div class="layui-input-inline" style="width: 100px;">
-            <input type="text" name="limit[pairMax]" readonly placeholder="￥" autocomplete="off" class="layui-input" value="5000">
+            <input type="text" name="limit[pairMax]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly placeholder="￥" autocomplete="off" class="layui-input" value="5000">
           </div>
         </div>
     </div>
@@ -104,12 +104,11 @@
 @section('js')
     <script>
         layui.use(['form', 'jquery','laydate', 'layer'], function() {
-            var form = layui.form(),
+            var form = layui.form,
                 $ = layui.jquery,
                 laydate = layui.laydate,
                 layer = layui.layer
             ;
-            laydate({istoday: true});
             form.render();
             form.verify({
                 username:function(value){
@@ -117,8 +116,8 @@
                     if (!reg.test(value)){
                         return '格式错误';
                     }
-                    if(value>999999 && value<10000000){
-                        return '账号大于999999，并且小于10000000'
+                    if(value.length!=7){
+                        return '账号必须7位'
                     }
                 },
                 password:function(value){
@@ -148,6 +147,29 @@
                     if(value>proportion){
                         return  '不能大于当前代理'
                     }
+                }
+            });
+            $('input[name="username"]').blur(function () {
+                var username = $(this).val();
+                if(username.length==0){
+                    layer.msg('账号不能为空',{shift: 6,icon:5});
+                }else{
+                    $.ajax({
+                        headers:{
+                            'X-CSRF-TOKEN':$('input[name="_token"]').val()
+                        },
+                        url:"{{url('/admin/agentList/accountUnique')}}",
+                        type:"post",
+                        data:{
+                            "account":username
+                        },
+                        dataType:"json",
+                        success:function (res) {
+                            if(res.status==0){
+                                layer.msg(res.msg,{shift:6,icon:5});
+                            }
+                        }
+                    });
                 }
             });
             $("#account").click(function(){
