@@ -26,8 +26,8 @@ class AddUserController extends Controller
      * 保存新增会员
      */
     public function store(StoreRequest $request){
-        $account = $request->input('account');
-        $password = $request->input('pwd');
+        $account = HttpFilter($request->input('account'));
+        $password = HttpFilter($request->input('pwd'));
         $data = $request->all();
         unset($data['_token']);
         unset($data['pwd']);
@@ -79,7 +79,7 @@ class AddUserController extends Controller
                     $data['is_show']=1;
                 }
                 $data['creatime']=time();
-                $data['savetime']=$data['creatime'];
+                $data['savetime']=(int)$data['creatime'];
                 $data['user_type']=1;
                 $count = HqUser::insertGetId($data);
                 if($count){
