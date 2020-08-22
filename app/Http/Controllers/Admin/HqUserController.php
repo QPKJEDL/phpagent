@@ -198,11 +198,10 @@ class HqUserController extends Controller
                     return ['msg'=>'金额输入异常','status'=>0];
                 }
                 if ($bool){
-                    DB::beginTransaction();//开启事务
                     try {
                         $result = DB::table('user_account')->where('user_id','=',(int)$data['id'])->decrement('balance',(int)$data['money']*100);
                         if ($result){
-                            $count = $this->insertUserBillflow($data['id'],$data['money']*100,$userAccount['balance'],$userAccount['balance']+$data['money']*100,3,0,Auth::user()['username'].'代理代扣');
+                            $count = $this->insertUserBillflow($data['id'],$data['money']*100,$userAccount['balance'],$userAccount['balance']-$data['money']*100,3,0,Auth::user()['username'].'代理代扣');
                             if ($count){
                                 $add =  DB::table('agent_users')->where('id','=',$agent['id'])->increment('balance',(int)$data['money']*100);
                                 if ($add){
