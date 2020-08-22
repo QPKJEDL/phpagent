@@ -113,7 +113,7 @@
                                 </tr>
                                 <tr>
                                     <th>可用额度</th>
-                                    <th>{{$user['balance']/100}}</th>
+                                    <th>{{$user['balance']/100}} <button type="button" class="layui-btn layui-btn-primary layui-btn-xs" onclick="window.location.reload()">刷新额度</button></th>
                                 </tr>
                                 <tr>
                                     @if($user['userType']==1)
