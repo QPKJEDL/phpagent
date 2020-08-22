@@ -44,14 +44,11 @@ class OnAgentActController extends Controller
             $code = '111';
             //获取当前信息
             $info = $data['agent_id']?User::find($data['agent_id']):[];
-            //获取角色id
-            $roleId = AgentRoleUser::getRoleIdByUserId($info['parent_id']);
             if ($data['code']==$code){
                 unset($data['code']);
                 $count = AgentUserPhone::insert($data);
                 if ($count){
                     User::where('id','=',$data['agent_id'])->update(['is_act'=>1]);
-                    AgentRoleUser::insert(['user_id'=>$data['agent_id'],'role_id'=>$roleId]);
                     return ['msg'=>'激活成功','status'=>1];
                 }else{
                     return ['msg'=>'操作失败','status'=>0];
