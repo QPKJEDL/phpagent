@@ -17,9 +17,9 @@
             <form class="layui-form" id="form">
                 <input type="hidden" id="token" name="_token" value="{{csrf_token()}}">
                 <div class="layui-form-item">
-                    <input type="hidden" name="agent_id" value="{{$info['id']}}">
+                    <input type="hidden" name="agent_id" value="{{$id}}">
                     <input type="hidden" name="user_type" value="1">
-                    <input type="text" autocomplete="off" class="layui-input" disabled value="{{$info['username']}}[{{$info['nickname']}}]" readonly>
+                    <input type="text" autocomplete="off" class="layui-input" disabled value="{{$info}}" readonly>
                 </div>
                 <div class="layui-form-item">
                     <input type="text" name="account" id="account" lay-verify="account" placeholder="手机号" autocomplete="off" class="layui-input">
