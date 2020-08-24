@@ -43,7 +43,13 @@ Route::group(['namespace'  => "Auth"], function () {
 });
 //后台主要模块
 Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], function () {
-    Route::get('/',                     'HomeController@index');
+    //菜单获取
+    Route::get('/getMenuList',          'IndexController@getMenuList');
+    //主页
+    Route::get('/',                     'IndexController@index');
+    //首页
+    Route::get('/home',                 'HomeController@index');
+
     Route::get('/gewt',                 'HomeController@configr');
     Route::get('/index',                'HomeController@welcome');
     Route::post('/sort',                'HomeController@changeSort');
@@ -56,6 +62,8 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/roles',           'RoleController');
     Route::resource('/permissions',     'PermissionController');
     //账户管理模块
+    Route::resource('/delUser','DelUserController');//已删会员
+    Route::resource('/delAgent','DelAgentController');//已删代理
     Route::resource('/agentList',       'AgentListController');//代理列表
     Route::get('/agentCzEdit/{id}','AgentListController@czEdit');//代理充值提现
     Route::post('/agentCzSave','AgentListController@agentCzSave');//代理充值提现保存
@@ -73,8 +81,10 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::post('/agentList/savePwd',     'AgentListController@savePwd');//保存修改密码
     Route::get('/agentList/userEdit/{id}','AgentListController@userEdit');//会员编辑
     Route::resource('/addAgent',        'AddAgentUserController');//添加代理
+    Route::post('/agentList/accountUnique','AgentListController@accountUnique');//效验代理账号是否存在
     Route::post('/checkUniqueUserName', 'AddAgentUserController@checkUnique');//添加代理效验账号是否存在
     Route::resource('/addUser',             'AddUserController');//添加会员
+    Route::post('/hqUser/checkAccountUnique','HqUserController@checkAccountUnique');//效验会员账号是否存在
     Route::resource('/hqUser',          'HqUserController');//会员列表
     Route::post('/hqUser/userUpdate','HqUserController@userUpdate');//会员编辑保存
     Route::get('/hqUser/czCord/{id}',   'HqUserController@czCord');//在线充值提现界面
