@@ -178,22 +178,40 @@
             });
             form.on('submit(formDemo)', function(data) {
                 var data = $('form').serializeArray();
+                var username = $("input[name='username']").val();
                 $.ajax({
-                    url:"{{url('/admin/onAddAgent')}}",
-                    type:"post",
-                    data:data,
-                    dataType:"json",
-                    success:function(res){
-                        if(res.status == 1){
-                            layer.msg(res.msg,{icon:6});
-                            var index = parent.layer.getFrameIndex(window.name);
-                            setTimeout('parent.layer.close('+index+')',2000);
-                        }else{
-                            layer.msg(res.msg,{shift: 6,icon:5});
-                        }
+                    headers:{
+                        'X-CSRF-TOKEN':$('input[name="_token"]').val()
                     },
-                    error : function(XMLHttpRequest, textStatus, errorThrown) {
-                        layer.msg('网络失败', {time: 1000});
+                    url:"{{url('/admin/agentList/accountUnique')}}",
+                    type:"post",
+                    data:{
+                        "account":username
+                    },
+                    dataType:"json",
+                    success:function (res) {
+                        if(res.status==0){
+                            layer.msg(res.msg,{shift:6,icon:5});
+                        }else{
+                            $.ajax({
+                                url:"{{url('/admin/onAddAgent')}}",
+                                type:"post",
+                                data:data,
+                                dataType:"json",
+                                success:function(res){
+                                    if(res.status == 1){
+                                        layer.msg(res.msg,{icon:6});
+                                        var index = parent.layer.getFrameIndex(window.name);
+                                        setTimeout('parent.layer.close('+index+')',2000);
+                                    }else{
+                                        layer.msg(res.msg,{shift: 6,icon:5});
+                                    }
+                                },
+                                error : function(XMLHttpRequest, textStatus, errorThrown) {
+                                    layer.msg('网络失败', {time: 1000});
+                                }
+                            });
+                        }
                     }
                 });
                 return false;
