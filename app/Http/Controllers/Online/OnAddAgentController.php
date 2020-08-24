@@ -24,6 +24,10 @@ class OnAddAgentController extends Controller
     public function store(StoreRequest $request)
     {
         $data = $request->all();
+        if (User::where('username','=',HttpFilter($data['username']))->exists())
+        {
+            return ['msg'=>'账号已存在','status'=>0];
+        }
         if (HttpFilter($data['password'])==HttpFilter($data['pwd']))
         {
             unset($data['_token']);
