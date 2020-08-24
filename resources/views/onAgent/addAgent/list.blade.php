@@ -136,10 +136,8 @@
                 },
                 pump:function (value) {
                     var pump = $("input[name='pump']").attr('data-v');
-                    if(value>=pump){
-                        return '不能大于当前代理'
-                    }else if(value>0){
-                        return '必须大于0'
+                    if(value>=pump && value>0){
+                        return '只能小于当前代理，并且大于0'
                     }
                 },
                 proportion:function (value) {
