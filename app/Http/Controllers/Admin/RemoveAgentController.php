@@ -18,11 +18,11 @@ class RemoveAgentController extends Controller
         $map = array();
         $map['del_flag'] = 1;
         if (true==$request->has('username')){
-            $map['username']=$request->input('username');
+            $map['username']=HttpFilter($request->input('username'));
         }
         $sql = User::query()->where($map);
         if(true==$request->has('nickname')){
-            $sql->where('nickname','like','%'.$request->input('nickname').'%');
+            $sql->where('nickname','like','%'.HttpFilter($request->input('nickname')).'%');
         }
         $data = $sql->paginate(10)->appends($request->all());
         foreach ($data as $key=>$value){
