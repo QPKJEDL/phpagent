@@ -31,7 +31,8 @@ class HqUserRegisterController extends Controller
     {
         $data = $request->all();
         unset($data['_token']);
-        if (HqUser::where('mobile','=',HttpFilter($data['account']))->exists()){
+        $account = HttpFilter($data['account']);
+        if (HqUser::where('mobile','=',$account)->exists()){
             return ['msg'=>'手机号已存在','status'=>0];
         }else{
             $code = '111';
@@ -40,7 +41,7 @@ class HqUserRegisterController extends Controller
             }else{
                 $info = (int)$data['agent_id']?User::find((int)$data['agent_id']):[];
                 unset($data['code']);
-                $data['mobile']=HttpFilter($data['account']);
+                $data['mobile']=$account;
                 $data['account']=$this->checkAccount();
                 $data['password']=md5(HttpFilter($data['password']));
                 $data['reg_ip']=$request->ip();
