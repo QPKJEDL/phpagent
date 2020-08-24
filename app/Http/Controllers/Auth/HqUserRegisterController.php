@@ -41,12 +41,7 @@ class HqUserRegisterController extends Controller
                 $info = (int)$data['agent_id']?User::find((int)$data['agent_id']):[];
                 unset($data['code']);
                 $data['mobile']=HttpFilter($data['account']);
-                $dataInfo = HqUser::where('user_type','=',2)->orderBy('creatime','desc')->first();
-                if (empty($dataInfo)){
-                    $data['account']="100000000";
-                }else{
-                    $data['account']=$dataInfo['account']+$this->getAccount();
-                }
+                $data['account']=$this->checkAccount();
                 $data['password']=md5(HttpFilter($data['password']));
                 $data['reg_ip']=$request->ip();
                 $data['mobile']=HttpFilter($data['account']);
@@ -80,11 +75,28 @@ class HqUserRegisterController extends Controller
     }
 
     /**
-     * 生成一个1位或者2位随机数
-     * @return int
+     * 获取随机账号
+     * @return string
      */
     public function getAccount()
     {
-        return mt_rand(1,10);
+        $string='';
+        for($i = 1; $i <= 9; $i++){
+            $string.=rand(0,9);
+        }
+        return $string;
+    }
+
+    /**
+     * 效验账号是否存在并返回
+     * @return string
+     */
+    public function checkAccount()
+    {
+        $account = $this->getAccount();//获取账号
+        while (HqUser::where('account','=',$account)->exists()){
+            $account=$this->getAccount();
+        }
+        return $account;
     }
 }
