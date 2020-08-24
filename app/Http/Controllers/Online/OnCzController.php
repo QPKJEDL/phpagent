@@ -14,7 +14,7 @@ class OnCzController extends Controller
     {
         $map = array();
         if (true==$request->has('pay_type')){
-            $map['czrecord.pay_type']=$request->input('pay_type');
+            $map['czrecord.pay_type']=(int)$request->input('pay_type');
         }
         $sql = Czrecord::query();
         $sql->leftJoin('user','user.user_id','=','czrecord.user_id')
@@ -31,13 +31,21 @@ class OnCzController extends Controller
             $sql->whereBetween('czrecord.creatime',[$begin,$end]);
         }
         if (true==$request->has('account')){
-            $sql->where('user.account','=',$request->input('account'));
+            $sql->where('user.account','=',HttpFilter($request->input('account')));
         }
         $sql->orderBy('czrecord.creatime','desc');
-        $data = $sql->paginate(10)->appends($request->all());
+        if (true==$request->has('limit'))
+        {
+            $limit = (int)$request->input('limit');
+        }
+        else
+        {
+            $limit = 10;
+        }
+        $data = $sql->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$value){
             $data[$key]['creatime']=date('Y-m-d H:i:s',$value['creatime']);
         }
-        return view('onAgent.czrecord.list',['list'=>$data,'input'=>$request->all(),'min'=>config('admin.min_date')]);
+        return view('onAgent.czrecord.list',['list'=>$data,'input'=>$request->all(),'limit'=>$limit]);
     }
 }
