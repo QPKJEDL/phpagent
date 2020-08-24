@@ -13,7 +13,18 @@
             <input type="radio" name="type" value="2" title="提现" lay-filter="type">
         </div>
     </div>
-    <input type="hidden" name="payType" value="1">
+
+    <div class="layui-form-item" id="payType">
+        <label class="layui-form-label">充值类型：</label>
+        <div class="layui-input-block">
+            <input type="radio" name="payType" value="1" title="到款" checked="">
+            <input type="radio" name="payType" value="2" title="签单">
+            <input type="radio" name="payType" value="3" title="移分">
+            <input type="radio" name="payType" value="4" title="按比例">
+            <input type="radio" name="payType" value="5" title="支付宝">
+            <input type="radio" name="payType" value="6" title="微信">
+        </div>
+    </div>
     <div class="layui-form-item">
         <label class="layui-form-label">充值/提现金额：</label>
         <div class="layui-input-inline">
@@ -21,6 +32,7 @@
         </div>
         <div class="layui-form-mid"><h4 id="h4" style="color: red;"></h4></div>
     </div>
+
     <div class="layui-form-item">
         <label class="layui-form-label"></label>
         <div class="layui-input-inline">
@@ -32,7 +44,7 @@
 @section('js')
     <script>
         layui.use(['form','jquery','layer'], function() {
-            var form = layui.form()
+            var form = layui.form
                 ,layer = layui.layer
                 ,$ = layui.jquery;
             form.render();
@@ -80,8 +92,10 @@
                 var payType = $("#payType");
                 if(data.value==1){
                     payType.show();
+                    $('input[name="money"]').val('')
                 }else{
                     payType.hide();
+                    $('input[name="money"]').val('')
                 }
             });
             $("input[name='money']").on('keyup',function(){
