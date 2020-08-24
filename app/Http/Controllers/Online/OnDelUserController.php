@@ -23,14 +23,22 @@ class OnDelUserController extends Controller
             ->select('user.*','user_account.balance')
             ->where($map);
         if(true==$request->has('nickname')){
-            $sql->where('nickname','like','%'.$request->input('nickname').'%');
+            $sql->where('user.nickname','like','%'.$request->input('nickname').'%');
         }
-        $data = $sql->paginate(10)->appends($request->all());
+        if (true==$request->has('limit'))
+        {
+            $limit = $request->input('limit');
+        }
+        else
+        {
+            $limit=10;
+        }
+        $data = $sql->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$value){
             $data[$key]['cz']=$this->getUserCzCord($value['user_id']);
             $data[$key]['creatime'] = date('Y-m-d H:i:s',$value['creatime']);
         }
-        return view('onAgent.delUser.list',['list'=>$data,'input'=>$request->all()]);
+        return view('onAgent.delUser.list',['list'=>$data,'input'=>$request->all(),'limit'=>$limit]);
     }
 
     /**
