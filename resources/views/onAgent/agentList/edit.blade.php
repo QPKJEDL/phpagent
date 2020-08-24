@@ -59,7 +59,7 @@
         <div class="layui-inline">
             <label class="layui-form-label">抽水：</label>
             <div class="layui-input-inline" style="width: 100px;">
-                <input type="number" name="pump" lay-verify="pump" value="{{$info['pump']}}" data-v="{{$user['pump']}}" placeholder="%" autocomplete="off" class="layui-input">
+                <input type="number" name="pump" disabled readonly  lay-verify="pump" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" value="{{$info['pump']}}" data-v="{{$user['pump']}}" placeholder="%" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-form-mid layui-word-aux">比如20%就填写20</div>
         </div>
@@ -68,7 +68,7 @@
         <div class="layui-inline">
             <label class="layui-form-label">占比：</label>
             <div class="layui-input-inline" style="width: 100px;">
-                <input type="number" name="proportion" lay-verify="proportion" value="{{$user['proportion']}}" data-v="{{$user['proportion']}}" placeholder="%" autocomplete="off" class="layui-input">
+                <input type="number" name="proportion" disabled readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" lay-verify="proportion" value="{{$user['proportion']}}" data-v="{{$user['proportion']}}" placeholder="%" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-form-mid layui-word-aux">比如20%就填写20</div>
         </div>

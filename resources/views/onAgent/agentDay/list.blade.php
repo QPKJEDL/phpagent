@@ -1,13 +1,13 @@
 @section('title', '会员列表')
 @section('header')
     <div class="layui-inline">
-        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#x1002;</i></button>
+        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#xe9aa;</i></button>
     </div>
     <div class="layui-inline">
-        <input class="layui-input" lay-verify="begin" name="begin" placeholder="开始日期" onclick="layui.laydate({elem: this, festival: true,min:'{{$min}}'})" value="{{ $input['begin'] or '' }}" autocomplete="off">
+        <input class="layui-input" lay-verify="begin" name="begin" placeholder="开始日期" id="begin" value="{{ $input['begin'] or '' }}" autocomplete="off">
     </div>
     <div class="layui-inline">
-        <input class="layui-input" lay-verify="end" name="end" placeholder="结束日期" onclick="layui.laydate({elem: this, festival: true,min:'{{$min}}'})" value="{{ $input['end'] or '' }}" autocomplete="off">
+        <input class="layui-input" lay-verify="end" name="end" placeholder="结束日期" id="end" value="{{ $input['end'] or '' }}" autocomplete="off">
     </div>
     <div class="layui-inline">
         <input type="text" lay-verify="account" value="{{ $input['account'] or '' }}" name="account" placeholder="请输入代理账号" autocomplete="off" class="layui-input">
@@ -18,16 +18,17 @@
     </div>
     <br>
     <div class="layui-btn-group">
-        <button type="button" class="layui-btn" id="thisWeek">本周</button>
-        <button type="button" class="layui-btn" id="lastWeek">上周</button>
-        <button type="button" class="layui-btn" id="thisMonth">本月</button>
-        <button type="button" class="layui-btn" id="lastMonth">上月</button>
+        <button class="layui-btn" id="today" lay-submit>今天</button>
+        <button class="layui-btn" id="yesterday" lay-submit>昨天</button>
+        <button class="layui-btn" id="thisWeek" lay-submit>本周</button>
+        <button class="layui-btn" id="lastWeek" lay-submit>上周</button>
+        <button class="layui-btn" id="thisMonth" lay-submit>本月</button>
+        <button class="layui-btn" id="lastMonth" lay-submit>上月</button>
     </div>
 @endsection
 @section('table')
-    <table class="layui-table" lay-even lay-skin="nob">
+    <table class="layui-table" lay-size="sm">
         <colgroup>
-            <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
@@ -65,40 +66,89 @@
                 <td class="hidden-xs">全部</td>
                 <td class="hidden-xs">{{$info['nickname']}}</td>
                 <td class="hidden-xs">{{$info['username']}}</td>
-                <td class="hidden-xs">{{number_format($info['sum_betMoney']/100,2)}}</td>
-                <td class="hidden-xs">{{number_format($info['win_money']/100,2)}}</td>
-                <td class="hidden-xs">{{number_format($info['code']/100,2)}}</td>
-                <td class="hidden-xs">{{number_format($info['reward'][0]->money/100,2)}}</td>
-                <td class="hidden-xs">{{$info['pump']}}%</td>
-                <td class="hidden-xs">{{number_format($info['pumpMoney']/100,2)}}</td>
-                <td class="hidden-xs">{{$info['proportion']}}%</td>
-                <td class="hidden-xs">{{number_format($info['kesun'],2)}}</td>
-                <td class="hidden-xs">{{number_format($info['pumpMoney']/100 + $info['kesun'],2)}}</td>
+                <td class="hidden-xs">{{number_format($info['washMoney']/100,2)}}</td>
+                <td class="hidden-xs">
+                    @if($info['getMoney']<0)
+                        <span style="color: red;">{{number_format($info['getMoney']/100,2)}}</span>
+                    @else
+                        {{number_format($info['getMoney']/100,2)}}
+                    @endif
+                </td>
+                <td class="hidden-xs">
+                    @if($info['betMoney']<0)
+                        <span style="color: red;">{{number_format($info['betMoney']/100,2)}}</span>
+                    @else
+                        {{number_format($info['betMoney']/100,2)}}
+                    @endif
+                </td>
+                <td class="hidden-xs">{{number_format($info['reward']/100,2)}}</td>
+                <td class="hidden-xs">
+                    @if($info['userType']==2)
+                        {{$info['pump']}}%
+                    @else
+                        -
+                    @endif
+                </td>
+                <td class="hidden-xs">
+                    @if($info['userType']==2)
+                        {{number_format($info['feeMoney']/100,2)}}
+                        @if($info['feeMoney']<0)
+                            <span style="color: red;">{{number_format($info['feeMoney']/100,2)}}</span>
+                        @else
+                            {{number_format($info['feeMoney']/100,2)}}
+                        @endif
+                    @else
+                        -
+                    @endif
+                </td>
+                <td class="hidden-xs">
+                    0%
+                </td>
+
+                <td class="hidden-xs">
+                    @if($info['getMoney']>0)
+                        <span style="color: red;">{{number_format($info['zg']/100,2)}}</span>
+                    @else
+                        {{number_format($info['zg']/100,2)}}
+                    @endif
+                </td>
+                <td class="hidden-xs">
+                    @if($info['getMoney']>0)
+                        <span style="color: red;">{{number_format($info['sy']/100,2)}}</span>
+                    @else
+                        {{number_format($info['sy']/100,2)}}
+                    @endif
+                </td>
                 <td class="hidden-xs">
                     <div class="layui-inline">
-                        <button type="button" class="layui-btn layui-btn-small agentDayInfo" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">代理日结</i></button>
+                        <button type="button" class="layui-btn layui-btn-xs agentDayInfo" data-id="{{$info['agent_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">代理日结</i></button>
+                        <button type="button" class="layui-btn layui-btn-xs userDayInfo" data-id="{{$info['agent_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">会员日结</i></button>
                     </div>
                 </td>
             </tr>
         @endforeach
-        @if(!$list[0])
-            <tr><td colspan="9" style="text-align: center;color: orangered;">暂无数据</td></tr>
+        @if(count($list)==0)
+            <tr><td colspan="13" style="text-align: center;color: orangered;">暂无数据</td></tr>
         @endif
         </tbody>
     </table>
     <div class="page-wrap">
-        {{$list->render()}}
     </div>
 @endsection
 @section('js')
     <script>
         layui.use(['form', 'jquery','laydate', 'layer'], function() {
-            var form = layui.form(),
+            var form = layui.form,
                 $ = layui.jquery,
                 laydate = layui.laydate,
                 layer = layui.layer
             ;
-            laydate({istoday: true});
+            laydate.render({
+                elem:"#begin"
+            });
+            laydate.render({
+                elem:"#end"
+            });
             $(".agentDayInfo").click(function () {
                 var id = $(this).attr('data-id');
                 var name = $(this).attr('data-name');

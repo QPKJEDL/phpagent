@@ -1,13 +1,13 @@
 @section('title', '台桌输赢情况')
 @section('header')
     <div class="layui-inline">
-        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#x1002;</i></button>
+        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#xe9aa;</i></button>
     </div>
     <div class="layui-inline">
-        <input class="layui-input" lay-verify="begin" name="begin" placeholder="开始日期" onclick="layui.laydate({elem: this,format:'YYYY-MM-DD hh:mm:ss',istime:true, festival: true,min:'{{$min}}'})" value="{{ $input['begin'] or '' }}" autocomplete="off">
+        <input class="layui-input" lay-verify="begin" name="begin" placeholder="开始日期" id="begin" value="{{ $input['begin'] or '' }}" autocomplete="off">
     </div>
     <div class="layui-inline">
-        <input class="layui-input" lay-verify="end" name="end" placeholder="结束日期" onclick="layui.laydate({elem: this,format:'YYYY-MM-DD hh:mm:ss',istime:true, festival: true,min:'{{$min}}'})" value="{{$input['end'] or ''}}" autocomplete="off">
+        <input class="layui-input" lay-verify="end" name="end" placeholder="结束日期" id="end" value="{{$input['end'] or ''}}" autocomplete="off">
     </div>
     <div class="layui-inline">
         <select name="desk_id">
@@ -48,7 +48,7 @@
     </div>
 @endsection
 @section('table')
-    <table class="layui-table" lay-even lay-skin="nob">
+    <table class="layui-table" lay-size="sm">
         <colgroup>
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
@@ -107,7 +107,7 @@
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->creatime}}</td>
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->boot_num}}</td>
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->pave_num}}</td>
-                <td class="hidden-xs" style="font-size: 1px;">{{$info->user['nickname']}}[{{$info->user['account']}}]</td>
+                <td class="hidden-xs" style="font-size: 1px;">{{$info->nickname}}[{{$info->account}}]</td>
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->bill['bet_before']/100}}</td>
                 <td class="hidden-xs" style="font-size: 1px;">
                     <button type="button" data-id="{{$info->id}}" data-value="{{$info->bet_money}}" class="layui-btn layui-btn-small layui-btn-normal result">查看结果</button>
@@ -167,39 +167,26 @@
         </tbody>
     </table>
     <div class="page-wrap">
-        <div id="demo1"></div>
+        <div id="demo"></div>
     </div>
 @endsection
 @section('js')
     <script>
         layui.use(['form', 'jquery','laydate', 'layer','laypage'], function() {
-            var form = layui.form(),
+            var form = layui.form,
                 $ = layui.jquery,
                 laydate = layui.laydate,
                 layer = layui.layer,
                 laypage = layui.laypage
             ;
-            var pages = {{$pages}};
-
-            var curr = {{$curr}};
-            var url = "";
-            laypage({
-                cont: 'demo1'
-                ,pages: pages //总页数
-                ,curr:curr
-                ,groups: 5 //连续显示分页数
-                ,jump:function (obj,first) {
-                    if(url.indexOf("?") >= 0){
-                        url = url.split("?")[0] + "?pageNum=" + obj.curr;
-                    }else{
-                        url = url + "?pageNum=" + obj.curr;
-                    }
-                    if (!first){
-                        location.href = url;
-                    }
-                }
+            //日期组件加载
+            laydate.render({
+                elem:"#begin"
             });
-            laydate({istoday: true});
+            laydate.render({
+                elem:"#end"
+            });
+
             $(".reset").click(function(){
                 $("input[name='begin']").val('');
                 $("select[name='desk_id']").val('');
