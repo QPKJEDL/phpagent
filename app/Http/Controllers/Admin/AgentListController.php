@@ -95,8 +95,8 @@ class AgentListController extends Controller
      */
     public function getAgentChildren($id,Request $request){
         $agentInfo = (int)$id?User::find((int)$id):[];
-        $agentInfo['ancestors']=explode(',',$agentInfo['ancestors']);
-        $bool = $this->whetherAffiliatedAgent($agentInfo['ancestors']);
+        $ancestors=explode(',',$agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {
             return ['msg'=>'您没有权限操作','status'=>0];
@@ -106,18 +106,25 @@ class AgentListController extends Controller
         if (true==$request->has('username')){
             $map['username']=HttpFilter($request->input('username'));
         }
-
+        if (true==$request->has('limit'))
+        {
+            $limit = (int)$request->input('limit');
+        }
+        else
+        {
+            $limit = 10;
+        }
         $sql = User::where($map);
         if (true==$request->has('nickname')){
             $sql->where('nickname','like','%'.HttpFilter($request->input('nickname')).'%');
         }
-        $data = $sql->orderBy('created_at','asc')->paginate(10)->appends($request->all());
+        $data = $sql->orderBy('created_at','asc')->paginate($limit)->appends($request->all());
         foreach($data as $key=>$value){
             $data[$key]['fee']=json_decode($value['fee'],true);
             $data[$key]['agentCount']=$this->getAgentCount($value['id']);
             $data[$key]['groupBalance']=$this->getGroupBalance($value['id']);
         }
-        return view('agentList.list',['list'=>$data,'input'=>$request->all(),'user'=>Auth::user()]);
+        return view('agentList.list',['list'=>$data,'input'=>$request->all(),'user'=>Auth::user(),'limit'=>$limit]);
     }
 
     public function getGroupBalance($agentId){
@@ -217,9 +224,9 @@ class AgentListController extends Controller
      */
     public function user($id,Request $request){
         $agentInfo = (int)$id?User::find((int)$id):[];
-        $agentInfo['ancestors']=explode(',',$agentInfo['ancestors']);
+        $ancestors=explode(',',$agentInfo['ancestors']);
         $ancestors[]=$agentInfo['id'];
-        $bool = $this->whetherAffiliatedAgent($agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {
             return ['msg'=>'您没有权限操作','status'=>0];
