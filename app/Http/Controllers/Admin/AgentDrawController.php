@@ -21,7 +21,7 @@ class AgentDrawController extends Controller
         $map['agent_billflow.status']=2;
         if (true==$request->has('username'))
         {
-            $map['agent_users.username']=$request->input('username');
+            $map['agent_users.username']=HttpFilter($request->input('username'));
         }
         $sql = AgentBill::query();
         $sql->leftJoin('agent_users','agent_users.id','=','agent_billflow.agent_id')
