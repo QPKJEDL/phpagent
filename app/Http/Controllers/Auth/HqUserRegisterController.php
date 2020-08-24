@@ -9,6 +9,7 @@ use App\Http\Requests\StoreRequest;
 use App\Models\HqUser;
 use App\Models\User;
 use App\Models\UserAccount;
+use Illuminate\Support\Facades\DB;
 
 /**
  * 会员自主注册
@@ -30,8 +31,8 @@ class HqUserRegisterController extends Controller
     public function userSave(StoreRequest $request)
     {
         $data = $request->all();
-        unset($data['_token']);
         $account = HttpFilter($data['account']);
+        unset($data['_token']);
         if (HqUser::where('mobile','=',$account)->exists()){
             return ['msg'=>'手机号已存在','status'=>0];
         }else{
@@ -45,7 +46,6 @@ class HqUserRegisterController extends Controller
                 $data['account']=$this->checkAccount();
                 $data['password']=md5(HttpFilter($data['password']));
                 $data['reg_ip']=$request->ip();
-                $data['mobile']=HttpFilter($data['account']);
                 $data['nnbets_fee']=$info['nnbets_fee'];
                 $data['lhbets_fee']=$info['lhbets_fee'];
                 $data['bjlbets_fee']=$info['bjlbets_fee'];
