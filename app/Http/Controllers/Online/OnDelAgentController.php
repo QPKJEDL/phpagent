@@ -21,16 +21,22 @@ class OnDelAgentController extends Controller
         $map = array();
         $map['del_flag'] = 1;
         if (true==$request->has('username')){
-            $map['username']=$request->input('username');
+            $map['username']=HttpFilter($request->input('username'));
         }
         $sql = User::query()->where($map);
         $sql->where('ancestors','like','%'.Auth::id().'%');
         if(true==$request->has('nickname')){
-            $sql->where('nickname','like','%'.$request->input('nickname').'%');
+            $sql->where('nickname','like','%'.HttpFilter($request->input('nickname')).'%');
         }
-        //$sql = 'select * from  hq_agent_users where parent_id = '.Auth::id().' or parent_id IN (select t1.* from hq_agent_users t1 where FIND_IN_SET('.Auth::id().',ancestors))';
-        $data = $sql->paginate(10)->appends($request->all());
-        //$data = DB::table(DB::raw($sql))->paginate(10)->appends($request->all());
-        return view('onAgent.delAgent.list',['list'=>$data,'input'=>$request->all()]);
+        if (true==$request->has('limit'))
+        {
+            $limit = (int)$request->input('limit');
+        }
+        else
+        {
+            $limit = 10;
+        }
+        $data = $sql->paginate($limit)->appends($request->all());
+        return view('onAgent.delAgent.list',['list'=>$data,'input'=>$request->all(),'limit'=>$limit]);
     }
 }
