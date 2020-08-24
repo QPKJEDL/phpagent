@@ -23,11 +23,11 @@ class OnAgentListController extends Controller
         $user = Auth::user();
         $map = array();
         if (true==$request->has('username')){
-            $map['username']=$request->input('username');
+            $map['username']=HttpFilter($request->input('username'));
         }
         $sql = User::query();
         if(true == $request->has('nickname')){
-            $sql->where('nickname','like','%'.$request->input('nickname').'%');
+            $sql->where('nickname','like','%'.HttpFilter($request->input('nickname')).'%');
         }
         if ($user['data_permission']==1){//当前为所有数据权限
             //条件
@@ -37,27 +37,58 @@ class OnAgentListController extends Controller
             $map['parent_id']=$user['id'];
             $sql->where($map)->orWhere('id','=',$user['id']);
         }
-
-        $data = $sql->orderBy('created_at','asc')->paginate(10)->appends($request->all());
+        if (true==$request->has('limit'))
+        {
+            $limit = (int)$request->input('limit');
+        }
+        else
+        {
+            $limit = 10;
+        }
+        $data = $sql->orderBy('created_at','asc')->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$value)
         {
             $data[$key]['agentCount']=$this->getAgentCount($value['id']);
             $data[$key]['userCount']=$this->getAgentUserCount($value['id']);
             $data[$key]['groupBalance']=$this->getGroupBalance($value['id'],$value['balance']);
         }
-        return view('onAgent.agentList.list',['list'=>$data,'input'=>$request->all(),'user'=>$user]);
+        return view('onAgent.agentList.list',['list'=>$data,'input'=>$request->all(),'user'=>$user,'limit'=>$limit]);
     }
 
     public function edit($id=0)
     {
-        $info = $id?User::find($id):[];
+        $info = (int)$id?User::find((int)$id):[];
+        $ancestors = explode(',',$info['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'没有权限','status'=>0];
+        }
         return view('onAgent.agentList.edit',['info'=>$info,'id'=>$id,'user'=>Auth::user()]);
     }
-
+    public function whetherAffiliatedAgent($ancestors)
+    {
+        $userId = Auth::id();
+        foreach ($ancestors as $key=>$value)
+        {
+            if ($userId==$value){
+                return true;
+                break;
+            }
+        }
+        return false;
+    }
     public function update(StoreRequest $request)
     {
         $data = $request->all();
-        $id = $data['id'];
+        $id = (int)$data['id'];
+        $agentInfo = $id?User::find($id):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'没有权限','status'=>0];
+        }
         unset($data['id']);
         unset($data['_token']);
         $data['limit']=json_encode($data['limit']);
@@ -71,8 +102,15 @@ class OnAgentListController extends Controller
 
     public function showAgent($id,Request $request)
     {
+        $agentInfo = (int)$id?User::find((int)$id):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'没有权限','status'=>0];
+        }
         $map = array();
-        $map['parent_id']=$id;
+        $map['parent_id']=(int)$id;
         if (true==$request->has('username')){
             $map['username']=$request->input('username');
         }
@@ -97,6 +135,13 @@ class OnAgentListController extends Controller
      */
     public function qrCodeShow($id)
     {
+        $agentInfo = (int)$id?User::find((int)$id):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'没有权限','status'=>0];
+        }
         return view('onAgent.agentList.qrocde',['id'=>$id]);
     }
 
@@ -107,8 +152,15 @@ class OnAgentListController extends Controller
      * @return Factory|Application|View
      */
     public function showUser($id,Request $request){
+        $agentInfo = (int)$id?User::find((int)$id):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'没有权限','status'=>0];
+        }
         $map = array();
-        $map['agent_id']=$id;
+        $map['agent_id']=(int)$id;
         if(true==$request->has('account')){
             $map['account']=$request->input('account');
         }
@@ -119,12 +171,20 @@ class OnAgentListController extends Controller
         if(true ==$request->has('nickname')){
             $sql->where('user.nickname','like','%'.$request->input('nickname').'%');
         }
-        $data = $sql->paginate(10)->appends($request->all());
+        if (true==$request->has('limit'))
+        {
+            $limit=$request->input('limit');
+        }
+        else
+        {
+            $limit = 10;
+        }
+        $data = $sql->paginate($limit)->appends($request->all());
         foreach($data as $key=>$value){
             $data[$key]['cz']=$this->getUserCzCord($value['user_id']);
             $data[$key]['creatime']=date('Y-m-d H:i:s',$value['creatime']);
         }
-        return view('onAgent.agentList.userList',['list'=>$data,'input'=>$request->all()]);
+        return view('onAgent.agentList.userList',['list'=>$data,'input'=>$request->all(),'limit'=>$limit]);
     }
 
     /**
