@@ -18,10 +18,9 @@ class AgentCzController extends Controller
     public function index(Request $request)
     {
         $map = array();
-        $map['agent_billflow.status']=1;
         if (true==$request->has('username'))
         {
-            $map['agent_users.username']=$request->input('username');
+            $map['agent_users.username']=HttpFilter($request->input('username'));
         }
         $sql = AgentBill::query();
         $sql->leftJoin('agent_users','agent_users.id','=','agent_billflow.agent_id')
@@ -33,11 +32,19 @@ class AgentCzController extends Controller
             $end = strtotime($request->input('end'));
             $sql->whereBetween('agent_billflow.creatime',[$begin,$end]);
         }
-        $data = $sql->where($map)->where('agent_users.id','=',Auth::id())->orWhere('agent_users.parent_id','=',Auth::id())->orderBy('creatime','desc')->paginate(10)->appends($request->all());
+        if (true==$request->has('limit'))
+        {
+            $limit = (int)$request->input('limit');
+        }
+        else
+        {
+            $limit = 10;
+        }
+        $data = $sql->where($map)->where('agent_users.id','=',Auth::id())->orWhere('agent_users.parent_id','=',Auth::id())->orderBy('creatime','desc')->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$value)
         {
             $data[$key]['creatime']=date('Y-m-d H:i:s',$value['creatime']);
         }
-        return view('agentCz.list',['list'=>$data,'input'=>$request->all(),'min'=>config('admin.min_date')]);
+        return view('agentCz.list',['list'=>$data,'input'=>$request->all(),'limit'=>$limit]);
     }
 }
