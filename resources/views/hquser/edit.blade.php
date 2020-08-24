@@ -42,7 +42,7 @@
 @section('js')
     <script>
         layui.use(['form','jquery','layer'], function() {
-            var form = layui.form()
+            var form = layui.form
                 ,layer = layui.layer
                 ,$ = layui.jquery;
             form.render();
@@ -90,8 +90,10 @@
                 var payType = $("#payType");
                 if(data.value==1){
                     payType.show();
+                    $('input[name="money"]').val('')
                 }else{
                     payType.hide();
+                    $('input[name="money"]').val('')
                 }
             });
             $("input[name='money']").on('keyup',function(){
