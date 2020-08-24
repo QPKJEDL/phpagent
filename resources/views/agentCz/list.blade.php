@@ -1,13 +1,13 @@
 @section('title', '会员列表')
 @section('header')
     <div class="layui-inline">
-        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#x1002;</i></button>
+        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#xe9aa;</i></button>
     </div>
     <div class="layui-inline">
-        <input class="layui-input" lay-verify="begin" name="begin" placeholder="开始时间" onclick="layui.laydate({elem: this, festival: true,min:'{{$min}}'})" value="{{ $input['begin'] or '' }}" autocomplete="off">
+        <input class="layui-input" lay-verify="begin" name="begin" placeholder="开始时间" id="begin" value="{{ $input['begin'] or '' }}" autocomplete="off">
     </div>
     <div class="layui-inline">
-        <input class="layui-input" lay-verify="end" name="end" placeholder="结束时间" onclick="layui.laydate({elem: this, festival: true,min:'{{$min}}'})" value="{{ $input['begin'] or '' }}" autocomplete="off">
+        <input class="layui-input" lay-verify="end" name="end" placeholder="结束时间" id="end" value="{{ $input['begin'] or '' }}" autocomplete="off">
     </div>
     <div class="layui-inline">
         <input type="text" lay-verify="username" value="{{ $input['username'] or '' }}" name="username" placeholder="代理账号" autocomplete="off" class="layui-input">
@@ -18,7 +18,7 @@
     </div>
 @endsection
 @section('table')
-    <table class="layui-table" lay-even lay-skin="nob">
+    <table class="layui-table" lay-size="sm">
         <colgroup>
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
@@ -51,7 +51,13 @@
                 <td class="hidden-xs">{{number_format($info['bet_before']/100,2)}}</td>
                 <td class="hidden-xs">{{number_format($info['money']/100,2)}}</td>
                 <td class="hidden-xs">{{number_format($info['bet_after']/100,2)}}</td>
-                <td class="hidden-xs">充值</td>
+                <td class="hidden-xs">
+                    @if($info['status']==1)
+                        充值
+                    @else
+                        提现
+                    @endif
+                </td>
                 <td class="hidden-xs">
                     @if($info['type']==1)
                         到款
@@ -65,6 +71,8 @@
                         支付宝
                     @elseif($info['type']==6)
                         微信
+                    @else
+                        -
                     @endif
                 </td>
                 <td class="hidden-xs">{{$info['remark']}}</td>
@@ -77,18 +85,49 @@
         </tbody>
     </table>
     <div class="page-wrap">
-        {{$list->render()}}
+        <div id="demo"></div>
     </div>
 @endsection
 @section('js')
     <script>
-        layui.use(['form', 'jquery','laydate', 'layer'], function() {
-            var form = layui.form(),
+        layui.use(['form', 'jquery','laydate', 'layer','laypage'], function() {
+            var form = layui.form,
                 $ = layui.jquery,
                 laydate = layui.laydate,
-                layer = layui.layer
+                layer = layui.layer,
+                laypage = layui.laypage
             ;
-            laydate({istoday: true});
+            var count = {{$list->total()}};
+            var curr = {{$list->currentPage()}};
+            var limit = {{$limit}};
+            var url = "";
+            //分页
+            laypage.render({
+                elem: 'demo'
+                ,count: count
+                ,curr:curr
+                ,limit:limit
+                ,limits:[10,50,100,150]
+                ,layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                ,jump: function(obj,first){
+                    if(url.indexOf("?") >= 0){
+                        url = url.split("?")[0] + "?page=" + obj.curr + "&limit="+ obj.limit + "&" +$("form").serialize();
+                    }else{
+                        url = url + "?page=" + obj.curr + "&limit="+obj.limit;
+                    }
+                    if (!first){
+                        location.href = url;
+                    }
+                }
+            });
+            laydate.render({
+                elem:"#begin",
+                type:"datetime"
+            });
+            laydate.render({
+                elem:"#end",
+                type:'datetime'
+            });
             $(".reset").click(function(){
                 $("input[name='begin']").val('');
                 $("input[name='end']").val('');
