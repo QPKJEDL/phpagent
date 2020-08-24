@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Online;
 use App\Http\Controllers\Controller;
 use App\Models\GameRecord;
 use App\Models\HqUser;
+use App\Models\LiveReward;
 use App\Models\Maintain;
 use App\Models\User;
+use App\Models\UserRebate;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
@@ -20,98 +22,122 @@ use Illuminate\View\View;
 class OnAgentDayController extends Controller
 {
     public function index(Request $request){
+        $request->offsetSet('type',1);
         $map = array();
-        $map['parent_id']=Auth::id();
-        //获取开始时间和结束时间
-        if (true==$request->has('begin')){
-            $begin = strtotime($request->input('begin'));
-            $startDate = $request->input('begin');
-            if (true==$request->has('end')){
-                $endTime = strtotime($request->input('end'));
-                $endDate = $request->input('end');
-                $request->offsetSet('end',$request->input('end'));
-            }else{
-                $endTime = time();
-                $endDate = date('Y-m-d H:i:s',$endTime);
-                $request->offsetSet('end',date('Y-m-d H:i:s',$endTime));
-            }
-        }else{
-            //获取上次维护完成时间
-            $start = Maintain::getAtLastOutDate();
-            $end = Maintain::getAtLastMaintainDate();
-            if ($start['create_time']!="" && $end['create_time']==""){
-                if ($start['create_time'] > $end['create_time']){   //如果最后一次维护完成时间大于最后一个得维护开始时间 那么默认找昨天得数据
-                    //获取昨天的开始和结束的时间戳
-                    $begin = $this->getYesterdayBeginTime();
-                    $endTime = $this->getYesterdayEndTime($begin);
-                    $startDate = date('Y-m-d',$begin);
-                    $endDate = date('Y-m-d',$endTime);
-                    $request->offsetSet('begin',date('Y-m-d H:i:s',$begin));
-                    $request->offsetSet('end',date('Y-m-d H:i:s',$endTime));
-                }else{
-                    $begin = $start['create_time'];
-                    $endTime = $end['create_time'];
-                    $startDate = date('Y-m-d',$start['create_time']);
-                    $endDate = date('Y-m-d',$end['create_time']);
-                    $request->offsetSet('begin',date('Y-m-d H:i:s',$begin));
-                    $request->offsetSet('end',date('Y-m-d H:i:s',$endTime));
-                }
-            }else{
-                $begin = $this->getYesterdayBeginTime();
-                $endTime = $this->getYesterdayEndTime($begin);
-                $startDate = date('Y-m-d',$begin);
-                $endDate = date('Y-m-d',$endTime);
-                $request->offsetSet('begin',date('Y-m-d H:i:s',$begin));
-                $request->offsetSet('end',date('Y-m-d H:i:s',$endTime));
-            }
-        }
-        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate,$endDate);
-        $dateSql = '';
-        for ($i=0;$i<count($dateArr);$i++)
+        $idArr = array();
+        $idArr[]=Auth::id();
+        $agentIdData = User::whereRaw('FIND_IN_SET('.Auth::id().',ancestors)',true)->select('id')->get();
+        foreach ($agentIdData as $key=>$datum)
         {
-            if (Schema::hasTable('order_'.$dateArr[$i])){
-                if ($dateSql==""){
-                    $dateSql = "select * from hq_order_".$dateArr[$i];
-                }else{
-                    $dateSql = $dateSql.' union all select * from hq_order_'.$dateArr[$i];
-                }
+            $idArr[]=$datum['id'];
+        }
+        $sql = UserRebate::query();
+        $sql->leftJoin('agent_users','agent_users.id','=','user_rebate.agent_id')
+            ->select('user_rebate.agent_id','agent_users.nickname','agent_users.username','agent_users.fee','agent_users.userType','agent_users.proportion','agent_users.pump',
+                DB::raw('SUM(washMoney) as washMoney'),DB::raw('SUM(getMoney) as getMoney'),DB::raw('SUM(betMoney) as betMoney'),DB::raw('SUM(feeMoney) as feeMoney'));
+        if (true==$request->has('begin'))
+        {
+            $begin = strtotime($request->input('begin'));
+            if (true==$request->has('end'))
+            {
+                $end = strtotime('+1day',strtotime($request->input('end')))-1;
+            }
+            else
+            {
+                $end = strtotime('+1day',$begin)-1;
+                $request->offsetSet('end',date('Y-m-d',$end));
             }
         }
-        $data = User::where($map)->paginate(10)->appends($request->all());
-        foreach ($data as $key=>$value){
-            $sql = 'select t1.* from (select * from('.$dateSql.') s where s.creatime between '.strtotime($startDate).' and '.strtotime($endDate).') t1 
-            left join hq_user u on t1.user_id = u.user_id
-            inner join (select id from hq_agent_users where del_flag=0 and (id='.$value['id'].' or id IN (select t.id from hq_agent_users t where FIND_IN_SET('.$value['id'].',ancestors)))) a on a.id=u.agent_id
-            ';
-            $ssql = 'select IFNULL(SUM(t1.get_money),0) as money,a.id AS agentId from (select * from('.$dateSql.') s where s.creatime between '.strtotime($startDate).' and '.strtotime($endDate).') t1 
-            left join hq_user u on t1.user_id = u.user_id
-            RIGHT join (select id from hq_agent_users where del_flag=0 and (id='.$value['id'].' or id IN (select t.id from hq_agent_users t where FIND_IN_SET('.$value['id'].',ancestors)))) a on a.id=u.agent_id
-            WHERE t1.`status`=1
-            group by a.id
-            ';
-            $asql = 'select ifnull(sum(l.money),0) as money from hq_live_reward l
-                left join hq_user u on u.user_id = l.user_id
-                inner join (select id from hq_agent_users where del_flag=0 and (id='.$value['id'].' or id IN (select t.id from hq_agent_users t where FIND_IN_SET('.$value['id'].',ancestors)))) a on a.id=u.agent_id';
-            $data[$key]['reward']=DB::select($asql);
-            $data[$key]['fee']=json_decode($value['fee'],true);
-            if ($sql!="" || $sql!=null){
-                $money=0;
-                $moneyData = DB::select($ssql);
-                $userData = DB::select($sql);
-                $data[$key]['sum_betMoney'] = $this->getSumBetMoney($userData);
-                $data[$key]['win_money']=$this->getWinMoney($userData);
-                $data[$key]['code']=$this->getSumCode($userData);
-                $data[$key]['pumpMoney']=$this->getSumPumpMoney($value,$userData);
-                foreach ($moneyData as $k=>$datum){
-                    //$money = $money + $datum->money;
-                    if ($datum->money<0){
-                        $money = $money + $datum->money * $value['proportion']/100;
-                    }
+        else
+        {
+            $begin = strtotime(date('Y-m-d',time()));
+            $end = strtotime('+1day',$begin)-1;
+            $request->offsetSet('begin',date('Y-m-d',$begin));
+            $request->offsetSet('end',date('Y-m-d',$end));
+        }
+        if (true==$request->has('userType'))
+        {
+            $map['agent_users.userType']=(int)$request->input('userType');
+        }
+        if (false==$request->has('account'))
+        {
+            $request->offsetSet('account','');
+        }
+        $data = $sql->where($map)->whereIn('user_rebate.agent_id',$idArr)->whereBetween('user_rebate.creatime',[$begin,$end])->groupBy('user_rebate.agent_id')->get();
+
+        //获取要统计的数据id
+        $info = UserRebate::query()->whereBetween('creatime',[$begin,$end])->groupBy('creatime','user_id')->select('id');
+        $sumData = UserRebate::query()->whereIn('id',$info)->select(DB::raw('SUM(washMoney) as washMoney'),DB::raw('SUM(getMoney) as getMoney'),
+            DB::raw('SUM(betMoney) as betMoney'),DB::raw('SUM(feeMoney) as feeMoney'))->first();
+        foreach ($data as $key=>$datum)
+        {
+            if ($datum['userType']==1)
+            {
+                $data[$key]['fee']=json_decode($datum['fee'],true);
+                //洗码费
+                $data[$key]['code']=$datum['betMoney']*0.009;
+                $sumData['code']=$sumData['code'] + $datum['code'];
+
+                //占股收益
+                if ($datum['getMoney']>0)
+                {
+                    $data[$key]['zg']=-(($datum['getMoney'] - $datum['code']) * ($datum['proportion']/100));
                 }
-                $data[$key]['kesun'] = $money;
+                else
+                {
+                    $data[$key]['zg']=($datum['getMoney'] - $datum['code']) * ($datum['proportion']/100);
+                }
+                if ($datum['zg']>0)
+                {
+                    $sumData['zg'] = $sumData['zg'] + $datum['zg'];
+                }else{
+                    $sumData['zg'] = $sumData['zg'] - $datum['zg'];
+                }
+                //总收益
+                $data[$key]['sy']=$datum['zg'] + $datum['feeMoney'] + $datum['code'];
+                if ($datum['sy']>0)
+                {
+                    $sumData['sy'] = $sumData['sy'] + $datum['sy'];
+                }
+                else
+                {
+                    $sumData['sy'] = $sumData['sy'] - $datum['sy'];
+                }
+                //总收益
+                if ($datum['getMoney']>0)
+                {
+                    $data[$key]['gs']= -$datum['getMoney'] - $datum['sy'];
+                }
+                else
+                {
+                    $data[$key]['gs']= abs($datum['getMoney']) - $datum['sy'];
+                }
+                $sumData['gs']=$sumData['gs']+$datum['gs'];
             }
+            else
+            {
+                $sumData['pumpSy']=$sumData['pumpSy'] + $datum['feeMoney'];
+            }
+            //打赏金额
+            //获取当前代理下的会员
+            $userData = HqUser::where('agent_id','=',$datum['agent_id'])->select('user_id')->get();
+            $money = LiveReward::query()->whereIn('user_id',$userData)->sum('money');
+            $data[$key]['reward']=$money;
+            $sumData['reward']=$sumData['reward'] + $money;
         }
         return view('onAgent.agentDay.list',['list'=>$data,'input'=>$request->all(),'min'=>config('admin.min_date')]);
+    }
+    public function whetherAffiliatedAgent($ancestors)
+    {
+        $userId = Auth::id();
+        foreach ($ancestors as $key=>$value)
+        {
+            if ($userId==$value){
+                return true;
+                break;
+            }
+        }
+        return false;
     }
     /**
      * 下级代理日结
@@ -122,12 +148,19 @@ class OnAgentDayController extends Controller
      * @return Factory|Application|View
      */
     public function getIndexByParentId($id,$begin,$end,Request $request){
+        $agentInfo = (int)$id?User::find((int)$id):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'没有权限','status'=>0];
+        }
         $request->offsetSet('begin',$begin);
         $request->offsetSet('end',$end);
         $map = array();
-        $map['parent_id']=$id;
+        $map['parent_id']=(int)$id;
         if (true == $request->has('account')){
-            $map['username']=$request->input('account');
+            $map['username']=HttpFilter($request->input('account'));
         }
         $dateArr = $this->getDateTimePeriodByBeginAndEnd($begin,$end);
         $dataSql = '';
