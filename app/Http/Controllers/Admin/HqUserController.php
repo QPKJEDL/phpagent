@@ -121,7 +121,7 @@ class HqUserController extends Controller
         $userInfo = (int)$data['id']?HqUser::find((int)$data['id']):[];
         $agentInfo = $userInfo['agent_id']?User::find($userInfo['agent_id']):[];
         $ancestors = explode(',',$agentInfo['ancestors']);
-        $ancestors[]=Auth::id();
+        $ancestors[]=$agentInfo['id'];
         $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {
