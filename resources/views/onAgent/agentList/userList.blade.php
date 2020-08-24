@@ -1,7 +1,7 @@
 @section('title', '角色列表')
 @section('header')
     <div class="layui-inline">
-        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#x1002;</i></button>
+        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#xe9aa;</i></button>
     </div>
     <div class="layui-inline">
         <input type="text" lay-verify="account" value="{{ $input['account'] or '' }}" name="account" placeholder="请输入会员账号" autocomplete="off" class="layui-input">
@@ -15,8 +15,9 @@
     </div>
 @endsection
 @section('table')
-    <table class="layui-table" lay-even lay-skin="nob">
+    <table class="layui-table" lay-size="sm">
         <colgroup>
+            <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
@@ -68,32 +69,55 @@
                 </td>
                 <td>
                     <div class="layui-inline">
-                        <button class="layui-btn layui-btn-small layui-btn-normal user" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}" data-desc="充值提现"><i class="layui-icon">充值提现</i></button>
-                        <button class="layui-btn layui-btn-small layui-btn-normal edit-btn" data-id="{{$info['user_id']}}" data-desc="账号编辑" data-url="{{url('/admin/agentList/userEdit/'.$info['user_id'])}}"><i class="layui-icon">账号编辑</i></button>
-                        <button class="layui-btn layui-btn-small layui-btn-danger update" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">修改密码</i></button>
+                        <button class="layui-btn layui-btn-xs layui-btn-normal user" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}" data-desc="充值提现"><i class="layui-icon">充值提现</i></button>
+                        <button class="layui-btn layui-btn-xs layui-btn-normal edit-btn" data-id="{{$info['user_id']}}" data-desc="账号编辑" data-url="{{url('/admin/agentList/userEdit/'.$info['user_id'])}}"><i class="layui-icon">账号编辑</i></button>
+                        <button class="layui-btn layui-btn-xs layui-btn-danger update" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">修改密码</i></button>
                     </div>
                 </td>
             </tr>
         @endforeach
         @if(!$list[0])
-            <tr><td colspan="6" style="text-align: center;color: orangered;">暂无数据</td></tr>
+            <tr><td colspan="10" style="text-align: center;color: orangered;">暂无数据</td></tr>
         @endif
         </tbody>
     </table>
     <div class="page-wrap">
-        {{$list->render()}}
+        <div id="demo"></div>
     </div>
 @endsection
 @section('js')
     <script>
-        layui.use(['form', 'jquery','laydate', 'layer','element'], function() {
-            var form = layui.form(),
+        layui.use(['form', 'jquery','laypage','laydate', 'layer','element'], function() {
+            var form = layui.form,
                 $ = layui.jquery,
                 laydate = layui.laydate,
                 layer = layui.layer,
-                element = layui.element;
+                element = layui.element,
+                laypage = layui.laypage
             ;
-            laydate({istoday: true});
+            var count = {{$list->total()}};
+            var curr = {{$list->currentPage()}};
+            var limit = {{$limit}};
+            var url = "";
+            //分页加载
+            laypage.render({
+                elem: 'demo'
+                ,count: count
+                ,curr:curr
+                ,limit:limit
+                ,limits:[10,50,100,150]
+                ,layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                ,jump: function(obj,first){
+                    if(url.indexOf("?") >= 0){
+                        url = url.split("?")[0] + "?page=" + obj.curr + "&limit="+ obj.limit + "&" +$("form").serialize();
+                    }else{
+                        url = url + "?page=" + obj.curr + "&limit="+obj.limit;
+                    }
+                    if (!first){
+                        location.href = url;
+                    }
+                }
+            });
             form.render();
             $(".reset").click(function(){
                 $("input[name='account']").val('');
