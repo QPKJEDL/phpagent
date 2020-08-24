@@ -13,10 +13,12 @@ use App\Models\AgentRole;
 use App\Models\AgentRoleMenu;
 use App\Models\AgentRoleUser;
 use App\Models\Buscount;
+use App\Models\HqUser;
 use App\Models\Menu;
 use App\Models\Order;
 
 use App\Models\Role;
+use App\Models\User;
 use Gregwar\Captcha\CaptchaBuilder;
 use Gregwar\Captcha\PhraseBuilder;
 use Illuminate\Http\Request;
@@ -28,9 +30,20 @@ class HomeController extends BaseController
     /**
      * 后台首页
      */
-    public function index() {
-        $menu = new Admin();
-        return view('admin.index',['menus'=>$this->getUserMenu(),'mid'=>$menu->getMenuId(),'parent_id'=>$menu->getParentMenuId()]);
+    public function index(Request $request) {
+        $userId = Auth::id();
+        //代理总数
+        $agentCount = User::query()->where('ancestors','like','%'.$userId.'%')->where('del_flag','=',0)->count('id');
+        //今日新增代理
+        $agentToDayCount = User::query()->where('ancestors','like','%'.$userId.'%')->where('del_flag','=',0)->whereDate('created_at',date('Y-m-d',time()))->count('id');
+        $data = User::query()->where('ancestors','like','%'.$userId.'%')->where('del_flag','=',0)->select('id')->get();
+        $data[]=Auth::user()['id'];
+        $userCount = HqUser::query()->whereIn('agent_id',$data)->count('user_id');
+        $begin = strtotime(date('Y-m-d',time()));
+        $end = $begin + 60*60*24-1;
+        $userToDayCount = HqUser::query()->whereIn('agent_id',$data)->whereBetween('creatime',[$begin,$end])->count('user_id');
+        $user = $userId?User::find($userId):[];
+        return view('common.home',['user'=>$user,'agentCount'=>$agentCount+1,'ip'=>$request->ip(),'agentToDayCount'=>$agentToDayCount,'userCount'=>$userCount,'userToDayCount'=>$userToDayCount]);
     }
 
     public function getUserMenu()
