@@ -26,7 +26,7 @@ if (!function_exists('is_config_id')) {
 /*
  * 过滤 空格和字符
  */
-function htmlformat($str){
+function HttpFilter($str){
     return  preg_replace('/\'/', '', str_replace(" ",'',htmlspecialchars($str)));
 }
 /**获取角色id
