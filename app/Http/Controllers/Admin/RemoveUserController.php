@@ -20,14 +20,14 @@ class RemoveUserController extends Controller
         $map = array();
         $map['user.del_flag']=1;
         if(true==$request->has('account')){
-            $map['user.account']=$request->input('account');
+            $map['user.account']=HttpFilter($request->input('account'));
         }
         $sql = HqUser::query();
         $sql->leftJoin('user_account','user_account.user_id','=','user.user_id')
             ->select('user.*','user_account.balance')
             ->where($map);
         if(true==$request->has('nickname')){
-            $sql->where('nickname','like','%'.$request->input('nickname').'%');
+            $sql->where('nickname','like','%'.HttpFilter($request->input('nickname')).'%');
         }
         $data = $sql->paginate(10)->appends($request->all());
         foreach ($data as $key=>$value){
