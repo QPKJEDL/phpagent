@@ -4,11 +4,11 @@
         <div class="row">
             <div class="welcome-left-container col-lg-9">
                 <div class="data-show">
-                    <ul class="clearfix">
+                    <ul class="clearfix" id="iconUl">
                         <li class="col-sm-4 col-md-4 col-xs-4">
                             <a href="javascript:;" class="clearfix">
-                                <div class="icon-bg bg-org f-l">
-                                    <span class="iconfont">&#xe605;</span>
+                                <div class="icon-bg bg-org f-l" style="background: #7480a9">
+                                    <i class="layui-icon">&#xe658;</i>
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">总人数</p>
@@ -18,8 +18,8 @@
                         </li>
                         <li class="col-sm-4 col-md-4 col-xs-4">
                             <a href="javascript:;" class="clearfix">
-                                <div class="icon-bg bg-blue f-l">
-                                    <span class="iconfont">&#xe602;</span>
+                                <div class="icon-bg bg-blue f-l" style="background: #aab13f">
+                                    <i class="layui-icon ">&#xe638;</i>
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">电脑版</p>
@@ -29,8 +29,8 @@
                         </li>
                         <li class="col-sm-4 col-md-4 col-xs-4">
                             <a href="javascript:;" class="clearfix">
-                                <div class="icon-bg bg-green f-l">
-                                    <span class="iconfont">&#xe605;</span>
+                                <div class="icon-bg bg-green f-l" style="background: #57bbd0">
+                                    <i class="layui-icon">&#xe680;</i>
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">苹果版</p>
@@ -40,8 +40,8 @@
                         </li>
                         <li class="col-sm-4 col-md-4 col-xs-4">
                             <a href="javascript:;" class="clearfix">
-                                <div class="icon-bg bg-green f-l">
-                                    <span class="iconfont">&#xe605;</span>
+                                <div class="icon-bg bg-green f-l" style="background: #5cbf78">
+                                    <i class="layui-icon ">&#xe684;</i>
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">安卓版</p>
@@ -51,8 +51,8 @@
                         </li>
                         <li class="col-sm-4 col-md-4 col-xs-4">
                             <a href="javascript:;" class="clearfix">
-                                <div class="icon-bg bg-green f-l">
-                                    <span class="iconfont">&#xe605;</span>
+                                <div class="icon-bg bg-green f-l" style="background: #ff8822">
+                                    <i class="layui-icon ">&#xe67f;</i>
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">网页版</p>
@@ -62,12 +62,12 @@
                         </li>
                         <li class="col-sm-4 col-md-4 col-xs-4">
                             <a href="javascript:;" class="clearfix">
-                                <div class="icon-bg bg-green f-l">
-                                    <span class="iconfont">&#xe600;</span>
+                                <div class="icon-bg bg-green f-l" style="background: #dab569">
+                                    <i class="layui-icon ">&#xe65e;</i>
                                 </div>
                                 <div class="right-text-con">
                                     <p class="name">总金额</p>
-                                    <p><span class="color-green">{{$money}}</span></p>
+                                    <p><span class="color-green">{{$money/100}}</span></p>
                                 </div>
                             </a>
                         </li>
@@ -77,7 +77,7 @@
         </div>
     </div>
     <div class="layui-inline">
-        <button class="layui-btn layui-btn-small layui-btn  -warm freshBtn"><i class="layui-icon">&#x1002;</i></button>
+        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#xe9aa;</i></button>
     </div>
     <div class="layui-inline">
         <input type="text" lay-verify="username" value="{{ $input['username'] or '' }}" name="username" placeholder="代理账号" autocomplete="off" class="layui-input">
@@ -99,8 +99,11 @@
     </div>
 @endsection
 @section('table')
-    <table class="layui-table" lay-even lay-skin="nob">
+    <table class="layui-table" lay-size="sm">
         <colgroup>
+            <col class="hidden-xs" width="100">
+            <col class="hidden-xs" width="100">
+            <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
@@ -132,7 +135,7 @@
                         {{$info['username']}}
                     @endif
                 </td>
-                <td class="hidden-xs">{{$info['balance']/100}}</td>
+                <td class="hidden-xs">{{number_format($info['balance']/100,2)}}</td>
                 <td class="hidden-xs">{{$info['last_ip']}}</td>
                 <td class="hidden-xs">
                     @if($info['desk_id']==0)
@@ -158,7 +161,7 @@
             </tr>
         @endforeach
         @if(!$list[0])
-            <tr><td colspan="9" style="text-align: center;color: orangered;">暂无数据</td></tr>
+            <tr><td colspan="8" style="text-align: center;color: orangered;">暂无数据</td></tr>
         @endif
         </tbody>
     </table>
@@ -169,16 +172,15 @@
 @section('js')
     <script>
         layui.use(['form', 'jquery','laydate', 'layer'], function() {
-            var form = layui.form(),
+            var form = layui.form,
                 $ = layui.jquery,
                 laydate = layui.laydate,
                 layer = layui.layer
             ;
-            laydate({istoday: true});
             $(".reset").click(function(){
-                $("input[name='account']").val('');
-                $("input[name='username']").val('');
-                $("select[name='deskId']").val('');
+                $("input[name='username']").val('')
+                $("input[name='account']").val('')
+                $("select[name='desk_id']").val('')
             });
             form.render();
             form.on('submit(formDemo)', function(data) {
@@ -186,5 +188,16 @@
             });
         });
     </script>
+    <style>
+        #iconUl li{height: 50px;border-radius: 5px;overflow: hidden;display: inline-block;width: 16%}
+        #iconUl li a{display: block;height: 100%}
+        #iconUl li a div{display: inline-block;background: #fff;height: 100%;vertical-align: middle;text-align: center;width: 45%;}
+        #iconUl li a div .name{padding-top: 8px}
+        #iconUl li i{color: #fff;line-height: 50px;font-size: 26px}
+        @media (max-width: 700px) {
+            #iconUl li{width: 48%}
+
+        }
+    </style>
 @endsection
 @extends('common.list')
