@@ -1,7 +1,7 @@
 @section('title', '代理列表')
 @section('header')
     <div class="layui-inline">
-        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#x1002;</i></button>
+        <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#xe9aa;</i></button>
     </div>
     <div class="layui-inline">
         <input type="text" lay-verify="username" value="{{ $input['username'] or '' }}" name="username" placeholder="请输入代理账号" autocomplete="off" class="layui-input">
@@ -16,7 +16,7 @@
     </div>
 @endsection
 @section('table')
-    <table class="layui-table" lay-even lay-skin="nob">
+    <table class="layui-table" lay-size="sm">
         <colgroup>
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
@@ -61,12 +61,12 @@
                 </td>
                 <td>
                     <div class="layui-inline">
-                        <button class="layui-btn layui-btn-small @if($info['userCount']==0)layui-btn-disabled @else layui-btn-normal @endif user" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}" @if($info['userCount']==0) disabled @endif data-desc="下级会员"><i class="layui-icon">下级会员</i></button>
-                        <button class="layui-btn layui-btn-small @if($info['id']==$user['id'])layui-btn-disabled @elseif($info['agentCount']==0) layui-btn-disabled @else layui-btn-normal @endif agent" data-id="{{$info['id']}}"@if($info['id']==$user['id'])disabled @elseif($info['agentCount']==0) disabled @endif data-name="{{$info['nickname']}}" data-desc="下级代理"><i class="layui-icon">下级代理</i></button>
+                        <button class="layui-btn layui-btn-xs @if($info['userCount']==0)layui-btn-disabled @else layui-btn-normal @endif user" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}" @if($info['userCount']==0) disabled @endif data-desc="下级会员"><i class="layui-icon">下级会员</i></button>
+                        <button class="layui-btn layui-btn-xs @if($info['id']==$user['id'])layui-btn-disabled @elseif($info['agentCount']==0) layui-btn-disabled @else layui-btn-normal @endif agent" data-id="{{$info['id']}}"@if($info['id']==$user['id'])disabled @elseif($info['agentCount']==0) disabled @endif data-name="{{$info['nickname']}}" data-desc="下级代理"><i class="layui-icon">下级代理</i></button>
                         @if($info['id']!=$user['id'])
-                            <button class="layui-btn layui-btn-small layui-btn-normal cz" data-id="{{$info['id']}}" data-username="{{$info['username']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">充值提现</i></button>
-                            <button class="layui-btn layui-btn-small layui-btn-normal agentEdit" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">账号编辑</i></button>
-                            <button class="layui-btn layui-btn-small layui-btn-danger resetPwd" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">修改密码</i></button>
+                            <button class="layui-btn layui-btn-xs layui-btn-normal cz" data-id="{{$info['id']}}" data-username="{{$info['username']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">充值提现</i></button>
+                            <button class="layui-btn layui-btn-xs layui-btn-normal agentEdit" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">账号编辑</i></button>
+                            <button class="layui-btn layui-btn-xs layui-btn-danger resetPwd" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">修改密码</i></button>
                         @endif
                     </div>
                 </td>
@@ -78,19 +78,42 @@
         </tbody>
     </table>
     <div class="page-wrap">
-        {{$list->render()}}
+        <div id="demo"></div>
     </div>
 @endsection
 @section('js')
     <script>
-        layui.use(['form', 'jquery','laydate', 'layer','element'], function() {
-            var form = layui.form(),
+        layui.use(['form', 'jquery','laydate','laypage', 'layer','element'], function() {
+            var form = layui.form,
                 $ = layui.jquery,
                 laydate = layui.laydate,
                 layer = layui.layer,
-                element = layui.element;
+                element = layui.element,
+                laypage = layui.laypage
             ;
-            laydate({istoday: true});
+            var count = {{$list->total()}};
+            var curr = {{$list->currentPage()}};
+            var limit = {{$limit}};
+            var url = "";
+            //分页
+            laypage.render({
+                elem: 'demo'
+                ,count: count
+                ,curr:curr
+                ,limit:limit
+                ,limits:[10,50,100,150]
+                ,layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                ,jump: function(obj,first){
+                    if(url.indexOf("?") >= 0){
+                        url = url.split("?")[0] + "?page=" + obj.curr + "&limit="+ obj.limit + "&" +$("form").serialize();
+                    }else{
+                        url = url + "?page=" + obj.curr + "&limit="+obj.limit;
+                    }
+                    if (!first){
+                        location.href = url;
+                    }
+                }
+            });
             $(".a").click(function () {
                 var id = $(this).attr('data-id');
                 layer.open({
