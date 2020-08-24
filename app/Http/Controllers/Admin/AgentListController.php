@@ -187,11 +187,20 @@ class AgentListController extends Controller
 
     /**
      * 停用启用
+     * @param StoreRequest $request
+     * @return array
      */
     public function changeStatus(StoreRequest $request){
         //获取数据
-        $id = $request->input('id');
-        $status = $request->input('status');
+        $id = (int)$request->input('id');
+        $agent = User::where('id','=',$id)->select('ancestors')->first();
+        $idArr = explode(',',$agent['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($idArr);
+        if (!$bool)
+        {
+            return ['msg'=>'您没有权限进行操作','status'=>0];
+        }
+        $status = (int)$request->input('status');
         $count = User::where('id',$id)->update(['status'=>$status]);
         if($count){
             return ['msg'=>'操作成功','status'=>1];
@@ -266,18 +275,32 @@ class AgentListController extends Controller
         $data = Czrecord::where('user_id',$userId)->orderBy('creatime','desc')->first();
         return $data;
     }
-    
+
     /**
      * 用户状态停用
+     * @param StoreRequest $request
+     * @return array
      */
     public function changeUserStatus(StoreRequest $request){
-        $id = $request->input('id');
-        $status = $request->input('status');
+        $id = (int)$request->input('id');
+        $userInfo = $id?HqUser::find($id):[];
+        $agentInfo = $userInfo['agent_id']?User::find($userInfo['agent_id']):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[] = $agentInfo['id'];
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'您没有权限操作','status'=>0];
+        }
+        $status = (int)$request->input('status');
         $count = HqUser::where('user_id',$id)->update(['is_over'=>$status]);
         if($count!==false){
-            //重新生成token
-            $token = $this->generateToken();
-            $this->updateHqUserInfoToRedis($id,$token);
+            if ($userInfo['is_online']==1)
+            {
+                //重新生成token
+                $token = $this->generateToken();
+                $this->updateHqUserInfoToRedis($id,$token);
+            }
             return ['msg'=>'操作成功','status'=>1];
         }else{
             return ['msg'=>'操作失败','status'=>0];
@@ -336,6 +359,7 @@ class AgentListController extends Controller
         $userInfo = (int)$id?HqUser::find((int)$id):[];
         $agentInfo = $userInfo['agent_id']?User::find($userInfo['agent_id']):[];
         $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[]=$agentInfo['id'];
         $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {
@@ -359,9 +383,10 @@ class AgentListController extends Controller
      * 会员账号编辑
      */
     public function userEdit($id){
-        $user = $id?HqUser::find($id):[];
+        $user = (int)$id?HqUser::find((int)$id):[];
         $agentInfo = $user['agent_id']?User::find($user['agent_id']):[];
         $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[]=$agentInfo['id'];
         $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {
@@ -399,9 +424,16 @@ class AgentListController extends Controller
      * @return array
      */
     public function resetAgentPwd(StoreRequest $request){
-        $id = $request->input('id');
-        $password = $request->input('password');
-        $newPwd = $request->input('newPwd');
+        $id = (int)$request->input('id');
+        $agentInfo = User::where('id','=',$id)->select('ancestors')->first();
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'没有权限','status'=>0];
+        }
+        $password = HttpFilter($request->input('password'));
+        $newPwd = HttpFilter($request->input('newPwd'));
         if($password!=$newPwd){
             return ['msg'=>'两次密码不一致，请重新输入','status'=>0];
         }else{
@@ -463,6 +495,13 @@ class AgentListController extends Controller
 
     public function saveAgentEdit(StoreRequest $request){
         $id = (int)$request->input('id');
+        $agentInfo = User::where('id','=',$id)->select('ancestors')->first();
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'你没有权限进行操作','status'=>0];
+        }
         $data = $request->all();
         unset($data['_token']);
         unset($data['id']);
@@ -496,6 +535,13 @@ class AgentListController extends Controller
      */
     public function getRelationalStruct($id){
         $info = $id?User::find($id):[];
+        $ancestors = explode(',',$info['ancestors']);
+        $ancestors[]=$info['id'];
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'您没有权限进行操作','status'=>0];
+        }
         $arr = array();
         if ($info['parent_id']!=0){
             $data = explode(",",$info['ancestors']);
@@ -510,6 +556,14 @@ class AgentListController extends Controller
 
     public function getUserRelational($id){
         $info = $id?HqUser::find($id):[];
+        $agentInfo = User::where('id','=',$info['agent_id'])->first();
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[]=$agentInfo['id'];
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'你没有权限','status'=>0];
+        }
         $info['creatime']=date('Y-m-d H:i:s',$info['creatime']);
         $arr = array();
         //获得上级代理
@@ -594,12 +648,19 @@ class AgentListController extends Controller
     }
     public function agentCzSave(StoreRequest $request){
         $data = $request->all();
-        //获取当前登录
+        $agentInfo = User::where('id','=',(int)$data['id'])->select('ancestors')->first();
+        $ancestors = explode(',',$agentInfo['ancestors']);
+
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'没有权限进行操作','status'=>0];
+        }
         unset($data['_token']);
         if ($data['type']==1){
             DB::beginTransaction();
             $user = User::where('id','=',Auth::id())->lockForUpdate()->first();
-            $agent = User::where('id','=',$data['id'])->lockForUpdate()->first();
+            $agent = User::where('id','=',(int)$data['id'])->lockForUpdate()->first();
             if ($user['balance']<$data['money']){
                 DB::rollBack();
                 return ['msg'=>'余额不足','status'=>0];
