@@ -6,14 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
     <title>@yield('title') | {{ Config::get('app.name') }}</title>
-    <link rel="stylesheet" type="text/css" href="/static/admin/layui/css/layui.css" />
-    <link rel="stylesheet" type="text/css" href="/static/admin/css/admin.css" />
-    <link rel="stylesheet" type="text/css" href="/static/admin/css/jquery.treetable.css">
-    <link rel="stylesheet" type="text/css" href="/static/admin/css/jquery.treetable.theme.default.css">
-    <script src="/static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/static/tools/layui/css/layui.css" />
+    <script src="/static/tools/layui/layui.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/admin/js/common.js?fsfd=1" type="text/javascript" charset="utf-8"></script>
-    <script src="/static/admin/js/jquery-2.1.1.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/static/admin/js/jquery.treetable.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/admin/js/qrcode.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
@@ -21,7 +16,7 @@
     <div class="column-content-detail">
         <form class="layui-form" action="">
             <div class="layui-form-item">
-                <div class="layui-inline tool-btn">
+                <div style="width: 100%;" class="layui-inline tool-btn">
                     @yield('header')
                 </div>
                 {{ csrf_field() }}

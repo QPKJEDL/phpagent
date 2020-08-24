@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="/static/admin/css/admin.css" />
     <link href="/static/admin/summernote/summernote.css" rel="stylesheet">
     <link href="/static/admin/summernote/summernote-bs3.css" rel="stylesheet">
-    <script src="/static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/tools/layui/layui.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/admin/js/common.js" type="text/javascript" charset="utf-8"></script>
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>
