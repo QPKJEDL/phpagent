@@ -43,11 +43,11 @@
             <div class="layui-inline">
               <label class="layui-form-label">限红范围：</label>
               <div class="layui-input-inline" style="width: 100px;">
-                <input type="text" name="limit[min]" placeholder="￥" value="{{$user['limit']['min']}}" autocomplete="off" class="layui-input">
+                <input type="text" name="limit[min]" readonly placeholder="￥" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" value="{{$user['limit']['min']}}" autocomplete="off" class="layui-input">
               </div>
               <div class="layui-form-mid">-</div>
               <div class="layui-input-inline" style="width: 100px;">
-                <input type="text" name="limit[max]" placeholder="￥" value="{{$user['limit']['max']}}"  autocomplete="off" class="layui-input">
+                <input type="text" name="limit[max]" readonly placeholder="￥" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" value="{{$user['limit']['max']}}"  autocomplete="off" class="layui-input">
               </div>
             </div>
         </div>
@@ -55,11 +55,11 @@
             <div class="layui-inline">
               <label class="layui-form-label">和限红范围：</label>
               <div class="layui-input-inline" style="width: 100px;">
-                <input type="text" name="limit[tieMin]" placeholder="￥" autocomplete="off" value="{{$user['limit']['tieMin']}}"  class="layui-input">
+                <input type="text" name="limit[tieMin]" readonly placeholder="￥" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" autocomplete="off" value="{{$user['limit']['tieMin']}}"  class="layui-input">
               </div>
               <div class="layui-form-mid">-</div>
               <div class="layui-input-inline" style="width: 100px;">
-                <input type="text" name="limit[tieMax]" placeholder="￥" autocomplete="off" value="{{$user['limit']['tieMax']}}"  class="layui-input">
+                <input type="text" name="limit[tieMax]" readonly placeholder="￥" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" autocomplete="off" value="{{$user['limit']['tieMax']}}"  class="layui-input">
               </div>
             </div>
         </div>
@@ -67,15 +67,14 @@
             <div class="layui-inline">
               <label class="layui-form-label">对限红范围：</label>
               <div class="layui-input-inline" style="width: 100px;">
-                <input type="text" name="limit[pairMin]" placeholder="￥" autocomplete="off" class="layui-input" value="{{$user['limit']['pairMin']}}">
+                <input type="text" name="limit[pairMin]" readonly placeholder="￥" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" autocomplete="off" class="layui-input" value="{{$user['limit']['pairMin']}}">
               </div>
               <div class="layui-form-mid">-</div>
               <div class="layui-input-inline" style="width: 100px;">
-                <input type="text" name="limit[pairMax]" placeholder="￥" autocomplete="off" class="layui-input" value="{{$user['limit']['pairMax']}}">
+                <input type="text" name="limit[pairMax]" readonly placeholder="￥" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" autocomplete="off" class="layui-input" value="{{$user['limit']['pairMax']}}">
               </div>
             </div>
         </div>
-        @if($user['baccarat']!=0)
             <div class="layui-form-item">
                 <label class="layui-form-label">百家乐洗码率：</label>
                 <div class="layui-input-inline">
@@ -83,16 +82,6 @@
                 </div>
                 <div class="layui-form-mid layui-word-aux">小于或等于所属代理的百家乐洗码率(%)。默认:{{$user['fee']['baccarat']}}%</div>
             </div>
-        @else
-            <div class="layui-form-item">
-                <label class="layui-form-label">百家乐洗码率：</label>
-                <div class="layui-input-inline">
-                    <input type="number" name="fee[baccarat]" lay-verify="title" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly autocomplete="off" value="{{$user['fee']['baccarat']}}" class="layui-input">
-                </div>
-                <div class="layui-form-mid layui-word-aux">小于或等于所属代理的百家乐洗码率(%)。默认:{{$user['fee']['baccarat']}}%</div>
-            </div>
-        @endif
-        @if($user['dragon_tiger'] != 0)
             <div class="layui-form-item">
                 <label class="layui-form-label">龙虎洗码率：</label>
                 <div class="layui-input-inline">
@@ -100,16 +89,6 @@
                 </div>
                 <div class="layui-form-mid layui-word-aux">小于或等于所属代理的龙虎洗码率(%)。默认:{{$user['fee']['dragonTiger']}}%</div>
             </div>
-        @else
-            <div class="layui-form-item">
-                <label class="layui-form-label">龙虎洗码率：</label>
-                <div class="layui-input-inline">
-                    <input type="number" name="fee[dragonTiger]" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" lay-verify="title" value="{{$user['fee']['dragonTiger']}}" autocomplete="off" class="layui-input">
-                </div>
-                <div class="layui-form-mid layui-word-aux">小于或等于所属代理的龙虎洗码率(%)。默认:{{$user['fee']['dragonTiger']}}%</div>
-            </div>
-        @endif
-        @if($user['niuniu']!=0)
             <div class="layui-form-item">
                 <label class="layui-form-label">牛牛洗码率：</label>
                 <div class="layui-input-inline">
@@ -117,16 +96,6 @@
                 </div>
                 <div class="layui-form-mid layui-word-aux">小于或等于所属代理的牛牛洗码率(%)。默认:{{$user['fee']['niuniu']}}%</div>
             </div>
-        @else
-            <div class="layui-form-item">
-                <label class="layui-form-label">牛牛洗码率：</label>
-                <div class="layui-input-inline">
-                    <input type="number" name="fee[niuniu]" lay-verify="title" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" autocomplete="off" value="{{$user['fee']['niuniu']}}" class="layui-input">
-                </div>
-                <div class="layui-form-mid layui-word-aux">小于或等于所属代理的牛牛洗码率(%)。默认:{{$user['fee']['niuniu']}}%</div>
-            </div>
-        @endif
-        @if($user['sangong']!=0)
             <div class="layui-form-item">
                 <label class="layui-form-label">三公洗码率：</label>
                 <div class="layui-input-inline">
@@ -134,16 +103,6 @@
                 </div>
                 <div class="layui-form-mid layui-word-aux">小于或等于所属代理的三公洗码率(%)。默认:{{$user['fee']['sangong']}}%</div>
             </div>
-        @else
-            <div class="layui-form-item">
-                <label class="layui-form-label">三公洗码率：</label>
-                <div class="layui-input-inline">
-                    <input type="number" name="fee[sangong]" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" lay-verify="title" autocomplete="off" value="{{$user['fee']['sangong']}}" class="layui-input">
-                </div>
-                <div class="layui-form-mid layui-word-aux">小于或等于所属代理的三公洗码率(%)。默认:{{$user['fee']['sangong']}}%</div>
-            </div>
-        @endif
-        @if($user['A89']!=0)
             <div class="layui-form-item">
                 <label class="layui-form-label">A89洗码率：</label>
                 <div class="layui-input-inline">
@@ -151,15 +110,6 @@
                 </div>
                 <div class="layui-form-mid layui-word-aux">小于或等于所属代理的A89洗码率(%)。默认:{{$user['fee']['A89']}}%</div>
             </div>
-        @else
-            <div class="layui-form-item">
-                <label class="layui-form-label">A89洗码率：</label>
-                <div class="layui-input-inline">
-                    <input type="number" name="fee[A89]" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" lay-verify="title" autocomplete="off" value="{{$user['fee']['A89']}}" class="layui-input">
-                </div>
-                <div class="layui-form-mid layui-word-aux">小于或等于所属代理的A89洗码率(%)。默认:{{$user['fee']['A89']}}%</div>
-            </div>
-        @endif
         <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
             <legend>百家乐游戏赔率</legend>
         </fieldset>
@@ -339,13 +289,35 @@
 @section('js')
     <script>
         layui.use(['form', 'jquery','laydate', 'layer','element'], function() {
-            var form = layui.form(),
+            var form = layui.form,
                 $ = layui.jquery,
                 laydate = layui.laydate,
                 layer = layui.layer,
-                element = layui.element();
+                element = layui.element;
             ;
-            laydate({istoday: true});
+            $('input[name="account"]').blur(function () {
+                var username = $(this).val();
+                if(username.length==0){
+                    layer.msg('账号不能为空',{shift: 6,icon:5});
+                }else{
+                    $.ajax({
+                        headers:{
+                            'X-CSRF-TOKEN':$('input[name="_token"]').val()
+                        },
+                        url:"{{url('/admin/hqUser/checkAccountUnique')}}",
+                        type:"post",
+                        data:{
+                            "account":username
+                        },
+                        dataType:"json",
+                        success:function (res) {
+                            if(res.status==0){
+                                layer.msg(res.msg,{shift:6,icon:5});
+                            }
+                        }
+                    });
+                }
+            });
             $("#account").click(function(){
                 //console.log(Math.random().toString().slice(-6));
                 //清空数据
@@ -360,14 +332,14 @@
                     }
                 },
                 account:function(value){
-                    var reg = new RegExp('^[0-9]{11}$');
+                    var reg = new RegExp('^[0-9]{8}$');
                     if (!reg.test(value)){
                         return '格式错误';
                     }
-                    /*if (!(value>9999999 && value< 100000000))
+                    if (value.length!=8)
                     {
-                        return '账号必须大于9999999，小于100000000'
-                    }*/
+                        return '账号长度限制8位'
+                    }
                 },
                 password:function(value){
                     if(value.length==0){
