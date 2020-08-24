@@ -10,6 +10,7 @@ use App\Models\GameRecord;
 use App\Models\HqUser;
 use App\Models\Maintain;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
@@ -20,208 +21,300 @@ use Illuminate\View\View;
 
 class OrderController extends Controller
 {
-    /**
-     * 数据列表
-     * @param Request $request
-     * @return Factory|Application|View
-     */
-    public function index(Request $request){
-        if (true==$request->has('pageNum')){
-            $curr = $request->input('pageNum');
-        }else{
-            $curr =1;
-        }
-        //获取开始时间和结束时间
-        if (true==$request->has('begin')){
-            $begin = strtotime($request->input('begin'));
-            $startDate = $request->input('begin');
-            if (true==$request->has('end')){
-                $endTime = strtotime($request->input('end'));
-                $endDate = $request->input('end');
-                $request->offsetSet('end',$request->input('end'));
-            }else{
-                $endTime = time();
-                $endDate = date('Y-m-d',$endTime);
-                $request->offsetSet('end',date('Y-m-d H:i:s',$endTime));
-            }
-        }else{
-            //获取上次维护完成时间
-            $start = Maintain::getAtLastOutDate();
-            $end = Maintain::getAtLastMaintainDate();
-            if ($start['create_time']!="" && $end['create_time']==""){
-                if ($start['create_time'] > $end['create_time']){   //如果最后一次维护完成时间大于最后一个得维护开始时间 那么默认找昨天得数据
-                    //获取昨天的开始和结束的时间戳
-                    $begin = $this->getYesterdayBeginTime();
-                    $endTime = $this->getYesterdayEndTime($begin);
-                    $startDate = date('Y-m-d',$begin);
-                    $endDate = date('Y-m-d',$endTime);
-                    $request->offsetSet('begin',date('Y-m-d H:i:s',$begin));
-                    $request->offsetSet('end',date('Y-m-d H:i:s',$endTime));
-                }else{
-                    $begin = $start['create_time'];
-                    $endTime = $end['create_time'];
-                    $startDate = date('Y-m-d',$start['create_time']);
-                    $endDate = date('Y-m-d',$end['create_time']);
-                    $request->offsetSet('begin',date('Y-m-d H:i:s',$begin));
-                    $request->offsetSet('end',date('Y-m-d H:i:s',$endTime));
-                }
-            }else{
-                $begin = $this->getYesterdayBeginTime();
-                $endTime = $this->getYesterdayEndTime($begin);
-                $startDate = date('Y-m-d',$begin);
-                $endDate = date('Y-m-d',$endTime);
-                $request->offsetSet('begin',date('Y-m-d H:i:s',$begin));
-                $request->offsetSet('end',date('Y-m-d H:i:s',$endTime));
-            }
-        }
-        //获取到开始时间和结束时间的时间段数组
-        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate,$endDate);
-        $sql = '';
-        for ($i=0;$i<count($dateArr);$i++)
-        {
-            if (Schema::hasTable('order_'.$dateArr[$i])){
-                if ($sql==""){
-                    $sql = "select * from hq_order_".$dateArr[$i];
-                }else{
-                    $sql = $sql.' union all select * from hq_order_'.$dateArr[$i];
-                }
-                if (true==$request->has('desk_id')){
-                    $sql = $sql.' and desk_id ='.$request->input('desk_id');
-                }
-                if (true==$request->has('type')){
-                    $sql = $sql.' and game_type='.$request->input('type');
-                }
-                if (true==$request->has('status')){
-                    $sql = $sql.' and status='.$request->input('status');
-                }
-                if (true==$request->has('boot_num')){
-                    $sql = $sql.' and boot_num='.$request->input('boot_num');
-                }
-                if (true==$request->has('pave_num')){
-                    $sql = $sql.' and pave_num='.$request->input('pave_num');
-                }
-                if (true==$request->has('orderSn')){
-                    $sql = $sql.' and order_sn='.$request->input('orderSn');
-                }
-            }
-        }
-        if ($sql!="" || $sql!=null){
-            $dataSql = 'select t.* from ('.$sql.') t
-         left join hq_user u on u.user_id = t.user_id
-         inner join (SELECT id FROM hq_agent_users WHERE del_flag=0 and (id = '.Auth::id().' or id IN (SELECT t.id from hq_agent_users t WHERE FIND_IN_SET('.Auth::id().',ancestors)))) a on a.id=u.agent_id
-         where t.creatime between '.$begin.' and '.$endTime.' limit '.(($curr-1) * 10).',10';
-            $countSql = 'select t.id from ('.$sql.') t
-         left join hq_user u on u.user_id = t.user_id
-         inner join (SELECT id FROM hq_agent_users WHERE del_flag=0 and (id = '.Auth::id().' or id IN (SELECT t.id from hq_agent_users t WHERE FIND_IN_SET('.Auth::id().',ancestors)))) a on a.id=u.agent_id
-         where t.creatime between '.$begin.' and '.$endTime;
-            $count = DB::select($countSql);
-            $data = DB::select($dataSql);
-            foreach ($data as $key=>$value){
-                $data[$key]->user = HqUser::getUserInfoByUserId($value->user_id);
-                $data[$key]->money = $this->getSumBetMoney($value);
-                //获取表名
-                $tableName = $this->getGameRecordTableNameByRecordSn($value->record_sn);
-                $winner = $this->getGameRecordInfo($tableName,$value->record_sn);
-                $data[$key]->bill=Billflow::getBillflowByOrderSn($value->order_sn,$tableName);
-                if ($data[$key]->game_type==1){
-                    $data[$key]->result=$this->getBaccaratParseJson($winner);
-                    $data[$key]->bet_money=$this->getBaccaratBetMoney($value->bet_money);
-                }else if($data[$key]->game_type==2){
-                    $data[$key]->result=$this->getDragonTigerJson($winner);
-                    $data[$key]->bet_money=$this->getDragonTieTiger($value->bet_money);
-                }else if($data[$key]->game_type==3){
-                    $data[$key]->result=$this->getFullParseJson($winner);
-                    $data[$key]->bet_money=$this->getNiuNiuBetMoney($value->bet_money);
-                }else if($data[$key]->game_type==4){
-                    $data[$key]->result = $this->getSanGongResult($winner);
-                    $data[$key]->bet_money=$this->getSanGongMoney($value->bet_money);
-                }else if($data[$key]->game_type==5){
-                    $data[$key]->result=$this->getA89Result($winner);
-                    $data[$key]->bet_money=$this->getA89BetMoney($value->bet_money);
-                }
-                $data[$key]->creatime = date('Y-m-d H:i:s',$value->creatime);
-            }
-        }else{
-            $data = array();
-            $count=array();
-        }
-        $min = config('admin.min_date');
-        return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'curr'=>$curr,'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>$min,'pages'=>ceil(count($count)/10)]);
-    }
 
+    public function index(Request $request)
+    {
+        //获取当前代理以下的代理id
+        $idArr = array();
+        $idArr[] = Auth::id();
+        $agentIdData = User::whereRaw('FIND_IN_SET(' . Auth::id() . ',ancestors)', true)->select('id')->get();
+        foreach ($agentIdData as $key => $datum) {
+            $idArr[] = $datum['id'];
+        }
+        $map = array();
+        $request->offsetSet('a', 0);
+        if (true == $request->has('begin')) {
+            $startDate = HttpFilter($request->input('begin'));
+        } else {
+            $startDate = date('Y-m-d', time());
+            $request->offsetSet('begin', $startDate);
+        }
+        $startTime = strtotime($startDate);
+        if (true == $request->has('end')) {
+            $endDate = HttpFilter($request->input('end'));
+        } else {
+            $endDate = date('Y-m-d', time());
+            $request->offsetSet('end', $endDate);
+        }
+        $endTime = strtotime('+1day', strtotime($endDate)) - 1;
+        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate, $endDate);
+        if (Schema::hasTable('order_'.$dateArr[0])){
+            //获取第一天的数据
+            $order = new Order();
+            $order->setTable('order_' . $dateArr[0]);
+            $sql = $order->leftJoin('user', 'user.user_id', '=', 'order_' . $dateArr[0] . '.user_id')
+                ->select('order_' . $dateArr[0] . '.*', 'user.account', 'user.nickname', 'user.fee')->whereIn('user.agent_id', $idArr)->where($map)->whereBetween('order_' . $dateArr[0] . '.creatime', [$startTime, $endTime]);
+            if (true == $request->has('desk_id'))
+            {
+                $sql->where('order_'.$dateArr[0].'.desk_id','=',(int)$request->input('desk_id'));
+            }
+            if (true==$request->has('type'))
+            {
+                $sql->where('order_'.$dateArr[0].'.game_type','=',(int)$request->input('type'));
+            }
+            if (true==$request->has('status'))
+            {
+                $sql->where('order_'.$dateArr[0].'.status','=',(int)$request->input('status'));
+            }
+            if (true==$request->has('boot_num'))
+            {
+                $sql->where('order_'.$dateArr[0].'.boot_num','=',(int)$request->input('boot_num'));
+            }
+            if (true==$request->has('pave_num'))
+            {
+                $sql->where('order_'.$dateArr[0].'.pave_num','=',(int)$request->input('pave_num'));
+            }
+            if (true==$request->has('orderSn'))
+            {
+                $sql->where('order_'.$dateArr[0].'.order_sn','=',(int)$request->input('orderSn'));
+            }
+            if (true==$request->has('account'))
+            {
+                $account = explode(',',HttpFilter($request->input('account')));
+                $sql->whereIn('user.account',$account);
+            }
+        }
+        for($i=1;$i<count($dateArr);$i++)
+        {
+            if (Schema::hasTable('order_'.$dateArr[$i]))
+            {
+                $o = new Order();
+                $o->setTable('order_'.$dateArr[$i]);
+                $d = $o->leftJoin('user','user.user_id','=','order_'.$dateArr[$i].'.user_id')
+                    ->select('order_'.$dateArr[$i].'.*','user.account','user.nickname','user.fee')->whereIn('user.agent_id',$idArr)->where($map)->whereBetween('order_'.$dateArr[$i].'.creatime',[$startTime,$endTime]);
+                if (true == $request->has('desk_id'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.desk_id','=',(int)$request->input('desk_id'));
+                }
+                if (true==$request->has('type'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.game_type','=',(int)$request->input('type'));
+                }
+                if (true==$request->has('status'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.status','=',(int)$request->input('status'));
+                }
+                if (true==$request->has('boot_num'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.boot_num','=',(int)$request->input('boot_num'));
+                }
+                if (true==$request->has('pave_num'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.pave_num','=',(int)$request->input('pave_num'));
+                }
+                if (true==$request->has('orderSn'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.order_sn','=',(int)$request->input('orderSn'));
+                }
+                if (true==$request->has('account'))
+                {
+                    $account = explode(',',HttpFilter($request->input('account')));
+                    $d->whereIn('user.account',$account);
+                }
+                $sql->unionAll($d);
+            }
+        }
+        if (true==$request->has('limit'))
+        {
+            $limit = (int)$request->input('limit');
+        }
+        else
+        {
+            $limit = 10;
+        }
+        $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->paginate($limit)->appends($request->all());
+        foreach ($data as $key=>$datum)
+        {
+            $data[$key]->fee = json_decode($datum->fee,true);
+            $data[$key]->money = $this->getSumBetMoney($datum);
+            $data[$key]->creatime=date('Y-m-d H:i:s',$datum->creatime);
+            //获取表名
+            $tableName = $this->getGameRecordTableNameByRecordSn($datum->record_sn);
+            $winner = $this->getGameRecordInfo($tableName,$datum->record_sn);
+            $data[$key]->bill=Billflow::getBillflowByOrderSn($datum->order_sn,$tableName);
+            if ($data[$key]->game_type==1){
+                $data[$key]->result=$this->getBaccaratParseJson($winner);
+                $data[$key]->bet_money=$this->getBaccaratBetMoney($datum->bet_money);
+            }else if($data[$key]->game_type==2){
+                $data[$key]->result=$this->getDragonTigerJson($winner);
+                $data[$key]->bet_money=$this->getDragonTieTiger($datum->bet_money);
+            }else if($data[$key]->game_type==3){
+                $data[$key]->result=$this->getFullParseJson($winner);
+                $data[$key]->bet_money=$this->getNiuNiuBetMoney($datum->bet_money);
+            }else if($data[$key]->game_type==4){
+                $data[$key]->result = $this->getSanGongResult($winner);
+                $data[$key]->bet_money=$this->getSanGongMoney($datum->bet_money);
+            }else if($data[$key]->game_type==5){
+                $data[$key]->result=$this->getA89Result($winner);
+                $data[$key]->bet_money=$this->getA89BetMoney($datum->bet_money);
+            }
+        }
+        return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'game'=>Game::getGameByType(),'input'=>$request->all(),'limit'=>$limit]);
+    }
+    public function whetherAffiliatedAgent($ancestors)
+    {
+        $userId = Auth::id();
+        foreach ($ancestors as $key=>$value)
+        {
+            if ($userId==$value){
+                return true;
+                break;
+            }
+        }
+        return false;
+    }
     public function getOrderListByUserId($id,$begin,$end,Request $request){
+        $userInfo = (int)$id?HqUser::find((int)$id):[];
+        $agentInfo = $userInfo['agent_id']?User::find($userInfo['agent_id']):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[]=$agentInfo['id'];
+        $bool = $this->whetherAffiliatedAgent($ancestors);
+        if (!$bool)
+        {
+            return ['msg'=>'没有权限操作','status'=>0];
+        }
+        $map =array();
+        $map['user.user_id']=$id;
         $request->offsetSet('begin',$begin);
         $request->offsetSet('end',$end);
-        if (true==$request->has('pageNum')){
-            $curr = $request->input('pageNum');
-        }else{
-            $curr =1;
+        $request->offsetSet('a',1);
+        if (true == $request->has('begin')) {
+            $startDate = HttpFilter($request->input('begin'));
+        } else {
+            $startDate = date('Y-m-d', time());
+            $request->offsetSet('begin', $startDate);
         }
-        $dateArr = $this->getDateTimePeriodByBeginAndEnd($begin,$end);
-        $sql ='';
-        for ($i=0;$i<count($dateArr);$i++)
+        $startTime = strtotime($startDate);
+        if (true == $request->has('end')) {
+            $endDate = HttpFilter($request->input('end'));
+        } else {
+            $endDate = date('Y-m-d', time());
+            $request->offsetSet('end', $endDate);
+        }
+        $endTime = strtotime('+1day',strtotime($endDate))-1;
+        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate,$endDate);
+        if (Schema::hasTable('order_'.$dateArr[0])){
+            //获取第一天的数据
+            $order = new Order();
+            $order->setTable('order_' . $dateArr[0]);
+            $sql = $order->leftJoin('user', 'user.user_id', '=', 'order_' . $dateArr[0] . '.user_id')
+                ->select('order_' . $dateArr[0] . '.*', 'user.account', 'user.nickname', 'user.fee')->where($map)->whereBetween('order_' . $dateArr[0] . '.creatime', [$startTime, $endTime]);
+            if (true == $request->has('desk_id'))
+            {
+                $sql->where('order_'.$dateArr[0].'.desk_id','=',(int)$request->input('desk_id'));
+            }
+            if (true==$request->has('type'))
+            {
+                $sql->where('order_'.$dateArr[0].'.game_type','=',(int)$request->input('type'));
+            }
+            if (true==$request->has('status'))
+            {
+                $sql->where('order_'.$dateArr[0].'.status','=',(int)$request->input('status'));
+            }
+            if (true==$request->has('boot_num'))
+            {
+                $sql->where('order_'.$dateArr[0].'.boot_num','=',(int)$request->input('boot_num'));
+            }
+            if (true==$request->has('pave_num'))
+            {
+                $sql->where('order_'.$dateArr[0].'.pave_num','=',(int)$request->input('pave_num'));
+            }
+            if (true==$request->has('orderSn'))
+            {
+                $sql->where('order_'.$dateArr[0].'.order_sn','=',(int)$request->input('orderSn'));
+            }
+            if (true==$request->has('account'))
+            {
+                $account = explode(',',HttpFilter($request->input('account')));
+                $sql->whereIn('user.account',$account);
+            }
+        }
+        for($i=1;$i<count($dateArr);$i++)
         {
-            if (Schema::hasTable('order_'.$dateArr[$i])){
-                if ($sql==""){
-                    $sql = "select * from hq_order_".$dateArr[$i].' where user_id='.$id;
-                }else{
-                    $sql = $sql.' union all select * from hq_order_'.$dateArr[$i].' where user_id='.$id;
+            if (Schema::hasTable('order_'.$dateArr[$i]))
+            {
+                $o = new Order();
+                $o->setTable('order_'.$dateArr[$i]);
+                $d = $o->leftJoin('user','user.user_id','=','order_'.$dateArr[$i].'.user_id')
+                    ->select('order_'.$dateArr[$i].'.*','user.account','user.nickname','user.fee')->where($map)->whereBetween('order_'.$dateArr[$i].'.creatime',[$startTime,$endTime]);
+                if (true == $request->has('desk_id'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.desk_id','=',(int)$request->input('desk_id'));
                 }
-                if (true==$request->has('desk_id')){
-                    $sql = $sql.' and desk_id ='.$request->input('desk_id');
+                if (true==$request->has('type'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.game_type','=',(int)$request->input('type'));
                 }
-                if (true==$request->has('type')){
-                    $sql = $sql.' and game_type='.$request->input('type');
+                if (true==$request->has('status'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.status','=',(int)$request->input('status'));
                 }
-                if (true==$request->has('status')){
-                    $sql = $sql.' and status='.$request->input('status');
+                if (true==$request->has('boot_num'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.boot_num','=',(int)$request->input('boot_num'));
                 }
-                if (true==$request->has('boot_num')){
-                    $sql = $sql.' and boot_num='.$request->input('boot_num');
+                if (true==$request->has('pave_num'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.pave_num','=',(int)$request->input('pave_num'));
                 }
-                if (true==$request->has('pave_num')){
-                    $sql = $sql.' and pave_num='.$request->input('pave_num');
+                if (true==$request->has('orderSn'))
+                {
+                    $d->where('order_'.$dateArr[$i].'.order_sn','=',(int)$request->input('orderSn'));
                 }
-                if (true==$request->has('orderSn')){
-                    $sql = $sql.' and order_sn='.$request->input('orderSn');
+                if (true==$request->has('account'))
+                {
+                    $account = explode(',',HttpFilter($request->input('account')));
+                    $d->whereIn('user.account',$account);
                 }
+                $sql->unionAll($d);
             }
         }
-        if ($sql!='' || $sql!=null){
-            $dataSql = 'select * from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end).' limit '.(($curr-1) * 10).',10';
-            $countSql = 'select * from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end);
-            $count = DB::select($countSql);
-            $data = DB::select($dataSql);
-            foreach ($data as $key=>$value){
-                $data[$key]->user = HqUser::getUserInfoByUserId($value->user_id);
-                $data[$key]->money = $this->getSumBetMoney($value);
-                //获取表名
-                $tableName = $this->getGameRecordTableNameByRecordSn($value->record_sn);
-                $winner = $this->getGameRecordInfo($tableName,$value->record_sn);
-                $data[$key]->bill=Billflow::getBillflowByOrderSn($value->order_sn,$tableName);
-                if ($data[$key]->game_type==1){
-                    $data[$key]->result=$this->getBaccaratParseJson($winner);
-                    $data[$key]->bet_money=$this->getBaccaratBetMoney($value->bet_money);
-                }else if($data[$key]->game_type==2){
-                    $data[$key]->result=$this->getDragonTigerJson($winner);
-                    $data[$key]->bet_money=$this->getDragonTieTiger($value->bet_money);
-                }else if($data[$key]->game_type==3){
-                    $data[$key]->result=$this->getFullParseJson($winner);
-                    $data[$key]->bet_money=$this->getNiuNiuBetMoney($value->bet_money);
-                }else if($data[$key]->game_type==4){
-                    $data[$key]->result = $this->getSanGongResult($winner);
-                    $data[$key]->bet_money=$this->getSanGongMoney($value->bet_money);
-                }else if($data[$key]->game_type==5){
-                    $data[$key]->result=$this->getA89Result($winner);
-                    $data[$key]->bet_money=$this->getA89BetMoney($value->bet_money);
-                }
-                $data[$key]->creatime = date('Y-m-d H:i:s',$value->creatime);
-            }
-            return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'curr'=>$curr,'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>config('admin.min_date'),'pages'=>ceil(count($count)/10)]);
-        }else{
-            $data=array();
-            return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'curr'=>$curr,'game'=>Game::getGameByType(),'input'=>$request->all(),'min'=>config('admin.min_date'),'pages'=>1]);
+        if (true==$request->has('limit'))
+        {
+            $limit = (int)$request->input('limit');
         }
+        else
+        {
+            $limit = 10;
+        }
+        $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->paginate($limit)->appends($request->all());
+        foreach ($data as $key=>$datum)
+        {
+            $data[$key]->fee = json_decode($datum->fee,true);
+            $data[$key]->money = $this->getSumBetMoney($datum);
+            $data[$key]->creatime=date('Y-m-d H:i:s',$datum->creatime);
+            //获取表名
+            $tableName = $this->getGameRecordTableNameByRecordSn($datum->record_sn);
+            $winner = $this->getGameRecordInfo($tableName,$datum->record_sn);
+            $data[$key]->bill=Billflow::getBillflowByOrderSn($datum->order_sn,$tableName);
+            if ($data[$key]->game_type==1){
+                $data[$key]->result=$this->getBaccaratParseJson($winner);
+                $data[$key]->bet_money=$this->getBaccaratBetMoney($datum->bet_money);
+            }else if($data[$key]->game_type==2){
+                $data[$key]->result=$this->getDragonTigerJson($winner);
+                $data[$key]->bet_money=$this->getDragonTieTiger($datum->bet_money);
+            }else if($data[$key]->game_type==3){
+                $data[$key]->result=$this->getFullParseJson($winner);
+                $data[$key]->bet_money=$this->getNiuNiuBetMoney($datum->bet_money);
+            }else if($data[$key]->game_type==4){
+                $data[$key]->result = $this->getSanGongResult($winner);
+                $data[$key]->bet_money=$this->getSanGongMoney($datum->bet_money);
+            }else if($data[$key]->game_type==5){
+                $data[$key]->result=$this->getA89Result($winner);
+                $data[$key]->bet_money=$this->getA89BetMoney($datum->bet_money);
+            }
+        }
+        return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'game'=>Game::getGameByType(),'input'=>$request->all(),'limit'=>$limit]);
     }
     /**
      * 根据开始时间结束时间获取中间得时间段
