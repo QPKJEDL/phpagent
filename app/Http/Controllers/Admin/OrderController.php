@@ -83,6 +83,7 @@ class OrderController extends Controller
                 $account = explode(',',HttpFilter($request->input('account')));
                 $sql->whereIn('user.account',$account);
             }
+            $sql->orderBy('order_'.$dateArr[0].'.creatime','desc');
         }
         for($i=1;$i<count($dateArr);$i++)
         {
@@ -121,6 +122,7 @@ class OrderController extends Controller
                     $account = explode(',',HttpFilter($request->input('account')));
                     $d->whereIn('user.account',$account);
                 }
+                $d->orderBy('order_'.$dateArr[$i].'.creatime','desc');
                 $sql->unionAll($d);
             }
         }
