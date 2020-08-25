@@ -51,7 +51,7 @@ class AddAgentUserController extends Controller
         $data['nickname']=HttpFilter($data['nickname']);
         $data['parent_id']=Auth::id();
         $agentInfo = $data['parent_id']?User::find($data['parent_id']):[];
-        if ((int)$data['proportion']>$agentInfo['proportion'])
+        if ((int)$data['proportion']>$agentInfo['proportion'] || (int)$data['proportion']<0)
         {
             return ['msg'=>'占股错误','status'=>0];
         }
