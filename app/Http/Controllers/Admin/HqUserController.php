@@ -127,6 +127,10 @@ class HqUserController extends Controller
         {
             return ['msg'=>'你没有权限','status'=>0];
         }
+        if ($data['money']<0 || $data['money']==0)
+        {
+            return ['msg'=>'金额异常','status'=>0];
+        }
         if ((int)$data['type']==1){
             DB::beginTransaction();//开启事务
             $userAccount = UserAccount::getUserAccountInfo((int)$data['id']);
