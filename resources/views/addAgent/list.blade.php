@@ -375,9 +375,28 @@
                     success:function(res){
                         if(res.status == 1){
                             layer.msg(res.msg,{icon:6});
-                            var index = parent.layer.getFrameIndex(window.name);
-                            setTimeout('parent.layer.close('+index+')',2000);
-                            //parent.layer.close(index);
+                            var topWindow = $(window.parent.document);
+                            var isActive = topWindow.find('#nav').children(':first').children('li[lay-id="2"]');
+                            if (isActive.length>0){
+                                var a;
+                                var arr = topWindow.find('#nav').children(':first').children();
+                                for (var i=0;i<arr.length;i++){
+                                    var layId = $(arr[i]).attr('lay-id');
+                                    if(layId==2){
+                                        a = i
+                                        break;
+                                    }
+                                }
+                                //获取到当前选中的tab选项卡
+                                var index = topWindow.find('#nav').children(':first').children('li[class="layui-this"]');
+                                index.removeClass('layui-this');
+                                isActive.addClass('layui-this');
+                                var indexHtml = topWindow.find('#nav').children(':last').children('div[class="layui-tab-item layui-show"]');
+                                indexHtml.removeClass('layui-show');
+                                //获取iframe数组
+                                var iframe = topWindow.find('#nav').children(':last').children();
+                                $(iframe[a]).addClass('layui-show')
+                            }
                         }else{
                             layer.msg(res.msg,{shift: 6,icon:5});
                         }
