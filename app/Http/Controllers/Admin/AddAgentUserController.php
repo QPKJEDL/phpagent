@@ -39,6 +39,12 @@ class AddAgentUserController extends Controller
 
     public function store(StoreRequest $request){
         $data = $request->all();
+        $pattern = "/^\d{6}$/";
+        if (!preg_match($pattern,$data['username']))
+        {
+            return ['msg'=>'账号格式错误','status'=>0];
+        }
+        $data['nickname']=HttpFilter($data['nickname']);
         $data['parent_id']=Auth::id();
         unset($data['_token']);
         unset($data['pwd']);
