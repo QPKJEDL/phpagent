@@ -108,6 +108,9 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
 
     //根据代理id查询充值提现记录
     Route::get('/agent/getRecordById/{id}','AgentCzController@getRecordById');
+
+    //根据userId查询充值提现记录
+    Route::get('/hquser/getRecordByUserId/{id}','DrawController@getRecordByUserId');
 });
 Route::group(['namespace'=>"Online",'middleware'=>['auth','permission']],function (){
     Route::resource('/onAddAgent','OnAddAgentController');//新增下级代理
