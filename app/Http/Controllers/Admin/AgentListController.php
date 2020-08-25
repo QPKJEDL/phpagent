@@ -478,8 +478,8 @@ class AgentListController extends Controller
      */
     public function agentEdit($id){
         $data = $id?User::find($id):[];
-        $data['ancestors']=explode(',',$data['ancestors']);
-        $bool = $this->whetherAffiliatedAgent($data['ancestors']);
+        $ancestors=explode(',',$data['ancestors']);
+        $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {
             return ['msg'=>'您没有权限操作','status'=>0];
@@ -510,6 +510,7 @@ class AgentListController extends Controller
             return ['msg'=>'你没有权限进行操作','status'=>0];
         }
         $data = $request->all();
+        $data['nickname']=HttpFilter($data['nickname']);
         unset($data['_token']);
         unset($data['id']);
         $data['fee']=json_encode($data['fee']);
@@ -657,7 +658,6 @@ class AgentListController extends Controller
         $data = $request->all();
         $agentInfo = User::where('id','=',(int)$data['id'])->select('ancestors')->first();
         $ancestors = explode(',',$agentInfo['ancestors']);
-
         $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {
@@ -668,7 +668,7 @@ class AgentListController extends Controller
             DB::beginTransaction();
             $user = User::where('id','=',Auth::id())->lockForUpdate()->first();
             $agent = User::where('id','=',(int)$data['id'])->lockForUpdate()->first();
-            if ($user['balance']<$data['money']){
+            if ($user['balance']<$data['money']*100){
                 DB::rollBack();
                 return ['msg'=>'余额不足','status'=>0];
             }else{
@@ -769,5 +769,10 @@ class AgentListController extends Controller
                 }
             }
         }
+    }
+
+    public function userInfo()
+    {
+        return view('users.userinfo');
     }
 }

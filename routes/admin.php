@@ -40,9 +40,11 @@ Route::group(['namespace'  => "Auth"], function () {
     Route::get('/login',                'LoginController@showLoginForm')->name('login');//登录
     Route::post('/login',               'LoginController@login');
     Route::get('/logout',               'LoginController@logout')->name('logout');
+    Route::get('/userinfo',             'UserController@userInfo');
 });
 //后台主要模块
 Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], function () {
+    Route::post('/updatePwd','IndexController@updatePwd');//修改密码
     //菜单获取
     Route::get('/getMenuList',          'IndexController@getMenuList');
     //主页
@@ -57,7 +59,6 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/logs',            'LogController');
     Route::resource('/users',           'UserController');
     Route::resource('/ucenter',         'UcenterController');
-    Route::get('/userinfo',             'UserController@userInfo');
     Route::post('/saveinfo/{type}',     'UserController@saveInfo');
     Route::resource('/roles',           'RoleController');
     Route::resource('/permissions',     'PermissionController');
