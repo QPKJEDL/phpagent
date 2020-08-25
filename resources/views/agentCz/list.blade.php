@@ -47,7 +47,13 @@
         @foreach($list as $info)
             <tr>
                 <td class="hidden-xs">{{$info['nickname']}}[{{$info['username']}}]</td>
-                <td class="hidden-xs">{{$info['userName']}}[{{$info['account']}}]</td>
+                <td class="hidden-xs">
+                    @if($info['user_id']!=0)
+                        {{$info['userName']}}[{{$info['account']}}]
+                    @else
+                        -
+                    @endif
+                </td>
                 <td class="hidden-xs">{{number_format($info['bet_before']/100,2)}}</td>
                 <td class="hidden-xs">{{number_format($info['money']/100,2)}}</td>
                 <td class="hidden-xs">{{number_format($info['bet_after']/100,2)}}</td>
@@ -121,12 +127,10 @@
                 }
             });
             laydate.render({
-                elem:"#begin",
-                type:"datetime"
+                elem:"#begin"
             });
             laydate.render({
-                elem:"#end",
-                type:'datetime'
+                elem:"#end"
             });
             $(".reset").click(function(){
                 $("input[name='begin']").val('');
