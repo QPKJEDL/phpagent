@@ -61,12 +61,12 @@
                 </td>
                 <td>
                     <div class="layui-inline">
-                        <button class="layui-btn layui-btn-xs @if($info['userCount']==0)layui-btn-disabled @else layui-btn-normal @endif user" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}" @if($info['userCount']==0) disabled @endif data-desc="下级会员"><i class="layui-icon">下级会员</i></button>
-                        <button class="layui-btn layui-btn-xs @if($info['id']==$user['id'])layui-btn-disabled @elseif($info['agentCount']==0) layui-btn-disabled @else layui-btn-normal @endif agent" data-id="{{$info['id']}}"@if($info['id']==$user['id'])disabled @elseif($info['agentCount']==0) disabled @endif data-name="{{$info['nickname']}}" data-desc="下级代理"><i class="layui-icon">下级代理</i></button>
+                        <button class="layui-btn layui-btn-xs @if($info['userCount']==0)layui-btn-disabled @else layui-btn-normal @endif user" data-id="{{$info['id']}}" data-name="{{htmlspecialchars($info['nickname'])}}" @if($info['userCount']==0) disabled @endif data-desc="下级会员"><i class="layui-icon">下级会员</i></button>
+                        <button class="layui-btn layui-btn-xs @if($info['id']==$user['id'])layui-btn-disabled @elseif($info['agentCount']==0) layui-btn-disabled @else layui-btn-normal @endif agent" data-id="{{$info['id']}}"@if($info['id']==$user['id'])disabled @elseif($info['agentCount']==0) disabled @endif data-name="{{htmlspecialchars($info['nickname'])}}" data-desc="下级代理"><i class="layui-icon">下级代理</i></button>
                         @if($info['id']!=$user['id'])
-                            <button class="layui-btn layui-btn-xs layui-btn-normal cz" data-id="{{$info['id']}}" data-username="{{$info['username']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">充值提现</i></button>
-                            <button class="layui-btn layui-btn-xs layui-btn-normal agentEdit" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">账号编辑</i></button>
-                            <button class="layui-btn layui-btn-xs layui-btn-danger resetPwd" data-id="{{$info['id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">修改密码</i></button>
+                            <button class="layui-btn layui-btn-xs layui-btn-normal cz" data-id="{{$info['id']}}" data-username="{{$info['username']}}" data-name="{{htmlspecialchars($info['nickname'])}}"><i class="layui-icon">充值提现</i></button>
+                            <button class="layui-btn layui-btn-xs layui-btn-normal agentEdit" data-id="{{$info['id']}}" data-name="{{htmlspecialchars($info['nickname'])}}"><i class="layui-icon">账号编辑</i></button>
+                            <button class="layui-btn layui-btn-xs layui-btn-danger resetPwd" data-id="{{$info['id']}}" data-name="{{htmlspecialchars($info['nickname'])}}"><i class="layui-icon">修改密码</i></button>
                         @endif
                     </div>
                 </td>
