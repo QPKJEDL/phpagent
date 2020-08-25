@@ -51,8 +51,8 @@
                 <td class="hidden-xs"><a class="a" data-id="{{$info['user_id']}}">{{$info['account']}}</a></td>
                 <td class="hidden-xs">{{$info['nickname']}}</td>
                 <td class="hidden-xs">{{$info['agentName']}}</td>
-                <td class="hidden-xs">{{$info['cz']['score']/100}}</td>
-                <td class="hidden-xs">{{$info['balance']/100}}</td>
+                <td class="hidden-xs">{{number_format($info['cz']['score']/100,2)}}</td>
+                <td class="hidden-xs">{{number_format($info['balance']/100,2)}}</td>
                 <td class="hidden-xs">{{$info['fee']['baccarat']}}/{{$info['fee']['dragonTiger']}}/{{$info['fee']['niuniu']}}/{{$info['fee']['sangong']}}/{{$info['fee']['A89']}}</td>
                 <td class="hidden-xs">{{$info['creatime']}}</td>
                 <td class="hidden-xs">{{$info['last_ip']}}</td>
@@ -152,14 +152,18 @@
             $(".user").click(function(){
                 var id = $(this).attr('data-id');
                 var name = $(this).attr('data-name');
-                layer.open({
+                var index = layer.open({
                     type:2,
                     title:name + '在线充值提现',
                     shadeClose:true,
                     offset:'10%',
                     area:['60%','80%'],
-                    content:'/admin/hqUser/czCord/' + id
+                    content:'/admin/hqUser/czCord/' + id,
+                    end:function () {
+                        location.reload();
+                    }
                 });
+                layer.full(index);
             });
             form.on('switch(switchTest)',function(data){
                 var name = $(data.elem).attr('name');
