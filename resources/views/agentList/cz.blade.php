@@ -63,8 +63,8 @@
                                     return '请输入整数';
                                 }else{
                                     var balance = $("#balance").html();
-                                    if(balance<value){
-                                        return '余额不足'
+                                    if(parseInt(balance)<parseInt(value)){
+                                        return '您的余额不足，不能进行充值'
                                     }
                                 }
                             }
@@ -76,8 +76,8 @@
                                     return '请输入整数';
                                 }else{
                                     var userB = $("#userB").html();
-                                    if (userB<value){
-                                        return '余额不足'
+                                    if (parseInt(userB)<parseInt(value)){
+                                        return '该用户的余额不足，不能进行提现'
                                     }
                                 }
                             }
@@ -114,6 +114,7 @@
                             layer.msg(res.msg,{icon:6});
                             var index = parent.layer.getFrameIndex(window.name);
                             setTimeout('parent.layer.close('+index+')',2000);
+                            parent.location.reload();
                         }else{
                             layer.msg(res.msg,{shift: 6,icon:5});
                         }
