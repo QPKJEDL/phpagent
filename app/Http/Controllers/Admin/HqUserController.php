@@ -131,7 +131,7 @@ class HqUserController extends Controller
             DB::beginTransaction();//开启事务
             $userAccount = UserAccount::getUserAccountInfo((int)$data['id']);
             $agent = User::getUserInfo(Auth::user()['username']);
-            if ($agent['balance']<(int)$data['money']){
+            if ($agent['balance']<(int)$data['money']*100){
                 DB::rollBack();
                 return ['msg'=>'余额不足，不能进行充值','status'=>0];
             }else{
