@@ -663,6 +663,10 @@ class AgentListController extends Controller
         {
             return ['msg'=>'没有权限进行操作','status'=>0];
         }
+        if ($data['money']<0 || $data['money']==0)
+        {
+            return ['msg'=>'金额必须为正整数','status'=>0];
+        }
         unset($data['_token']);
         if ($data['type']==1){
             DB::beginTransaction();
