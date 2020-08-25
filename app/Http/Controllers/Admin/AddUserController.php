@@ -39,6 +39,7 @@ class AddUserController extends Controller
             if($data['password']!=$password){
                 return ['msg'=>'两次密码不一致','status'=>0];
             }else{
+                $data['agent_id']=Auth::id();
                 $data['fee']=json_encode($data['fee']);
                 $limit['min']=(int)$data['limit']['min']*100;
                 $limit['max']=(int)$data['limit']['max']*100;
