@@ -583,10 +583,6 @@ class AgentListController extends Controller
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($data['proportion']>$agent['proportion'] || $data['proportion']<=0)
-        {
-            return ['msg'=>'占股率错误','status'=>0];
-        }
         $data['bjlbets_fee']=json_encode($data['bjlbets_fee']);
         $data['lhbets_fee']=json_encode($data['lhbets_fee']);
         $data['nnbets_fee']=json_encode($data['nnbets_fee']);
