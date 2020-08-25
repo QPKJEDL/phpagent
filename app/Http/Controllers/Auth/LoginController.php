@@ -60,6 +60,10 @@ class LoginController extends Controller
                 $str = '/admin/agentRegister/'.$count['id'];
                 return redirect($str)->withErrors([trans('fzs.login.false_act')]);
             }
+        }else{
+            if ($count['del_flag']==1){
+                return redirect('/admin/login')->withErrors([trans('fzs.login.false_del')]);
+            }
         }
         if($request->input('verity')==session('code'))return $this->doLogin($request);
         else return redirect('/admin/login')->withErrors([trans('fzs.login.false_verify')]);
