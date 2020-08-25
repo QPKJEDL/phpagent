@@ -32,6 +32,10 @@ class HqUserRegisterController extends Controller
     {
         $data = $request->all();
         $account = HttpFilter($data['account']);
+        if (!preg_match('/^1(3|4|5|7|8)\d{9}$/',$account))
+        {
+            return ['msg'=>'手机号格式错误','status'=>0];
+        }
         unset($data['_token']);
         if (HqUser::where('mobile','=',$account)->exists()){
             return ['msg'=>'手机号已存在','status'=>0];
