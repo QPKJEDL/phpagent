@@ -132,6 +132,7 @@
                 $("input[name='begin']").val('');
                 $("input[name='end']").val('');
                 $("input[name='account']").val('');
+                $('select[name="status"]').val('')
             });
             form.render();
             form.on('submit(formDemo)', function(data) {
