@@ -129,14 +129,18 @@
                 var id = $(this).attr('data-id');
                 var nickname = $(this).attr('data-name');
                 var username = $(this).attr('data-username');
-                layer.open({
+                var index = layer.open({
                     type:2,
                     title:'代理提现充值>'+nickname+'('+username+')',
                     shadeClose:true,
                     offset:'10%',
                     area:['60%','80%'],
-                    content:'/admin/agentCzEdit/' + id
+                    content:'/admin/agentCzEdit/' + id,
+                    end:function () {
+                        location.reload();
+                    }
                 });
+                layer.full(index);
             });
             //下级用户
             $(".user").click(function(){
