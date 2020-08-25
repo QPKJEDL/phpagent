@@ -24,6 +24,11 @@ class OnAddAgentController extends Controller
     public function store(StoreRequest $request)
     {
         $data = $request->all();
+        $pattern = "/^\d{7}$/";
+        if (!preg_match($pattern,$data['username']))
+        {
+            return ['msg'=>'账号格式错误','status'=>0];
+        }
         if (User::where('username','=',HttpFilter($data['username']))->exists())
         {
             return ['msg'=>'账号已存在','status'=>0];
@@ -32,9 +37,11 @@ class OnAddAgentController extends Controller
         {
             unset($data['_token']);
             unset($data['pwd']);
+            $data['parent_id']=Auth::id();
+            $data['nickname']=HttpFilter($data['nickname']);
             $data['userType']=2;
             $data['is_act']=0;
-            $data['ancestors']=$this->getUserAncestors((int)$data['parent_id']);
+            $data['ancestors']=$this->getUserAncestors($data['parent_id']);
             $data['password']=bcrypt(HttpFilter($data['password']));
             $data['limit']=json_encode($data['limit']);
             $data['created_at']=date('Y-m-d H:i:s',time());
