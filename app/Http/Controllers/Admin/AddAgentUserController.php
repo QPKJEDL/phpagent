@@ -44,6 +44,10 @@ class AddAgentUserController extends Controller
         {
             return ['msg'=>'账号格式错误','status'=>0];
         }
+        if (User::where('username','=',HttpFilter($data['username']))->exists())
+        {
+            return ['msg'=>'账号已存在','status'=>0];
+        }
         $data['nickname']=HttpFilter($data['nickname']);
         $data['parent_id']=Auth::id();
         unset($data['_token']);
