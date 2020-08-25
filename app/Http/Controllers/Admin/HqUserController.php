@@ -394,7 +394,7 @@ class HqUserController extends Controller
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($nn['Double']<$data['nnbets_fee']['Double'] || $data['nnbets_fee']['Double']<0)
+        if ($nn['Double']<$data['nnbets_fee']['Double'] || $data['nnbets_fee']['Double']<=0)
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
