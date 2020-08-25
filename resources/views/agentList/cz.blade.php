@@ -107,25 +107,6 @@
                 $('#h4').html(str);
             });
             form.on('submit(formDemo)', function(data) {
-                /*$.ajax({
-                    url:"{{url('/admin/agentCzSave')}}",
-                    data:$('form').serialize(),
-                    type:'post',
-                    dataType:'json',
-                    success:function(res){
-                        if(res.status == 1){
-                            layer.msg(res.msg,{icon:6});
-                            var index = parent.layer.getFrameIndex(window.name);
-                            setTimeout('parent.layer.close('+index+')',2000);
-                            parent.location.reload();
-                        }else{
-                            layer.msg(res.msg,{shift: 6,icon:5});
-                        }
-                    },
-                    error : function(XMLHttpRequest, textStatus, errorThrown) {
-                        layer.msg('网络失败', {time: 1000});
-                    }
-                });*/
                 var status = $("#status").val();
                 var username = $('#username').val();
                 if(status==1){
