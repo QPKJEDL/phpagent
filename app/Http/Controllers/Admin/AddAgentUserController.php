@@ -39,6 +39,7 @@ class AddAgentUserController extends Controller
 
     public function store(StoreRequest $request){
         $data = $request->all();
+        $data['parent_id']=Auth::id();
         unset($data['_token']);
         unset($data['pwd']);
         $data['userType']=1;
@@ -50,7 +51,7 @@ class AddAgentUserController extends Controller
         $data['nnbets_fee']= json_encode($data['nnbets_fee']);
         $data['sgbets_fee']=json_encode($data['sgbets_fee']);
         $data['a89bets_fee']=json_encode($data['a89bets_fee']);
-        $data['ancestors']= $this->getUserAncestors((int)$data['parent_id']);
+        $data['ancestors']= $this->getUserAncestors(Auth::id());
         $data['created_at']=date('Y-m-d H:i:s',time());
         if (!empty($data['is_allow']))
         {
