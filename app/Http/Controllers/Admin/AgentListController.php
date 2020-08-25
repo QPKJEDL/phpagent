@@ -585,11 +585,11 @@ class AgentListController extends Controller
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        $data['bjlbets_fee']=json_encode($data['bjlbets_fee']);
-        $data['lhbets_fee']=json_encode($data['lhbets_fee']);
-        $data['nnbets_fee']=json_encode($data['nnbets_fee']);
-        $data['sgbets_fee']=json_encode($data['sgbets_fee']);
-        $data['a89bets_fee']=json_encode($data['a89bets_fee']);
+        $data['bjlbets_fee']=(string)json_encode($data['bjlbets_fee']);
+        $data['lhbets_fee']=(string)json_encode($data['lhbets_fee']);
+        $data['nnbets_fee']=(string)json_encode($data['nnbets_fee']);
+        $data['sgbets_fee']=(string)json_encode($data['sgbets_fee']);
+        $data['a89bets_fee']=(string)json_encode($data['a89bets_fee']);
         //获取修改前的日志
         $info = $id?User::find($id):[];
         if(!empty($data['is_allow'])){
