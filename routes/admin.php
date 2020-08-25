@@ -105,6 +105,9 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/agentCz','AgentCzController');//代理充值查询
 
     Route::resource('/qrocde','QrcodeController');//会员注册二维码
+
+    //根据代理id查询充值提现记录
+    Route::get('/agent/getRecordById/{id}','AgentCzController@getRecordById');
 });
 Route::group(['namespace'=>"Online",'middleware'=>['auth','permission']],function (){
     Route::resource('/onAddAgent','OnAddAgentController');//新增下级代理
