@@ -28,6 +28,11 @@ class AddUserController extends Controller
     public function store(StoreRequest $request){
         $account = HttpFilter($request->input('account'));
         $password = HttpFilter($request->input('pwd'));
+        $pattern = "/^\d{8}$/";
+        if (!preg_match($pattern,$account))
+        {
+            return ['msg'=>'账号格式错误','status'=>0];
+        }
         $data = $request->all();
         unset($data['_token']);
         unset($data['pwd']);
