@@ -258,7 +258,11 @@
     <div class="layui-form-item">
         <div class="layui-inline">
             <div class="layui-input-block">
-                <input type="checkbox" name="is_show" title="报表中显示洗码量">
+                @if($id==0)
+                    <input type="checkbox" name="is_show" title="报表中显示洗码量">
+                @else
+                    <input type="checkbox" name="is_show" title="报表中显示洗码量" @if($info['is_show']==1) checked @endif>
+                @endif
             </div>
         </div>
     </div>
