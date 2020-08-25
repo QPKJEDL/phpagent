@@ -1,6 +1,7 @@
 @section('title', '会员充值提现')
 @section('content')
-
+    <input type="hidden" id="status" value="1">
+    <input type="hidden" id="username" value="{{$info['account']}}">
     <div class="layui-form-item">
         <label class="layui-form-label">账户余额：</label>
         <div class="layui-input-inline">
@@ -95,6 +96,7 @@
                     payType.hide();
                     $('input[name="money"]').val('')
                 }
+                $("#status").val(data.value)
             });
             $("input[name='money']").on('keyup',function(){
                 var money = $(this).val();
@@ -102,7 +104,7 @@
                 $('#h4').html(str);
             });
             form.on('submit(formDemo)', function(data) {
-                $.ajax({
+                /*$.ajax({
                     url:"{{url('/admin/czSave')}}",
                     data:$('form').serialize(),
                     type:'post',
@@ -119,7 +121,74 @@
                     error : function(XMLHttpRequest, textStatus, errorThrown) {
                         layer.msg('网络失败', {time: 1000});
                     }
-                });
+                });*/
+                var status = $('#status').val();
+                var username = $('#username').val();
+                if(status==1){
+                    layer.confirm('您确定给会员['+username+']充值'+$("input[name='money']").val() + '('+$('#h4').html()+')吗？',{
+                        btn:['确定','取消']//按钮
+                    },function () {
+                        $.ajax({
+                            url:"{{url('/admin/czSave')}}",
+                            data:$('form').serialize(),
+                            type:'post',
+                            dataType:'json',
+                            success:function(res){
+                                if(res.status == 1){
+                                    layer.msg(res.msg,{icon:6});
+                                    var index = layer.open({
+                                        type:2,
+                                        title:username+'的充值提现记录',
+                                        shadeClose:true,
+                                        offset:'10%',
+                                        area:['60%','80%'],
+                                        content:'/admin/hquser/getRecordByUserId/'+$('input[name="id"]').val()
+                                    });
+                                    layer.full(index);
+                                }else{
+                                    layer.msg(res.msg,{shift: 6,icon:5});
+                                }
+                            },
+                            error : function(XMLHttpRequest, textStatus, errorThrown) {
+                                layer.msg('网络失败', {time: 1000});
+                            }
+                        });
+                    },function () {
+                        layer.msg('您取消了对该会员的充值');
+                    });
+                }else{
+                    layer.confirm('您确定给会员['+username+']提现'+$("input[name='money']").val() + '('+$('#h4').html()+')吗？',{
+                        btn:['确定','取消']//按钮
+                    },function () {
+                        $.ajax({
+                            url:"{{url('/admin/czSave')}}",
+                            data:$('form').serialize(),
+                            type:'post',
+                            dataType:'json',
+                            success:function(res){
+                                if(res.status == 1){
+                                    layer.msg(res.msg,{icon:6});
+                                    var index = layer.open({
+                                        type:2,
+                                        title:username+'的充值提现记录',
+                                        shadeClose:true,
+                                        offset:'10%',
+                                        area:['60%','80%'],
+                                        content:'/admin/hquser/getRecordByUserId/'+$('input[name="id"]').val()
+                                    });
+                                    layer.full(index);
+                                }else{
+                                    layer.msg(res.msg,{shift: 6,icon:5});
+                                }
+                            },
+                            error : function(XMLHttpRequest, textStatus, errorThrown) {
+                                layer.msg('网络失败', {time: 1000});
+                            }
+                        });
+                    },function () {
+                        layer.msg('您取消了对该会员的提现');
+                    });
+                }
                 return false;
             });
             function DX(n) {
