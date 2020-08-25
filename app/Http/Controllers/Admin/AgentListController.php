@@ -514,6 +514,8 @@ class AgentListController extends Controller
         unset($data['_token']);
         unset($data['id']);
         unset($data['proportion']);
+        unset($data['fee']);
+        unset($data['limit']);
         $data['remark']=HttpFilter($data['remark']);
         $agent = Auth::id()?User::find(Auth::id()):[];
         $bjl=json_decode($agent['bjlbets_fee'],true);//{"banker":"0.95","bankerPair":"11","player":"1","playerPair":"11","tie":"8"}
@@ -595,11 +597,8 @@ class AgentListController extends Controller
         if(!empty($data['is_allow'])){
             $data['is_allow']=1;
         }
-        $count = User::where('id',$id)->update($data);
+        $count = User::where('id','=',$id)->update($data);
         if($count){
-            if ($info['proportion']!=$data['proportion']){
-                AgentProportion::insertAgentProportionLog($id,$data['proportion'],$info['proportion']);
-            }
             return ['msg'=>'操作成功','status'=>1];
         }else{
             return ['msg'=>'操作失败','status'=>0];
