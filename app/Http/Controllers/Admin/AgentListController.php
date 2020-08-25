@@ -513,6 +513,8 @@ class AgentListController extends Controller
         $data['nickname']=HttpFilter($data['nickname']);
         unset($data['_token']);
         unset($data['id']);
+        unset($data['proportion']);
+        $data['remark']=HttpFilter($data['remark']);
         $agent = Auth::id()?User::find(Auth::id()):[];
         $bjl=json_decode($agent['bjlbets_fee'],true);//{"banker":"0.95","bankerPair":"11","player":"1","playerPair":"11","tie":"8"}
         if ($bjl['banker']<$data['bjlbets_fee']['banker'] || $data['bjlbets_fee']['banker']<=0)
