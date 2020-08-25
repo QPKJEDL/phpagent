@@ -47,7 +47,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">占股率：</label>
         <div class="layui-input-inline">
-            <input type="number" name="proportion" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" lay-verify="proportion" autocomplete="off" data-value="{{$info['proportion']}}" value="{{$info['proportion']}}" class="layui-input">
+            <input type="number" readonly name="proportion" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" lay-verify="proportion" autocomplete="off" data-value="{{$info['proportion']}}" value="{{$info['proportion']}}" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
