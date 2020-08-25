@@ -21,7 +21,8 @@ return [
         'login_info'           =>    '后台登陆',
         'root_directory'       =>    '一级菜单',
         'false_act'            =>    '账号未激活，请激活',
-        'false_status'         =>    '账号已被停用'
+        'false_status'         =>    '账号已被停用',
+        'false_del'            =>    '账号已被删除',
     ],
     'menus' => [
         'notdel'               =>    '该菜单不可以删除',
