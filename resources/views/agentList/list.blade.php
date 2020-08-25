@@ -197,7 +197,10 @@
                     shadeClose:true,
                     offset:'10%',
                     area:['60%','80%'],
-                    content:'/admin/agentEdit/'+id
+                    content:'/admin/agentEdit/'+id,
+                    end:function () {
+                        location.reload();
+                    }
                 });
                 layer.full(index);
             });
