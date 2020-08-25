@@ -51,6 +51,10 @@ class AddAgentUserController extends Controller
         $data['nickname']=HttpFilter($data['nickname']);
         $data['parent_id']=Auth::id();
         $agentInfo = $data['parent_id']?User::find($data['parent_id']):[];
+        if ((int)$data['proportion']>$agentInfo['proportion'])
+        {
+            return ['msg'=>'占股错误','status'=>0];
+        }
         $fee = json_decode($agentInfo['fee'],true);
         if ($fee['baccarat']<$data['fee']['baccarat'] && $data['fee']['baccarat']<0)
         {
