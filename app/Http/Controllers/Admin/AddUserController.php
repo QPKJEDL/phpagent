@@ -45,6 +45,7 @@ class AddUserController extends Controller
             if($data['password']!=$password){
                 return ['msg'=>'两次密码不一致','status'=>0];
             }else{
+                $data['parent_id']=Auth::id();
                 $agentInfo = $data['parent_id']?User::find($data['parent_id']):[];
                 $fee = json_decode($agentInfo['fee'],true);
                 if ($fee['baccarat']<$data['fee']['baccarat'] && $data['fee']['baccarat']<0)
