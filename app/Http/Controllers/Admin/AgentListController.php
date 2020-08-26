@@ -519,26 +519,26 @@ class AgentListController extends Controller
         $data['remark']=HttpFilter($data['remark']);
         $agent = Auth::id()?User::find(Auth::id()):[];
         $bjl=json_decode($agent['bjlbets_fee'],true);//{"banker":"0.95","bankerPair":"11","player":"1","playerPair":"11","tie":"8"}
-        if ($bjl['banker']<$data['bjlbets_fee']['banker'] || $data['bjlbets_fee']['banker']<=0)
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($bjl['player']<$data['bjlbets_fee']['player'] || $data['bjlbets_fee']['player']<=0)
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($bjl['playerPair']<$data['bjlbets_fee']['playerPair'] || $data['bjlbets_fee']['playerPair']<=0)
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($bjl['tie']<$data['bjlbets_fee']['tie'] || $data['bjlbets_fee']['tie']<=0)
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($bjl['bankerPair']<$data['bjlbets_fee']['bankerPair'] || $data['bjlbets_fee']['bankerPair']<=0)
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
+            if ($bjl['banker']<$data['bjlbets_fee']['banker'] || $data['bjlbets_fee']['banker']<=0)
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($bjl['player']<$data['bjlbets_fee']['player'] || $data['bjlbets_fee']['player']<=0)
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($bjl['playerPair']<$data['bjlbets_fee']['playerPair'] || $data['bjlbets_fee']['playerPair']<=0)
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($bjl['tie']<$data['bjlbets_fee']['tie'] || $data['bjlbets_fee']['tie']<=0)
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($bjl['bankerPair']<$data['bjlbets_fee']['bankerPair'] || $data['bjlbets_fee']['bankerPair']<=0)
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
         $lh = json_decode($agent['lhbets_fee'],true);
         if ($lh['dragon']<$data['lhbets_fee']['dragon'] || $data['lhbets_fee']['dragon']<=0)
         {
@@ -587,11 +587,31 @@ class AgentListController extends Controller
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        $data['bjlbets_fee'] = json_encode($data['bjlbets_fee']);
-        $data['lhbets_fee'] = json_encode($data['lhbets_fee']);
-        $data['nnbets_fee']= json_encode($data['nnbets_fee']);
-        $data['sgbets_fee']=json_encode($data['sgbets_fee']);
-        $data['a89bets_fee']=json_encode($data['a89bets_fee']);
+        if ($agent['baccarat']==1){
+            $data['bjlbets_fee'] = json_encode($data['bjlbets_fee']);
+        }else{
+            $data['bjlbets_fee']=$agent['bjlbets_fee'];
+        }
+        if ($agent['dragon_tiger']==1){
+            $data['lhbets_fee'] = json_encode($data['lhbets_fee']);
+        }else{
+            $data['lhbets_fee']=$agent['lhbets_fee'];
+        }
+        if ($agent['niuniu']==1){
+            $data['nnbets_fee']= json_encode($data['nnbets_fee']);
+        }else{
+            $data['nnbets_fee']=$agent['nnbets_fee'];
+        }
+        if ($agent['sangong']==1){
+            $data['sgbets_fee']=json_encode($data['sgbets_fee']);
+        }else{
+            $data['sgbets_fee']=$agent['sgbets_fee'];
+        }
+        if ($agent['A89']==1){
+            $data['a89bets_fee']=json_encode($data['a89bets_fee']);
+        }else{
+            $data['a89bets_fee']=$agent['a89bets_fee'];
+        }
         //获取修改前的日志
         $info = $id?User::find($id):[];
         if(!empty($data['is_allow'])){
