@@ -589,28 +589,18 @@ class AgentListController extends Controller
         }
         if ($agent['baccarat']==1){
             $data['bjlbets_fee'] = json_encode($data['bjlbets_fee']);
-        }else{
-            $data['bjlbets_fee']=$agent['bjlbets_fee'];
         }
         if ($agent['dragon_tiger']==1){
             $data['lhbets_fee'] = json_encode($data['lhbets_fee']);
-        }else{
-            $data['lhbets_fee']=$agent['lhbets_fee'];
         }
         if ($agent['niuniu']==1){
             $data['nnbets_fee']= json_encode($data['nnbets_fee']);
-        }else{
-            $data['nnbets_fee']=$agent['nnbets_fee'];
         }
         if ($agent['sangong']==1){
             $data['sgbets_fee']=json_encode($data['sgbets_fee']);
-        }else{
-            $data['sgbets_fee']=$agent['sgbets_fee'];
         }
         if ($agent['A89']==1){
             $data['a89bets_fee']=json_encode($data['a89bets_fee']);
-        }else{
-            $data['a89bets_fee']=$agent['a89bets_fee'];
         }
         //获取修改前的日志
         $info = $id?User::find($id):[];
