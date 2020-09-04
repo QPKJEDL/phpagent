@@ -99,7 +99,7 @@
                 <td class="hidden-xs">{{number_format($info['reward']/100,2)}}</td>
                 <td class="hidden-xs">
                     @if($info['userType']==1)
-                        {{$info['fee']['baccarat']}}/{{$info['fee']['dragonTiger']}}/{{$info['fee'] ['niuniu']}}/{{$info['fee']['sangong']}}/{{$info['fee']['A89']}}
+                        {{$info['fee']['baccarat']}}/{{$info['fee']['dragonTiger']}}/{{$info['fee']['niuniu']}}/{{$info['fee']['sangong']}}/{{$info['fee']['A89']}}
                     @else
                         -
                     @endif
@@ -117,15 +117,23 @@
                 </td>
                 <td class="hidden-xs">{{$info['proportion']}}%</td>
                 <td class="hidden-xs">
-                    @if($info['getMoney']>0)
-                        <span style="color: red;">{{number_format($info['zg']/100,2)}}</span>
+                    @if($info['userType']==1)
+                        @if($info['zg']<0)
+                            <span style="color: red;">{{number_format($info['zg']/100,2)}}</span>
+                        @else
+                            {{number_format(abs($info['zg']/100),2)}}
+                        @endif
                     @else
-                        {{number_format($info['zg']/100,2)}}
+                        0.00
                     @endif
                 </td>
                 <td class="hidden-xs">
-                    @if($info['getMoney']>0)
-                        <span style="color: red;">{{number_format($info['sy']/100,2)}}</span>
+                    @if($info['userType']==1)
+                        @if($info['sy']<0)
+                            <span style="color: red;">{{number_format($info['sy']/100,2)}}</span>
+                        @else
+                            {{number_format($info['sy']/100,2)}}
+                        @endif
                     @else
                         {{number_format($info['sy']/100,2)}}
                     @endif
@@ -138,7 +146,7 @@
                             {{number_format($info['gs']/100,2)}}
                         @endif
                     @else
-                        -
+                        {{number_format($info['gs']/100,2)}}
                     @endif
                 </td>
                 <td class="hidden-xs">
@@ -206,9 +214,12 @@
                 $("select[name='desk_id']").val(''); 
                 $("input[name='boot']").val('');
             });
+            //今天
             $("#today").click(function () {
                 var startDate = new Date(new Date(new Date().toLocaleDateString()).getTime());
                 var endDate = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 *60 *60*1000-1);
+                console.log(startDate)
+                console.log(endDate)
                 $("input[name='begin']").val(formatDate(startDate))
                 $("input[name='end']").val(formatDate(endDate))
             });

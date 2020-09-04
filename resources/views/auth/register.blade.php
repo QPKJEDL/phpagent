@@ -21,7 +21,7 @@
                     <input type="text" autocomplete="off" class="layui-input" value="{{$info['username']}}[{{$info['nickname']}}]" readonly>
                 </div>
                 <div class="layui-form-item">
-                    <input type="text" name="phone_number" lay-verify="phoneNumber" placeholder="手机号" autocomplete="off" class="layui-input">
+                    <input type="text" name="phone_number" id="phone_number" lay-verify="phoneNumber" placeholder="手机号" autocomplete="off" class="layui-input">
                 </div>
                 <div class="layui-form-item">
                     <div class="layui-inline">
@@ -48,6 +48,7 @@
 </div>
 <script src="/static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/admin/js/qrcode.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/tools/js/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
 <script>
     window.onload=function(){
         var data= '<?php echo urlencode(json_encode($bool));?>';
@@ -89,7 +90,6 @@
                 success:function(res){
                     if(res.status == 1){
                         layer.msg(res.msg,{icon:6});
-                        var index = parent.layer.getFrameIndex(window.name);
                         setTimeout('window.open("{{url('/admin/login')}}","_self")',2000);
                     }else{
                         layer.msg(res.msg,{shift: 6,icon:5});
@@ -105,27 +105,50 @@
 
     //按钮样式
     function buttoncss(_this) {
-        debugger;
-        //禁用时间
-        var count = 60;
-        //禁用按钮
-        _this.setAttribute('class','layui-btn layui-btn-disabled');
-        //把按钮的文本改成重新发送
-        _this.value="重新发送"+count+"s";
-        var timer = setInterval(function () {
-            if(count<=0){
-                //清空时间
-                clearInterval(timer);
-                //修改样式
-                _this.setAttribute('class','layui-btn layui-btn-sm');
-                //修改文本
-                _this.value="点击发送";
-                count = 60;
-            }else{
-                _this.value="重新发送"+(count-1)+"s";
-                count--;
+        var account = document.getElementById('phone_number').value;
+        var test=/^[1][3,4,5,7,8][0-9]{9}$/;
+        if(!test.test(account)){
+            alert('请输入正确的手机号')
+            return false;
+        }
+        $.ajax({
+            headers:{
+                "X-CSRF-TOKEN":$('#token').val()
+            },
+            url:"{{url('/admin/agentActSendSms')}}",
+            type:'post',
+            data:{
+                "mobile":account
+            },
+            dataType: 'json',
+            success:function (res) {
+                if(res.status==1){
+                    layer.msg(res.msg,{icon:6});
+                    //禁用时间
+                    var count = 60;
+                    //禁用按钮
+                    _this.setAttribute('class','layui-btn layui-btn-disabled');
+                    //把按钮的文本改成重新发送
+                    _this.value="重新发送"+count+"s";
+                    var timer = setInterval(function () {
+                        if(count<=0){
+                            //清空时间
+                            clearInterval(timer);
+                            //修改样式
+                            _this.setAttribute('class','layui-btn layui-btn-sm');
+                            //修改文本
+                            _this.value="点击发送";
+                            count = 60;
+                        }else{
+                            _this.value="重新发送"+(count-1)+"s";
+                            count--;
+                        }
+                    },1000);
+                }else{
+                    layer.msg(res.msg,{shift: 6,icon:5});
+                }
             }
-        },1000);
+        });
     }
 </script>
 </body>

@@ -23,6 +23,7 @@ class OnAddAgentController extends Controller
 
     public function store(StoreRequest $request)
     {
+        return ['msg'=>'操作成功','status'=>1];
         $data = $request->all();
         $pattern = "/^\d{7}$/";
         if (!preg_match($pattern,$data['username']))

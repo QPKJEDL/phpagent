@@ -255,11 +255,11 @@
             </div>
         </div>
     </div>
-    <div class="layui-form-item">
+    {{--<div class="layui-form-item">
         <div class="layui-input-block">
             <input type="checkbox" name="is_allow" title="允许其直属会员在线充值" @if($info['is_allow']==1) checked="" @endif>
         </div>
-    </div>
+    </div>--}}
     <div class="layui-form-item layui-form-text">
         <label class="layui-form-label">备注：</label>
         <div class="layui-input-inline">

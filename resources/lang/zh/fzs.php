@@ -23,6 +23,7 @@ return [
         'false_act'            =>    '账号未激活，请激活',
         'false_status'         =>    '账号已被停用',
         'false_del'            =>    '账号已被删除',
+        'false_black'          =>    '账号已被封禁',
     ],
     'menus' => [
         'notdel'               =>    '该菜单不可以删除',

@@ -9,7 +9,9 @@ use App\Http\Requests\StoreRequest;
 use App\Models\HqUser;
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Models\Verificat;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 
 /**
  * 会员自主注册
@@ -40,7 +42,7 @@ class HqUserRegisterController extends Controller
         if (HqUser::where('mobile','=',$account)->exists()){
             return ['msg'=>'手机号已存在','status'=>0];
         }else{
-            $code = '111';
+            $code = Redis::get('user_register_'.$account);
             if (HttpFilter($data['code'])!=$code){
                 return ['msg'=>'验证码不正确','status'=>0];
             }else{
@@ -58,6 +60,7 @@ class HqUserRegisterController extends Controller
                 $data['limit']=$info['limit'];
                 $data['creatime']=time();
                 $data['remark']='会员扫码线上代理码注册';
+                $data['user_type']=2;
                 $count = HqUser::insertGetId($data);
                 if ($count){
                     $account = array();
@@ -103,5 +106,37 @@ class HqUserRegisterController extends Controller
             $account=$this->getAccount();
         }
         return $account;
+    }
+
+    /**
+     * 会员发送验证码
+     * @param StoreRequest $request
+     * @return array
+     */
+    public function sendSms(StoreRequest $request)
+    {
+        $mobile = HttpFilter($request->input('mobile'));
+        if ($mobile=='' || $mobile == null)
+        {
+            return ['msg'=>'手机号不能为空','status'=>0];
+        }
+        $preg_phone = '/^1[34578]\d{9}$/ims';
+        if (!preg_match($preg_phone,$mobile))
+        {
+            return ['msg'=>'手机号格式不正确','status'=>0];
+        }
+        $ip= $request->ip();
+        $code = mt_rand(100000,999999);
+        $key = 'user_register_';
+        $bool = Verificat::ytxSend($mobile,$code,$ip,$key);
+        if ($bool=="123")
+        {
+            return ['msg'=>'一分钟只能发送一条','status'=>0];
+        }
+        if ($bool=="1")
+        {
+            return ['msg'=>'发送失败','status'=>0];
+        }
+        return ['msg'=>'发送成功','status'=>1];
     }
 }

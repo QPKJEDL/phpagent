@@ -26,25 +26,21 @@ class Menu extends Model implements AdminMenuInterface
         //判断当前用户是不是管理员
         //获取到全部菜单
         $menuAllList = Menu::query()->orderBy('order','asc')->get();
-        if ($user==1){
-            return $menuAllList;
-        }else{
-            //根据userId来查询角色
-            $role = Adminrole::where('user_id','=',$user)->first();
-            //根据角色获取到当前角色菜单
-            //$menuList = AgentRoleMenu::where('role_id','=',$role['role_id'])->get();
-            $menuList = AgentRoleMenu::query()->leftJoin('agent_menus','agent_role_menu.menu_id','=','agent_menus.id')
-                ->select('agent_role_menu.menu_id')->where('agent_role_menu.role_id','=',$role['role_id'])->orderBy('agent_menus.order','asc')->get();
-            $menu = array();
-            foreach ($menuList as $key=>$value){
-                foreach ($menuAllList as $k=>$v){
-                    if ($value['menu_id']==$v['id']){
-                        $menu[] = $menuAllList[$k];
-                        continue;
-                    }
+        //根据userId来查询角色
+        $role = Adminrole::where('user_id','=',$user)->first();
+        //根据角色获取到当前角色菜单
+        //$menuList = AgentRoleMenu::where('role_id','=',$role['role_id'])->get();
+        $menuList = AgentRoleMenu::query()->leftJoin('agent_menus','agent_role_menu.menu_id','=','agent_menus.id')
+            ->select('agent_role_menu.menu_id')->where('agent_role_menu.role_id','=',$role['role_id'])->orderBy('agent_menus.order','asc')->get();
+        $menu = array();
+        foreach ($menuList as $key=>$value){
+            foreach ($menuAllList as $k=>$v){
+                if ($value['menu_id']==$v['id']){
+                    $menu[] = $menuAllList[$k];
+                    continue;
                 }
             }
-            return $menu;
         }
+        return $menu;
     }
 }

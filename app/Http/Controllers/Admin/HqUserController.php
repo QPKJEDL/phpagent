@@ -458,4 +458,20 @@ class HqUserController extends Controller
             return ['msg'=>'操作失败','status'=>0];
         }
     }
+
+    /**
+     * 会员关系结构
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\View\View
+     */
+    public function userRelation($id)
+    {
+        $user = (int)$id?HqUser::find((int)$id):[];
+        $agentInfo = $user['agent_id']?User::find($user['agent_id']):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        unset($ancestors[0]);
+        $ancestors[]=$agentInfo['id'];
+        $data = User::query()->whereIn('id',$ancestors)->get();
+        return view('hquser.userRelation',['info'=>$user,'parent'=>$data]);
+    }
 }

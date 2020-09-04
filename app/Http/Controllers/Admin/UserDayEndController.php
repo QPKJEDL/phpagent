@@ -3,18 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Desk;
 use App\Models\HqUser;
 use App\Models\LiveReward;
-use App\Models\Maintain;
 use App\Models\Order;
-use App\Models\UserDayEnd;
+use App\Models\User;
+use App\Models\UserAccount;
 use App\Models\UserRebate;
-use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 /**
  * 会员日结表
@@ -54,9 +51,16 @@ class UserDayEndController extends Controller
             else
             {
                 $end = strtotime('+1day',$begin)-1;
-                $request->offsetSet('end',date('Y-m-d',$end));
+                $request->offsetSet('end',date('Y-m-d',time()));
             }
             $sql->where($map)->whereBetween('user_rebate.creatime',[$begin,$end])->groupBy('user_rebate.user_id','user_rebate.creatime');
+        }
+        else{
+            $request->offsetSet('begin',date('Y-m-d',time()));
+            if (false==$request->has('end'))
+            {
+                $request->offsetSet('end',date('Y-m-d',time()));
+            }
         }
         //对应分页插件初始化每页显示条数
         if (true==$request->has('limit'))
@@ -72,96 +76,414 @@ class UserDayEndController extends Controller
             ->leftJoin('user_account','user_account.user_id','=','user_rebate.user_id')
             ->select('user_rebate.user_id','user.nickname','user.account','user_account.balance',DB::raw('SUM(betNum) as betNum'),
                 DB::raw('SUM(washMoney) as washMoney'),DB::raw('SUM(betMoney) as betMoney'),DB::raw('SUM(getMoney) as getMoney'),DB::raw('SUM(feeMoney) as feeMoney'),'user_rebate.userType')->groupBy('user_rebate.user_id')->paginate($limit)->appends($request->all());
+        $bool = $this->checkIsToDay($request->input('begin'),$request->input('end'));
+        if ($bool)
+        {
+            if (true==$request->has('account'))
+            {
+                $account = explode(',',$request->input('account'));
+                $userIdArr = array();
+                foreach ($account as $key)
+                {
+                    $userIdArr[] = HqUser::where('account','=',$key)->first()['user_id'];
+                }
+                $tableName = date('Ymd',time());
+                $order = new Order();
+                $order->setTable('order_'.$tableName);
+                $orderData = $order->select('user_id',DB::raw('SUM(1) as count'),DB::raw('SUM(get_money) as get_money'))->whereIn('user_id',$userIdArr)->groupBy('user_id')->get()->toArray();
+                foreach ($orderData as $key=>$datum)
+                {
+                    $user = $datum['user_id']?HqUser::find($datum['user_id']):[];
+                    $agentD = $user['agent_id']?User::find($user['agent_id']):[];
+                    $ancestors = explode(',',$agentD['ancestors']);
+                    $ancestors[] = $agentD['id'];
+                    if (!$this->whetherAffiliatedAgent($ancestors)){
+                        array_splice($orderData,$key,1);
+                        continue;
+                    }
+                    $userBalance = UserAccount::where('user_id','=',$datum['user_id'])->first();
+                    //用户
+                    $orderData[$key]['nickname']=$user['nickname'];
+                    $orderData[$key]['account']=$user['account'];
+                    $orderData[$key]['balance']=$userBalance['balance'];
+                    $orderData[$key]['user_type']=$user['user_type'];
+                    $orderDataByUserId = $order->select('bet_money','status','game_type')->where('user_id','=',$datum['user_id'])->get();
+                    //总下注金额
+                    $orderData[$key]['sumMoney']=$this->getSumBetMoney($orderDataByUserId);
+                    //有效下注金额
+                    $orderData[$key]['money']=$this->getSumMoney($orderDataByUserId);
+                    //打赏金额
+                    $money = LiveReward::where('user_id','=',$datum['user_id'])->sum('money');
+                    $orderData[$key]['reward']=$money;
+                }
+            }else{
+                $orderData=array();
+            }
+        }else{
+            $orderData=array();
+        }
         foreach ($data as $key=>$datum)
         {
             $data[$key]['reward']=LiveReward::getSumMoney($datum['user_id'],$begin,$end);
+        }
+        foreach ($orderData as $key=>$datum)
+        {
+            $arr = $this->updateDate($datum['user_id'],$data);
+            if ($arr['code']==0)
+            {
+                $a = array();
+                $a['user_id']=$datum['user_id'];
+                $a['nickname']=$datum['nickname'];
+                $a['account']=$datum['account'];
+                $a['balance']=$datum['balance'];
+                $a['betNum']=$datum['count'];
+                $a['washMoney']=$datum['sumMoney'];
+                $a['betMoney']=$datum['money'];
+                $a['feeMoney']=0;
+                $a['userType']=$datum['user_type'];
+                $a['getMoney']=$datum['get_money'];
+                $a['reward']=$datum['reward'];
+                $data[]=$a;
+            }else{
+                $index = $arr['index'];
+                $data[$index]['betNum']=$data[$index]['betNum'] + $datum['count'];
+                $data[$index]['washMoney']=$data[$index]['washMoney']+$datum['sumMoney'];
+                $data[$index]['betMoney']=$data[$index]['betMoney']+$datum['money'];
+                $data[$index]['getMoney']=$data[$index]['getMoney']+$datum['get_money'];
+                $data[$index]['reward']=$data[$index]['reward']+$datum['reward'];
+            }
         }
         return view('userDay.list',['list'=>$data,'input'=>$request->all(),'limit'=>$limit]);
     }
     public function getUserDayEndByAgentId($id,$begin,$end,Request $request)
     {
-        $userInfo =(int)$id?HqUser::find((int)$id):[];
-        $agentInfo = $userInfo['agent_id']?User::find($userInfo['agent_id']):[];
-        $ancestors = explode(',',$agentInfo['ancestors']);
-        $ancestors[]=$agentInfo['id'];
-        $bool = $this->whetherAffiliatedAgent($ancestors);
-        if (!$bool)
+        if (true==$request->has('begin'))
         {
-            return ['msg'=>'没有权限进行查看','status'=>0];
-        }
-        $request->offsetSet('begin',$begin);
-        $request->offsetSet('end',$end);
-        if (true==$request->has('pageNum'))
-        {
-            $curr = (int)$request->input('pageNum');
+            $begin = $request->input('begin');
         }else{
-            $curr=1;
+            $request->offsetSet('begin',$begin);
         }
-        $dateArr = $this->getDateTimePeriodByBeginAndEnd($begin,$end);
-        $sql='';
-        for ($i=0;$i<count($dateArr);$i++){
-            //效验数据表是否存在
-            if (Schema::hasTable('order_'.$dateArr[$i])){
-                if ($sql==""){
-                    $sql = "select * from hq_order_".$dateArr[$i];
-                }else{
-                    $sql = $sql.' union all select * from hq_order_'.$dateArr[$i];
-                }
-            }
+        if (true==$request->has('end'))
+        {
+            $end = $request->input('end');
         }
-        if ($sql!="" || $sql!=null){
-            if (true==$request->has('account')){
-                $dataSql = 'select t1.user_id,sum(t1.get_money) as getMoney,count(t1.user_id) as `count`,u.nickname,u.account,ua.balance from ( select * from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end).' ) t1 
-        left join hq_user u on t1.user_id = u.user_id
-        left join hq_user_account ua on ua.user_id = u.user_id
-        where u.account = "'.HttpFilter($request->input('account')).'" and u.agent_id='.(int)$id.'
-        group by t1.user_id
-        LIMIT '.(($curr - 1) * 10).',10
-        ';
-                //查询分页总页数
-                $dataPages = 'select t1.user_id,sum(t1.get_money) as getMoney,count(t1.user_id) as `count`,u.nickname,u.account,ua.balance from ( select * from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end).' ) t1 
-        left join hq_user u on t1.user_id = u.user_id
-        left join hq_user_account ua on ua.user_id = u.user_id
-        where u.account = "'.HttpFilter($request->input('account')).'" and u.agent_id='.(int)$id.'
-        group by t1.user_id';
-            }else{
-                $dataSql = 'select t1.user_id,sum(t1.get_money) as getMoney,count(t1.user_id) as `count`,u.nickname,u.account,ua.balance from ( select * from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end).' ) t1 
-        left join hq_user u on t1.user_id = u.user_id
-        left join hq_user_account ua on ua.user_id = u.user_id
-        where u.agent_id = '.(int)$id.'
-        group by t1.user_id
-        LIMIT '.(($curr - 1) * 10).',10
-        ';
-                $dataPages = 'select t1.user_id,sum(t1.get_money) as getMoney,count(t1.user_id) as `count`,u.nickname,u.account,ua.balance from ( select * from ('.$sql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end).' ) t1 
-        left join hq_user u on t1.user_id = u.user_id
-        left join hq_user_account ua on ua.user_id = u.user_id
-        where u.agent_id = '.(int)$id.'
-        group by t1.user_id';
+        else
+        {
+            $request->offsetSet('end',$end);
+        }
+        $bool = $this->checkIsToDay($request->input('begin'),$request->input('end'));
+        if ($bool)
+        {
+            $arr = array();
+            $arr['u.agent_id']=$id;
+            $order = new Order();
+            $order->setTable('order_'.date('Ymd',time()).' as order');
+            $sql = $order->leftJoin('user as u','u.user_id','=','order.user_id')
+                ->leftJoin('user_account as ua','ua.user_id','=','u.user_id')
+                ->select('u.agent_id','u.user_type','u.user_id','u.nickname','u.account','ua.balance',DB::raw('SUM(1) as betNum'),DB::raw('SUM(get_money) as getMoney'));
+            if (true==$request->has('account'))
+            {
+                $arr['u.account']=$request->input('account');
             }
-            $pages = Db::select($dataPages);
-            $data = DB::select($dataSql);
-            foreach ($data as $key=>&$value){
-                $userDataSql = "";
-                for ($i=0;$i<count($dateArr);$i++){
-                    if (Schema::hasTable('order_'.$dateArr[$i])){
-                        if ($userDataSql==""){
-                            $userDataSql = "select user_id,bet_money,game_type,status,creatime from hq_order_".$dateArr[$i];
-                        }else{
-                            $userDataSql = $userDataSql.' union all select user_id,bet_money,game_type,status,creatime from hq_order_'.$dateArr[$i];
+            $orderData = $sql->where($arr)->groupBy('order.user_id')->get()->toArray();
+            foreach ($orderData as $key=>&$datum)
+            {
+                $datum['washMoney']=0;
+                $datum['betMoney']=0;
+                $oData = $order->where('order.user_id','=',$datum['user_id'])->get()->toArray();
+                foreach ($oData as $k=>$v)
+                {
+                    $betMoney = json_decode($v['bet_money'],true);
+                    if ($v['game_type']==1 || $v['game_type']==2)
+                    {
+                        $datum['washMoney']=$datum['washMoney'] + array_sum($betMoney);
+                        if ($v['status']==1)
+                        {
+                            $datum['betMoney']=$datum['betMoney'] + array_sum($betMoney);
+                        }
+                    }elseif ($v['game_type']==3)
+                    {
+                        $datum['washMoney']=$datum['washMoney']+$this->getNiuNiuBetMoney($betMoney);
+                        if ($v['status']==1)
+                        {
+                            $datum['betMoney']=$datum['betMoney'] + $this->getNiuNiuBetMoney($betMoney);
+                        }
+                    }elseif ($v['game_type']==4)
+                    {
+                        $datum['washMoney']=$datum['washMoney']+$this->getSanGongBetMoney($betMoney);
+                        if ($v['status']==1)
+                        {
+                            $datum['betMoney']=$datum['betMoney'] + $this->getSanGongBetMoney($betMoney);
+                        }
+                    }elseif ($v['game_type']==5)
+                    {
+                        $datum['washMoney']=$datum['washMoney']+$this->getA89BetMoney($betMoney);
+                        if ($v['status']==1)
+                        {
+                            $datum['betMoney']=$datum['betMoney'] + $this->getA89BetMoney($betMoney);
                         }
                     }
                 }
-                $userData = DB::select('select * from (select * from ('.$userDataSql.') t where t.creatime between '.strtotime($begin).' and '.strtotime($end).') t1 where t1.user_id=?',[$value->user_id]);
-                $data[$key]->betMoney=$this->getSumBetMoney($userData);
-                $data[$key]->code = $this->getWashCode($userData);
-                $data[$key]->reward = LiveReward::getSumMoney($value->user_id,strtotime($begin),strtotime($end));//count($data)/10==0?count($data)/10:count($data)/10 +1]
             }
-            return view('userDay.list',['list'=>$data,'min'=>config('admin.min_date'),'input'=>$request->all(),'curr'=>$curr,'pages'=>ceil(count($pages)/10)]);
         }else{
-            $data= array();
-            return view('userDay.list',['list'=>$data,'min'=>config('admin.min_date'),'input'=>$request->all(),'curr'=>$curr,'pages'=>1]);
+            $orderData=array();
         }
+        //对应分页插件初始化分页参数
+        if (true==$request->has('limit'))
+        {
+            $limit = $request->input('limit');
+        }
+        else
+        {
+            $limit = 10;
+        }
+        $beginTime = strtotime($begin);
+        $endTime = strtotime('+1day',strtotime($end))-1;
+        $map = array();
+        $map['user_rebate.agent_id']=$id;
+        $sql = UserRebate::query();
+        $sql->leftJoin('user','user.user_id','=','user_rebate.user_id')
+            ->leftJoin('user_account','user_account.user_id','=','user_rebate.user_id')
+            ->select('user_rebate.id')->where($map)->whereBetween('user_rebate.creatime',[$beginTime,$endTime])->groupBy('user_rebate.agent_id','user_rebate.creatime');
+        $dataSql = UserRebate::whereIn('user_rebate.id',$sql->get());
+        $data = $dataSql->leftJoin('user','user.user_id','=','user_rebate.user_id')
+            ->leftJoin('user_account','user_account.user_id','=','user_rebate.user_id')
+            ->select('user_rebate.user_id','user.nickname','user.account','user_account.balance',DB::raw('SUM(betNum) as betNum'),
+                DB::raw('SUM(washMoney) as washMoney'),DB::raw('SUM(betMoney) as betMoney'),DB::raw('SUM(getMoney) as getMoney'),DB::raw('SUM(feeMoney) as feeMoney'),'user_rebate.userType')->groupBy('user_rebate.user_id')->get()->toArray();
+        if (count($data)==0)
+        {
+            foreach ($orderData as $key=>$v)
+            {
+                $info = array();
+                $info['user_id']=$v['user_id'];
+                $info['nickname']=$v['nickname'];
+                $info['account']=$v['account'];
+                $info['balance']=$v['balance'];
+                $info['betNum']=$v['betNum'];
+                $info['washMoney']=$v['washMoney'];
+                $info['betMoney']=$v['betMoney'];
+                $info['getMoney']=$v['getMoney'];
+                $info['feeMoney']=0;
+                $info['userType']=$v['user_type'];
+                $data[]=$info;
+            }
+        }
+        else
+        {
+            foreach ($orderData as $key=>$datum)
+            {
+                $arr = $this->updateDate($datum['user_id'],$data);
+                if ($arr['code']==1)
+                {
+                    $index= $arr['index'];
+                    $data[$index]['betNum']=$data[$index]['betNum'] + $datum['betNum'];
+                    $data[$index]['washMoney']=$data[$index]['washMoney']+$datum['washMoney'];
+                    $data[$index]['betMoney']=$data[$index]['betMoney']+$datum['betMoney'];
+                    $data[$index]['getMoney']=$data[$index]['getMoney']+$datum['getMoney'];
+                }
+            }
+        }
+        foreach ($data as $key=>$datum)
+        {
+            $data[$key]['reward']=LiveReward::getSumMoney($datum['user_id'],$begin,$end);
+        }
+        if (true==$request->has('excel'))
+        {
+            $head = array('台类型','名称','账号','当前金额','下注次数','下注金额','总洗码','派彩所赢','抽水','码佣总额','打赏金额');
+            $excel = array();
+            foreach ($data as $key=>$datum)
+            {
+                $a = array();
+                $a['desk_name']='全部';
+                $a['nickname']=$datum['nickname'];
+                $a['account']=$datum['account'];
+                $a['balance']=number_format($datum['balance']/100,2);
+                $a['betNum']=$datum['betNum'];
+                $a['washMoney']=number_format($datum['washMoney']/100,2);
+                $a['betMoney']=number_format($datum['betMoney']/100,2);
+                $a['getMoney']=number_format($datum['getMoney']/100,2);
+                $a['feeMoney']=number_format($datum['feeMoney']/100,2);
+                if ($datum['userType']==1)
+                {
+                    $a['my']=number_format($datum['betMoney']/100 * 0.009,2);
+                }else
+                {
+                    $a['my']='-';
+                }
+                $a['reward']=number_format($datum['reward']/100,2);
+                $excel[] = $a;
+            }
+            try {
+                exportExcel($head, $excel, date('Y-m-d',time()).'会员日结', '', true);
+            } catch (\PHPExcel_Reader_Exception $e) {
+            } catch (\PHPExcel_Exception $e) {
+            }
+        }
+        return view('userDay.list',['list'=>$data,'min'=>config('admin.min_date'),'input'=>$request->all()]);
     }
+
+    /**
+     * 计算a89下注金额
+     * @param $data
+     * @return float|int
+     */
+    public function getA89BetMoney($data)
+    {
+        $money = 0;
+        if (!empty($data['ShunMen_equal']))
+        {
+            $money = $money + $data['ShunMen_equal'];
+        }
+        if (!empty($data['ShunMen_Super_Double']))
+        {
+            $money = $money + $data['ShunMen_Super_Double'] * 10;
+        }
+        if (!empty($data['TianMen_equal']))
+        {
+            $money = $money + $data['TianMen_equal'];
+        }
+        if (!empty($data['TianMen_Super_Double']))
+        {
+            $money = $money + $data['TianMen_Super_Double'] * 10;
+        }
+        if (!empty($data['FanMen_equal']))
+        {
+            $money = $money + $data['FanMen_equal'];
+        }
+        if (!empty($data['FanMen_Super_Double']))
+        {
+            $money = $money + $data['FanMen_Super_Double'] * 10;
+        }
+        return $money;
+    }
+
+    /**
+     * 根据userId效验数组中是否存在该数据
+     * @param $userId
+     * @param $data
+     * @return array
+     */
+    public function updateDate($userId,$data)
+    {
+        $arr = array();
+        $arr['code']=0;
+        if (count($data)!=0)
+        {
+            foreach ($data as $key=>$datum)
+            {
+                if ($datum['user_id']==$userId)
+                {
+                    $arr['code']=1;
+                    $arr['index']=$key;
+                    break;
+                }
+            }
+        }
+        return $arr;
+    }
+    /**
+     * 计算三公下注金额
+     * @param $data
+     * @return float|int
+     */
+    public function getSanGongBetMoney($data)
+    {
+        $money = 0;
+        if (!empty($data['x1_equal']))
+        {
+            $money = $money + $data['x1_equal'];
+        }
+        if (!empty($data['x1_double']))
+        {
+            $money = $money + $data['x1_double'] * 3;
+        }
+        if (!empty($data['x1_Super_Double']))
+        {
+            $money = $money + $data['x1_Super_Double'] * 10;
+        }
+        if (!empty($data['x2_equal']))
+        {
+            $money = $money + $data['x2_equal'];
+        }
+        if (!empty($data['x2_double']))
+        {
+            $money = $money + $data['x2_double'] * 3;
+        }
+        if (!empty($data['x2_Super_Double']))
+        {
+            $money = $money + $data['x2_Super_Double'] * 10;
+        }
+        if (!empty($data['x3_equal']))
+        {
+            $money = $money + $data['x3_equal'];
+        }
+        if (!empty($data['x3_double']))
+        {
+            $money = $money + $data['x3_double'] * 3;
+        }
+        if (!empty($data['x3_Super_Double']))
+        {
+            $money = $money + $data['x3_Super_Double'] * 10;
+        }
+        if (!empty($data['x4_equal']))
+        {
+            $money = $money + $data['x4_equal'];
+        }
+        if (!empty($data['x4_double']))
+        {
+            $money = $money + $data['x4_double'] * 3;
+        }
+        if (!empty($data['x4_Super_Double']))
+        {
+            $money = $money + $data['x4_Super_Double'] * 10;
+        }
+        if (!empty($data['x5_equal']))
+        {
+            $money = $money + $data['x5_equal'];
+        }
+        if (!empty($data['x5_double']))
+        {
+            $money = $money + $data['x5_double'] *3;
+        }
+        if (!empty($data['x5_Super_Double']))
+        {
+            $money = $money + $data['x5_Super_Double'] * 10;
+        }
+        if (!empty($data['x6_equal']))
+        {
+            $money = $money + $data['x6_equal'];
+        }
+        if (!empty($data['x6_double']))
+        {
+            $money = $money + $data['x6_double'] *3;
+        }
+        if (!empty($data['x6_Super_Double']))
+        {
+            $money = $money + $data['x6_Super_Double'] * 10;
+        }
+        return $money;
+    }
+    /**
+     * 效验查询是否存在今天
+     * @param $startDate
+     * @param $endDate
+     * @return bool
+     */
+    public function checkIsToDay($startDate,$endDate)
+    {
+        $bool = false;
+        $data = $this->getDateTimePeriodByBeginAndEnd($startDate,$endDate);
+        foreach ($data as $key)
+        {
+            if ($key==date('Ymd',time()))
+            {
+                $bool = true;
+                break;
+            }
+        }
+        return $bool;
+    }
+
     /**
      * 获取总下注金额
      * @param $data
@@ -283,6 +605,85 @@ class UserDayEndController extends Controller
                     $money = $money + $a89['FanMen_equal'];
                 }
             }
+        }
+        return $money;
+    }
+    /**
+     * 获取有效下注
+     * @param $data
+     * @return float|int|void
+     */
+    public function getSumMoney($data)
+    {
+        $money = 0;
+        foreach ($data as $key=>$datum)
+        {
+            if ($datum['status']!=1)
+            {
+                continue;
+            }
+            $betMoney = json_decode($datum['bet_money'],true);
+            if ($datum['game_type']==1 || $datum['game_type']==2){
+                $money = $money + array_sum($betMoney);
+            }
+            else if ($datum['game_type']==3)
+            {
+                $money = $money + $this->getNiuNiuBetMoney($betMoney);
+            }
+            else if ($data['game_type']==4)
+            {
+                $money = $money + $this->getSanGongBetMoney($betMoney);
+            }
+            else if ($data['game_type']==5)
+            {
+                $money = $money + $this->getA89BetMoney($betMoney);
+            }
+        }
+        return $money;
+    }
+    /**
+     * 计算牛牛下注金额
+     * @param $data
+     * @return float|int
+     */
+    public function getNiuNiuBetMoney($data)
+    {
+        $money = 0;
+        if (!empty($data['x1_equal']))
+        {
+            $money = $money + $data['x1_equal'];
+        }
+        if (!empty($data['x1_double']))
+        {
+            $money = $money + $data['x1_double'] * 3;
+        }
+        if (!empty($data['x1_Super_Double']))
+        {
+            $money = $money + $data['x1_Super_Double'] * 10;
+        }
+        if (!empty($data['x2_equal']))
+        {
+            $money = $money + $data['x2_equal'];
+        }
+        if (!empty($data['x2_double']))
+        {
+            $money = $money + $data['x2_double'] * 3;
+        }
+        if (!empty($data['x2_Super_Double']))
+        {
+            $money = $money + $data['x2_Super_Double'] * 10;
+        }
+        if (!empty($data['x3_equal']))
+        {
+            $money = $money + $data['x3_equal'];
+        }
+        if (!empty($data['x3_double']))
+        {
+            $money = $money + $data['x3_double'] * 3;
+        }
+        if (!empty($data['x3_Super_Double']))
+        {
+            $money = $money + $data['x3_Super_Double'] * 10;
         }
         return $money;
     }

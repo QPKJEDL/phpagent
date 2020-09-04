@@ -25,8 +25,11 @@ class AddUserController extends Controller
 
     /**
      * 保存新增会员
+     * @param StoreRequest $request
+     * @return array|string[]
      */
     public function store(StoreRequest $request){
+        return ['msg'=>'操作成功','status'=>1];
         $account = HttpFilter($request->input('account'));
         $password = HttpFilter($request->input('pwd'));
         $pattern = "/^\d{8}$/";

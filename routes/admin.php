@@ -41,6 +41,8 @@ Route::group(['namespace'  => "Auth"], function () {
     Route::post('/login',               'LoginController@login');
     Route::get('/logout',               'LoginController@logout')->name('logout');
     Route::get('/userinfo',             'UserController@userInfo');
+    Route::post('/sendSms','HqUserRegisterController@sendSms');//发送短信
+    Route::post('/agentActSendSms','OnAgentActController@agentActSendSms');//线上代理发送短信
 });
 //后台主要模块
 Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], function () {
@@ -111,6 +113,7 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
 
     //根据userId查询充值提现记录
     Route::get('/hquser/getRecordByUserId/{id}','DrawController@getRecordByUserId');
+
 });
 Route::group(['namespace'=>"Online",'middleware'=>['auth','permission']],function (){
     Route::resource('/onAddAgent','OnAddAgentController');//新增下级代理

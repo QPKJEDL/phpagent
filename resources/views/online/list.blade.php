@@ -154,8 +154,10 @@
                         安卓版
                     @elseif($info['online_type']==4)
                         网页版
-                    @else
+                    @elseif($info['online_type']==5)
                         三方
+                    @else
+                        未知
                     @endif
                 </td>
             </tr>

@@ -8,6 +8,7 @@
  */
 namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
+use App\Models\AgentBlack;
 use App\Models\User;
 use App\Models\Log;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -54,6 +55,10 @@ class LoginController extends Controller
         }
         if ($count['status']==1){
             return redirect('/admin/login')->withErrors([trans('fzs.login.false_status')]);
+        }
+        $bool = AgentBlack::checkAgentIsLogin($request->input('username'));
+        if ($bool==false){
+            return redirect('/admin/login')->withErrors([trans('fzs.login.false_black')]);
         }
         if ($count['userType']==2){
             if ($count['is_act']==0){

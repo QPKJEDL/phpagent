@@ -438,9 +438,51 @@
                     success:function(res){
                         if(res.status == 1){
                             layer.msg(res.msg,{icon:6});
-                            var index = parent.layer.getFrameIndex(window.name);
-                            setTimeout('parent.layer.close('+index+')',2000);
-                            parent.layer.close(index);
+                            var topWindow = $(window.parent.document);
+                            var ul = topWindow.find('#nav').children(':first').children();
+                            var count;
+                            for(var x=0;x<ul.length;x++){
+                                if(5==$(ul[x]).attr('lay-id')){
+                                    count=x;
+                                    break;
+                                }
+                            }
+                            $(ul[count]).remove();
+                            var iframe = topWindow.find('#nav').children(':last').children();
+                            $(iframe[count]).remove();
+                            var isActive = topWindow.find('#nav').children(':first').children('li[lay-id="3"]');
+                            if (isActive.length>0){
+                                var a;
+                                var arr = topWindow.find('#nav').children(':first').children();
+                                for (var i=0;i<arr.length;i++){
+                                    var layId = $(arr[i]).attr('lay-id');
+                                    if(layId==3){
+                                        a = i
+                                        break;
+                                    }
+                                }
+                                //获取到当前选中的tab选项卡
+                                var index = topWindow.find('#nav').children(':first').children('li[class="layui-this"]');
+                                index.removeClass('layui-this');
+                                isActive.addClass('layui-this');
+                                var indexHtml = topWindow.find('#nav').children(':last').children('div[class="layui-tab-item layui-show"]');
+                                indexHtml.removeClass('layui-show');
+                                //获取iframe数组
+                                var iframe = topWindow.find('#nav').children(':last').children();
+                                $(iframe[a]).addClass('layui-show')
+                            }else{
+                                var id = 3;
+                                var url = "{{url('/admin/hqUser')}}";
+                                var title = '会员列表';
+                                var tabUL = topWindow.find('#nav').children(':first');
+                                var str = '<li lay-id="'+id+'" class="layui-this">'+title+'<i class="layui-icon layui-unselect layui-tab-close" onclick="tabClose(this)">ဆ</i></li>';
+                                tabUL.append(str);
+                                var indexHtml = topWindow.find('#nav').children(':last').children('div[class="layui-tab-item layui-show"]');
+                                indexHtml.removeClass('layui-show');
+                                var tabDiv = topWindow.find('#nav').children(':last');
+                                var str1 = '<div class="layui-tab-item layui-show"><iframe frameborder="0" style="width: 100%;height: calc(100vh - 157px)" name="'+title+'" src="'+url+'"></iframe></div>';
+                                tabDiv.append(str1)
+                            }
                         }else{
                             layer.msg(res.msg,{shift: 6,icon:5});
                         }

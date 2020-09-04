@@ -122,11 +122,16 @@
                     }
                 }
             });
+            var date = new Date();
+            var max = date.getFullYear()+'-'+(date.getMonth()+1) +'-'+date.getDate();
+            //日期插件初始化
             laydate.render({
-                elem:"#begin"
+                elem: '#begin',
+                max:max
             });
             laydate.render({
-                elem:"#end"
+                elem:"#end",
+                max:max
             });
             $(".reset").click(function(){
                 $("input[name='begin']").val('');

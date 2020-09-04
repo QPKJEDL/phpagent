@@ -2,6 +2,7 @@
 @section('header')
     <div class="layui-inline">
         <button class="layui-btn layui-btn-small layui-btn-warm freshBtn"><i class="layui-icon">&#xe9aa;</i></button>
+        <button class="layui-btn layui-btn-normal reset" lay-submit>重置</button>
     </div>
     <div class="layui-inline">
         <input class="layui-input" lay-verify="begin" name="begin" placeholder="开始日期" id="begin" value="{{ $input['begin'] or '' }}" autocomplete="off">
@@ -13,8 +14,15 @@
         <input type="text" lay-verify="account" value="{{ $input['account'] or '' }}" name="account" placeholder="请输入代理账号" autocomplete="off" class="layui-input">
     </div>
     <div class="layui-inline">
+        <select name="userType">
+            <option value="">请选择账号类型</option>
+            <option value="1">线下</option>
+            <option value="2">线上</option>
+        </select>
+    </div>
+    <div class="layui-inline">
         <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formDemo">搜索</button>
-        <button class="layui-btn layui-btn-normal reset" lay-submit>重置</button>
+        <button class="layui-btn layui-btn-normal" lay-submit name="excel" value="excel">导出EXCEL</button>
     </div>
     <br>
     <div class="layui-btn-group">
@@ -41,6 +49,10 @@
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
+            <col class="hidden-xs" width="100">
+            <col class="hidden-xs" width="100">
+            <col class="hidden-xs" width="100">
+            <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="300">
         </colgroup>
         <thead>
@@ -51,12 +63,16 @@
             <th class="hidden-xs">总押码</th>
             <th class="hidden-xs">总赢</th>
             <th class="hidden-xs">总洗码</th>
+            <th class="hidden-xs">总抽水</th>
             <th class="hidden-xs">打赏金额</th>
+            <th class="hidden-xs">百/龙/牛/三/A</th>
+            <th class="hidden-xs">洗码费</th>
             <th class="hidden-xs">抽水比例</th>
             <th class="hidden-xs">抽水收益</th>
             <th class="hidden-xs">占股</th>
             <th class="hidden-xs">占股收益</th>
             <th class="hidden-xs">总收益</th>
+            <th class="hidden-xs">公司收益</th>
             <th class="hidden-xs">操作</th>
         </tr>
         </thead>
@@ -81,7 +97,36 @@
                         {{number_format($info['betMoney']/100,2)}}
                     @endif
                 </td>
+                <td class="hidden-xs">
+                    @if($info['userType']==1)
+                        @if($info['feeMoney']<0)
+                            <span style="color: red;">{{number_format($info['feeMoney']/100,2)}}</span>
+                        @else
+                            {{number_format($info['feeMoney']/100,2)}}
+                        @endif
+                    @else
+                        -
+                    @endif
+                </td>
                 <td class="hidden-xs">{{number_format($info['reward']/100,2)}}</td>
+                <td class="hidden-xs">
+                    @if($info['userType']==1)
+                        {{$info['fee']['baccarat']}}/{{$info['fee']['dragonTiger']}}/{{$info['fee'] ['niuniu']}}/{{$info['fee']['sangong']}}/{{$info['fee']['A89']}}
+                    @else
+                        -
+                    @endif
+                </td>
+                <td class="hidden-xs">
+                    @if($info['userType']==1)
+                        @if($info['code']<0)
+                            <span style="color:red;">{{number_format($info['code']/100,2)}}</span>
+                        @else
+                            {{number_format($info['code']/100,2)}}
+                        @endif
+                    @else
+                        -
+                    @endif
+                </td>
                 <td class="hidden-xs">
                     @if($info['userType']==2)
                         {{$info['pump']}}%
@@ -91,7 +136,6 @@
                 </td>
                 <td class="hidden-xs">
                     @if($info['userType']==2)
-                        {{number_format($info['feeMoney']/100,2)}}
                         @if($info['feeMoney']<0)
                             <span style="color: red;">{{number_format($info['feeMoney']/100,2)}}</span>
                         @else
@@ -102,21 +146,44 @@
                     @endif
                 </td>
                 <td class="hidden-xs">
-                    0%
+                    @if($info['userType']==1)
+                        {{$info['proportion']}}%
+                    @else
+                        -
+                    @endif
                 </td>
 
                 <td class="hidden-xs">
-                    @if($info['getMoney']>0)
-                        <span style="color: red;">{{number_format($info['zg']/100,2)}}</span>
+                    @if($info['userType']==1)
+                        @if($info['zg']<0)
+                            <span style="color: red;">{{number_format($info['zg']/100,2)}}</span>
+                        @else
+                            {{number_format(abs($info['zg']/100),2)}}
+                        @endif
                     @else
-                        {{number_format($info['zg']/100,2)}}
+                        0.00
                     @endif
                 </td>
                 <td class="hidden-xs">
-                    @if($info['getMoney']>0)
-                        <span style="color: red;">{{number_format($info['sy']/100,2)}}</span>
+                    @if($info['userType']==1)
+                        @if($info['sy']<0)
+                            <span style="color: red;">{{number_format($info['sy']/100,2)}}</span>
+                        @else
+                            {{number_format($info['sy']/100,2)}}
+                        @endif
                     @else
                         {{number_format($info['sy']/100,2)}}
+                    @endif
+                </td>
+                <td class="hidden-xs">
+                    @if($info['userType']==1)
+                        @if($info['gs']<0)
+                            <span style="color:red;">{{number_format($info['gs']/100,2)}}</span>
+                        @else
+                            {{number_format($info['gs']/100,2)}}
+                        @endif
+                    @else
+                        {{number_format($info['gs']/100,2)}}
                     @endif
                 </td>
                 <td class="hidden-xs">
@@ -128,7 +195,7 @@
             </tr>
         @endforeach
         @if(count($list)==0)
-            <tr><td colspan="13" style="text-align: center;color: orangered;">暂无数据</td></tr>
+            <tr><td colspan="17" style="text-align: center;color: orangered;">暂无数据</td></tr>
         @endif
         </tbody>
     </table>
@@ -149,40 +216,25 @@
             laydate.render({
                 elem:"#end"
             });
-            $(".agentDayInfo").click(function () {
-                var id = $(this).attr('data-id');
-                var name = $(this).attr('data-name');
-                var begin = $("input[name='begin']").val();
-                var end = $("input[name='end']").val();
-                var index = layer.open({
-                    type:2,
-                    title:name+'的下级代理',
-                    shadeClose:true,
-                    offset:'10%',
-                    area:['60%','80%'],
-                    content:'/admin/onAgentDayEnd/'+id + '/' + begin + '/' + end
-                });
-                layer.full(index)
-            });
-            $(".userDayInfo").click(function () {
-                var id = $(this).attr('data-id');
-                var name = $(this).attr('data-name');
-                var begin = $("input[name='begin']").val();
-                var end = $("input[name='end']").val();
-                var index = layer.open({
-                    type:2,
-                    title:name+'的下级会员',
-                    shadeClose:true,
-                    offset:'10%',
-                    area:['60%','80%'],
-                    content:'/admin/userDays/'+id + '/' + begin + '/' + end
-                });
-                layer.full(index)
-            });
             $(".reset").click(function(){
                 $("input[name='begin']").val('');
-                $("select[name='desk_id']").val(''); 
+                $("input[name='end']").val('');
+                $("select[name='desk_id']").val('');
                 $("input[name='boot']").val('');
+            });
+            //今天
+            $("#today").click(function () {
+                var startDate = new Date(new Date(new Date().toLocaleDateString()).getTime());
+                var endDate = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 *60 *60*1000-1);
+                $("input[name='begin']").val(formatDate(startDate))
+                $("input[name='end']").val(formatDate(endDate))
+            });
+            //昨天
+            $("#yesterday").click(function () {
+                var startDate = new Date(new Date(new Date().toLocaleDateString()).getTime() - 24*60*60*1000);
+                var endDate = new Date(new Date(new Date().toLocaleDateString()).getTime() - 24*60*60*1000 + 24*60*60*1000 -1);
+                $("input[name='begin']").val(formatDate(startDate))
+                $("input[name='end']").val(formatDate(endDate))
             });
             //本周
             $("#thisWeek").click(function () {
@@ -191,7 +243,7 @@
                 var nowDay = now.getDate();//当前日
                 var nowMonth = now.getMonth();//当前月
                 var nowYear = now.getFullYear();//当前年
-                var weekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek);
+                var weekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek + 1);
                 $("input[name='begin']").val(formatDate(weekStartDate))
                 $("input[name='end']").val(formatDate(now))
             });
@@ -210,8 +262,8 @@
                 var nowDay = now.getDate();            //当前日
                 var nowMonth = now.getMonth();         //当前月
                 var nowYear = now.getFullYear();           //当前年
-                var getUpWeekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek -7);
-                var getUpWeekEndDate = new Date(nowYear, nowMonth, nowDay + (6 - nowDayOfWeek - 7));
+                var getUpWeekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek -7 + 1);
+                var getUpWeekEndDate = new Date(nowYear, nowMonth, nowDay + (6 - nowDayOfWeek - 7) + 1);
                 $("input[name='begin']").val(formatDate(getUpWeekStartDate))
                 $("input[name='end']").val(formatDate(getUpWeekEndDate))
             });
@@ -228,6 +280,36 @@
                 $("input[name='begin']").val(formatDate(lastMonthStartDate))
                 $("input[name='end']").val(formatDate(lastMonthEndDate))
             });
+            $(".agentDayInfo").click(function () {
+                var id = $(this).attr('data-id');
+                var name = $(this).attr('data-name');
+                var begin = $("input[name='begin']").val();
+                var end = $("input[name='end']").val();
+                var index = layer.open({
+                    type:2,
+                    title:name+'的下级代理',
+                    shadeClose:true,
+                    offset:'10%',
+                    area:['60%','80%'],
+                    content:'/admin/agentDays/'+id + '/' + begin + '/' + end
+                });
+                layer.full(index)
+            });
+            $(".userDayInfo").click(function () {
+                var id = $(this).attr('data-id');
+                var name = $(this).attr('data-name');
+                var begin = $("input[name='begin']").val();
+                var end = $("input[name='end']").val();
+                var index = layer.open({
+                    type:2,
+                    title:name+'的下级会员',
+                    shadeClose:true,
+                    offset:'10%',
+                    area:['60%','80%'],
+                    content:'/admin/userDays/'+id + '/' + begin + '/' + end
+                });
+                layer.full(index)
+            });
             form.render();
             form.on('submit(formDemo)', function(data) {
                 console.log(data);
@@ -243,6 +325,22 @@
                 var lastMonthEndDate= new Date(nowyear, lastMonth+ 1, 1);
                 var days = (lastMonthEndDate- lastMonthStartDate) / (1000 * 60 * 60 * 24);//格式转换
                 return days
+            }
+            //格式化日期 yyyy-mm-dd HH:mm:ss
+            function formDate(date) {
+                var date = new Date(date);
+                var y = date.getFullYear();
+                var m = date.getMonth() + 1;
+                m = m < 10 ? ('0' + m) : m;
+                var d = date.getDate();
+                d = d < 10 ? ('0' + d) : d;
+                var h = date.getHours();
+                h = h < 10 ? ('0' + h) : h;
+                var minute = date.getMinutes();
+                var second = date.getSeconds();
+                minute = minute < 10 ? ('0' + minute) : minute;
+                second = second < 10 ? ('0' + second) : second;
+                return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
             }
             //格式化日期：yyyy-MM-dd
             function formatDate(date) {

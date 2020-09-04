@@ -24,7 +24,7 @@
                     </div>
                     <div class="layui-col-xs2" style="border: 1px solid black; height: 100px; width: 300px">
                         <div style="position: absolute;left: 30%">
-                            <a href="javascript:;"><h3>{{$agentCount}}</h3></a>
+                            <a href="javascript:;" class="agent" @if(\Illuminate\Support\Facades\Auth::user()['userType']==1) data-id="2" @else data-id="22" @endif data-title="代理列表" @if(\Illuminate\Support\Facades\Auth::user()['userType']==1) data-url="{{url('/admin/agentList')}}" @else data-url="{{url('/admin/onAgentList')}}"@endif><h3>{{$agentCount}}</h3></a>
                             <h4>代理总数</h4>
                         </div>
                     </div>
@@ -50,7 +50,7 @@
                     </div>
                     <div class="layui-col-xs2" style="border: 1px solid black; height: 100px; width: 300px">
                         <div style="position: absolute;left: 30%">
-                            <a href="javascript:;"><h3>{{$userCount}}</h3></a>
+                            <a href="javascript:;" class="agent" @if(\Illuminate\Support\Facades\Auth::user()['userType']==1) data-id="3" @else data-id="23" @endif data-title="会员列表" @if(\Illuminate\Support\Facades\Auth::user()['userType']==1) data-url="{{url('/admin/hqUser')}}" @else data-url="{{url('/admin/onHqUser')}}" @endif><h3>{{$userCount}}</h3></a>
                             <h4>会员总数</h4>
                         </div>
                     </div>
@@ -119,10 +119,6 @@
                                     @if($user['userType']==1)
                                     <th>抽水权限</th>
                                     <th>
-                                        {{--@if($user['baccarat']==1)百家乐@endif
-                                        @if($user['dragon_tiger']==1)龙虎@endif
-                                        @if($user['niuniu']==1)牛牛@endif
-                                        @if($user['sangong']==1)三公@endif--}}
                                         百家乐-@if($user['baccarat']==1)有@else没有@endif&nbsp;
                                         龙虎-@if($user['dragon_tiger']==1)有@else没有@endif&nbsp;
                                         牛牛-@if($user['niuniu']==1)有@else没有@endif&nbsp;
@@ -150,4 +146,46 @@
         </div>
     </div>
 </body>
+<script src="/static/tools/js/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    $(".agent").click(function () {
+        var id = $(this).attr('data-id');
+        var url = $(this).attr('data-url');
+        var title = $(this).attr('data-title')
+        var topWindow = $(window.parent.document);
+        var isActive = topWindow.find('#nav').children(":first").children("li[lay-id=" + id + "]");
+        if(isActive.length>0){
+            var a;
+            var arr = topWindow.find('#nav').children(':first').children();
+            for (var i=0;i<arr.length;i++){
+                var layId = $(arr[i]).attr('lay-id');
+                if(layId==id){
+                    a = i
+                    break;
+                }
+            }
+            //获取到当前选中的tab选项卡
+            var index = topWindow.find('#nav').children(':first').children('li[class="layui-this"]');
+            index.removeClass('layui-this');
+            isActive.addClass('layui-this');
+            var indexHtml = topWindow.find('#nav').children(':last').children('div[class="layui-tab-item layui-show"]');
+            indexHtml.removeClass('layui-show');
+            //获取iframe数组
+            var iframe = topWindow.find('#nav').children(':last').children();
+            $(iframe[a]).addClass('layui-show')
+        }else{
+            //获取到当前选中的tab选项卡
+            var index = topWindow.find('#nav').children(':first').children('li[class="layui-this"]');
+            index.removeClass('layui-this');
+            var tabUL = topWindow.find('#nav').children(':first');
+            var str = '<li lay-id="'+id+'" class="layui-this">'+title+'<i class="layui-icon layui-unselect layui-tab-close" onclick="tabClose(this)">ဆ</i></li>';
+            tabUL.append(str);
+            var indexHtml = topWindow.find('#nav').children(':last').children('div[class="layui-tab-item layui-show"]');
+            indexHtml.removeClass('layui-show');
+            var tabDiv = topWindow.find('#nav').children(':last');
+            var str1 = '<div class="layui-tab-item layui-show"><iframe frameborder="0" style="width: 100%;height: calc(100vh - 157px)" name="'+title+'" src="'+url+'"></iframe></div>';
+            tabDiv.append(str1)
+        }
+    });
+</script>
 </html>

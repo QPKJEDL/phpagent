@@ -62,7 +62,7 @@
                                     return '请输入整数';
                                 }else{
                                     var balance = $("#balance").html();
-                                    if(balance<value){
+                                    if(parseInt(balance)<parseInt(value)){
                                         return '余额不足'
                                     }
                                 }
@@ -75,7 +75,7 @@
                                     return '请输入整数';
                                 }else{
                                     var userB = $("#userB").html();
-                                    if (userB<value){
+                                    if (parseInt(userB)<parseInt(value)){
                                         return '余额不足'
                                     }
                                 }

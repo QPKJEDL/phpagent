@@ -89,7 +89,7 @@
                 <td class="hidden-xs">{{number_format($info['reward']/100,2)}}</td>
                 <td class="hidden-xs">
                     <div class="layui-inline">
-                        <button class="layui-btn layui-btn-xs dayInfo" data-id="{{$info->user_id}}" data-name="{{$info->nickname}}" data-desc="详情"><i class="layui-icon">详情</i></button>
+                        <button class="layui-btn layui-btn-xs dayInfo" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">详情</i></button>
                     </div>
                 </td>
             </tr>
@@ -99,9 +99,9 @@
         @endif
         </tbody>
     </table>
-    <div class="page-wrap">
+    {{--<div class="page-wrap">
         <div id="demo1"></div>
-    </div>
+    </div>--}}
 @endsection
 @section('js')
     <script>
@@ -118,9 +118,9 @@
             laydate.render({
                 elem:"#end"
             });
-            var count = {{$list->total()}};
-            var curr = {{$list->currentPage()}};
-            var limit = {{$limit}};
+            /*var count = {{--{{$list->total()}}--}};
+            var curr = {{--{{$list->currentPage()}}--}};
+            var limit = {{--{{$limit}}--}};
             var url = "";
             //分页
             laypage.render({
@@ -140,7 +140,7 @@
                         location.href = url;
                     }
                 }
-            });
+            });*/
             $(".reset").click(function(){
                 $("input[name='begin']").val('');
                 $("input[name='end']").val('');
