@@ -32,7 +32,7 @@
         </colgroup>
         <thead>
         <tr>
-            <th class="hidden-xs">代理昵称[账号]</th>
+            <th class="hidden-xs">代理名称[账号]</th>
             <th class="hidden-xs">会员名称[账号]</th>
             <th class="hidden-xs">操作前金额</th>
             <th class="hidden-xs">充值提现金额</th>
@@ -54,7 +54,19 @@
                     @endif
                 </td>
                 <td class="hidden-xs">{{number_format($info['bet_before']/100,2)}}</td>
-                <td class="hidden-xs">{{number_format($info['money']/100,2)}}</td>
+                <td class="hidden-xs">
+                    @if($info['bet_before']>$info['bet_after'])
+                        <span style="color:red;">
+                            @if($info['money']>0)
+                                {{number_format(-$info['money']/100,2)}}
+                            @else
+                                {{number_format($info['money']/100,2)}}
+                            @endif
+                        </span>
+                    @else
+                        {{number_format($info['money']/100,2)}}
+                    @endif
+                </td>
                 <td class="hidden-xs">{{number_format($info['bet_after']/100,2)}}</td>
                 <td class="hidden-xs">充值</td>
                 {{--<td class="hidden-xs">
