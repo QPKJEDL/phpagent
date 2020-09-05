@@ -56,7 +56,19 @@
                 <td class="hidden-xs">{{$info->creatime}}</td>
                 <td class="hidden-xs">{{$info->nickname}}[{{$info->account}}]</td>
                 <td class="hidden-xs">{{number_format($info->bet_before/100,2)}}</td>
-                <td class="hidden-xs">{{number_format($info->score/100,2)}}</td>
+                <td class="hidden-xs">
+                    @if($info->bet_before > $info->bet_after)
+                        <span style="color: red;">
+                            @if($info->score>0)
+                                {{number_format(-$info->score/100,2)}}
+                            @else
+                                {{number_format($info->score/100,2)}}
+                            @endif
+                        </span>
+                    @else
+                        {{number_format($info->score/100,2)}}
+                    @endif
+                </td>
                 <td class="hidden-xs">{{number_format($info->bet_after/100,2)}}</td>
                 <td class="hidden-xs">
                     @if($info->status==1)
