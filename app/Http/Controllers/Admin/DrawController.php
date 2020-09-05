@@ -187,7 +187,7 @@ class DrawController extends Controller
         $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$datum)
         {
-            $data[$key]->creatime=date('Y-m-d H:i:s',time());
+            $data[$key]->creatime=date('Y-m-d H:i:s',$datum->creatime);
         }
         return view('draw.list',['limit'=>$limit,'list'=>$data,'input'=>$request->all()]);
     }
