@@ -253,6 +253,7 @@
             });
             $(".reset").click(function(){
                 $("input[name='begin']").val('');
+                $("input[name='end']").val('');
                 $("select[name='desk_id']").val('');
                 $("select[name='type']").val('');
                 $("select[name='status']").val('');
