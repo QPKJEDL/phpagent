@@ -80,7 +80,7 @@
             </tr>
         @endforeach
         @if(!$list[0])
-            <tr><td colspan="6" style="text-align: center;color: orangered;">暂无数据</td></tr>
+            <tr><td colspan="11" style="text-align: center;color: orangered;">暂无数据</td></tr>
         @endif
         </tbody>
     </table>
