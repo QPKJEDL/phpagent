@@ -722,8 +722,15 @@ class AgentListController extends Controller
      * @return bool
      */
     public function insertAgentBillFlow($agentId,$userId,$money,$before,$after,$status,$type,$remark){
+        $agentInfo = $agentId?User::find($agentId):[];
         $data['agent_id']=$agentId;
+        $data['agent_name']=$agentInfo['nickname'];
         $data['user_id']=$userId;
+        if ($userId!=0)
+        {
+            $user = $userId?HqUser::find($userId):[];
+            $data['user_name']=$user['nickname'];
+        }
         $data['money']=$money;
         $data['bet_before']=$before;
         $data['bet_after']=$after;

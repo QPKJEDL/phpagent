@@ -125,7 +125,7 @@
                 <td class="hidden-xs">
                     @if($info->status==2)
                         -
-                    @elseif($info->status==1)
+                    @elseif($info->status==1 || $info->status==4)
                         @if($info->game_type==1)
                             {{$info->result['game']}}&nbsp;{{$info->result['playerPair']}} {{$info->result['bankerPair']}}
                         @elseif($info->game_type==2)

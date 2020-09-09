@@ -296,6 +296,8 @@ class HqUserController extends Controller
      */
     public function insertUserBillflow($userId,$money,$before,$after,$status,$payType,$remark){
         $data['user_id']=(int)$userId;
+        $user = $userId?HqUser::find($userId):[];
+        $data['nickname']=$user['nickname'];
         $data['order_sn']=$this->getrequestId();
         $data['score']=(int)$money;
         $data['bet_before']=(int)$before;
@@ -324,8 +326,12 @@ class HqUserController extends Controller
      * @return bool
      */
     public function insertAgentBillFlow($agentId,$userId,$money,$before,$after,$status,$type,$remark){
+        $agentInfo = $agentId?User::find($agentId):[];
         $data['agent_id']=(int)$agentId;
+        $data['agent_name']=$agentInfo['nickname'];
         $data['user_id']=(int)$userId;
+        $user = $userId?HqUser::find($userId):[];
+        $data['user_name']=$user['nickname'];
         $data['money']=(int)$money;
         $data['bet_before']=(int)$before;
         $data['bet_after']=(int)$after;

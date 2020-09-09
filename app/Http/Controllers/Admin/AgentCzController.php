@@ -23,7 +23,7 @@ class AgentCzController extends Controller
         $sql = AgentBill::query();
         $sql->leftJoin('agent_users','agent_users.id','=','agent_billflow.agent_id')
             ->leftJoin('user','user.user_id','=','agent_billflow.user_id')
-            ->select('agent_users.username','agent_users.nickname','user.account','user.nickname as userName','agent_billflow.money','agent_billflow.bet_before','agent_billflow.bet_after','agent_billflow.status','agent_billflow.type','agent_billflow.remark','agent_billflow.creatime');
+            ->select('agent_users.username','user.account','agent_billflow.money','agent_billflow.user_id','agent_billflow.agent_name','agent_billflow.user_name','agent_billflow.bet_before','agent_billflow.bet_after','agent_billflow.status','agent_billflow.type','agent_billflow.remark','agent_billflow.creatime');
         if (true==$request->has('begin'))
         {
             $begin = strtotime($request->input('begin'));

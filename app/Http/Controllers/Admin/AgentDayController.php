@@ -150,6 +150,7 @@ class AgentDayController extends Controller
                                     $a['pump']=$agentInfo['pump'];
                                 }
                                 $a['proportion']=$agentInfo['proportion'];
+                                $a['betMoney']=0;
                                 $a['feeMoney']=0;
                                 $a['reward']=0;
                                 $betMoney = json_decode($v['bet_money'],true);

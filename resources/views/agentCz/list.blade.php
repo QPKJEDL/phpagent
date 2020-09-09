@@ -46,10 +46,10 @@
         <tbody>
         @foreach($list as $info)
             <tr>
-                <td class="hidden-xs">{{$info['nickname']}}[{{$info['username']}}]</td>
+                <td class="hidden-xs">{{$info['agent_name']}}[{{$info['username']}}]</td>
                 <td class="hidden-xs">
                     @if($info['user_id']!=0)
-                        {{$info['userName']}}[{{$info['account']}}]
+                        {{$info['user_name']}}[{{$info['account']}}]
                     @else
                         -
                     @endif

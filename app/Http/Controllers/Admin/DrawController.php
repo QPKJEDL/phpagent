@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 class DrawController extends Controller
 {
     public function index(Request $request){
+
         $map = array();
         if (true==$request->has('begin'))
         {
@@ -64,13 +65,13 @@ class DrawController extends Controller
         $bill = new Billflow();
         $bill->setTable('user_billflow_'.$dateArr[0]);
         $sql = $bill->leftJoin('user','user_billflow_'.$dateArr[0].'.user_id','=','user.user_id')
-            ->select('user_billflow_'.$dateArr[0].'.*','user.account','user.nickname','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[0].'.status',$status);
+            ->select('user_billflow_'.$dateArr[0].'.*','user.account','user.nickname as nName','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[0].'.status',$status);
         for ($i=1;$i<count($dateArr);$i++)
         {
             $b = new Billflow();
             $b->setTable('user_billflow_'.$dateArr[$i]);
             $d = $b->leftJoin('user','user_billflow_'.$dateArr[$i].'.user_id','=','user.user_id')
-                ->select('user_billflow_'.$dateArr[$i].'.*','user.account','user.nickname','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[$i].'.status',$status);
+                ->select('user_billflow_'.$dateArr[$i].'.*','user.account','user.nickname as nName','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[$i].'.status',$status);
             $sql->unionAll($d);
         }
         if (true==$request->has('limit'))
@@ -167,13 +168,13 @@ class DrawController extends Controller
         $bill = new Billflow();
         $bill->setTable('user_billflow_'.$dateArr[0]);
         $sql = $bill->leftJoin('user','user_billflow_'.$dateArr[0].'.user_id','=','user.user_id')
-            ->select('user_billflow_'.$dateArr[0].'.*','user.account','user.nickname','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[0].'.status',$status);
+            ->select('user_billflow_'.$dateArr[0].'.*','user.account','user.nickname as nickName','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[0].'.status',$status);
         for ($i=1;$i<count($dateArr);$i++)
         {
             $b = new Billflow();
             $b->setTable('user_billflow_'.$dateArr[$i]);
             $d = $b->leftJoin('user','user_billflow_'.$dateArr[$i].'.user_id','=','user.user_id')
-                ->select('user_billflow_'.$dateArr[$i].'.*','user.account','user.nickname','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[$i].'.status',$status);
+                ->select('user_billflow_'.$dateArr[$i].'.*','user.account','user.nickname as nickName','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[$i].'.status',$status);
             $sql->unionAll($d);
         }
         if (true==$request->has('limit'))
