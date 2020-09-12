@@ -92,6 +92,28 @@
             </div>
         </div>
     </div>
+    @if($user['baccarat']==1 || $user['dragon_tiger']==1 || $user['niuniu']==1 || $user['sangong']==1 || $user['A89']==1)
+        <div class="layui-form-item">
+            <label class="layui-form-label">抽水权限：</label>
+            <div class="layui-input-block">
+                @if($user['baccarat']==1)
+                    <input type="checkbox" id="baccarat" name="baccarat" lay-skin="primary" title="百家乐" {{isset($info['baccarat'])&&$info['baccarat']==1?'checked':''}}>
+                @endif
+                @if($user['dragon_tiger']==1)
+                    <input type="checkbox" id="dragon_tiger" name="dragon_tiger" lay-skin="primary" title="龙虎" {{isset($info['dragon_tiger'])&&$info['dragon_tiger']==1?'checked':''}}>
+                @endif
+                @if($user['niuniu']==1)
+                    <input type="checkbox" id="niuniu" name="niuniu" lay-skin="primary" title="牛牛" {{isset($info['niuniu'])&&$info['niuniu']==1?'checked':''}}>
+                @endif
+                @if($user['sangong']==1)
+                    <input type="checkbox" id="sangong" name="sangong" lay-skin="primary" title="三公" {{isset($info['sangong'])&&$info['sangong']==1?'checked':''}}>
+                @endif
+                @if($user['A89']==1)
+                    <input type="checkbox" id="A89" name="A89" lay-skin="primary" title="A89" {{isset($info['A89'])&&$info['A89']==1?'checked':''}}>
+                @endif
+            </div>
+        </div>
+    @endif
     <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
         <legend>百家乐游戏赔率</legend>
     </fieldset>
@@ -108,7 +130,7 @@
             <div class="layui-form-mid">闲对：</div>
             <div class="layui-input-inline" style="width: 100px;">
                 @if($user['baccarat']==1)
-                    <input type="number" name="bjlbets_fee[playerPair]" lay-verify="bplayerPair" placeholder="" data-v="{{$user['bjlbets_fee']['playerPair']}}" value="{{$info['bjlbets_fee']['playerPair']}}"  autocomplete="off" class="layui-input">
+                    <input type="number" name="bjlbets_fee[playerPair]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly lay-verify="bplayerPair" placeholder="" data-v="{{$user['bjlbets_fee']['playerPair']}}" value="{{$info['bjlbets_fee']['playerPair']}}"  autocomplete="off" class="layui-input">
                 @else
                     <input type="number" name="bjlbets_fee[playerPair]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly placeholder="" value="{{$info['bjlbets_fee']['playerPair']}}"  autocomplete="off" class="layui-input">
                 @endif
@@ -116,7 +138,7 @@
             <div class="layui-form-mid">和：</div>
             <div class="layui-input-inline" style="width: 100px;">
                 @if($user['baccarat']==1)
-                    <input type="number" name="bjlbets_fee[tie]" lay-verify="btie" placeholder="" data-v="{{$user['bjlbets_fee']['tie']}}" value="{{$info['bjlbets_fee']['tie']}}"  autocomplete="off" class="layui-input">
+                    <input type="number" name="bjlbets_fee[tie]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly lay-verify="btie" placeholder="" data-v="{{$user['bjlbets_fee']['tie']}}" value="{{$info['bjlbets_fee']['tie']}}"  autocomplete="off" class="layui-input">
                 @else
                     <input type="number" name="bjlbets_fee[tie]" placeholder="" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly value="{{$info['bjlbets_fee']['tie']}}"  autocomplete="off" class="layui-input">
                 @endif
@@ -132,7 +154,7 @@
             <div class="layui-form-mid">庄对：</div>
             <div class="layui-input-inline" style="width: 100px;">
                 @if($user['baccarat']==1)
-                    <input type="number" name="bjlbets_fee[bankerPair]" lay-verify="bbankerPair" placeholder="" data-v="{{$user['bjlbets_fee']['bankerPair']}}" value="{{$info['bjlbets_fee']['bankerPair']}}"  autocomplete="off" class="layui-input">
+                    <input type="number" name="bjlbets_fee[bankerPair]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly lay-verify="bbankerPair" placeholder="" data-v="{{$user['bjlbets_fee']['bankerPair']}}" value="{{$info['bjlbets_fee']['bankerPair']}}"  autocomplete="off" class="layui-input">
                 @else
                     <input type="number" name="bjlbets_fee[bankerPair]" style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" readonly placeholder="" value="{{$info['bjlbets_fee']['bankerPair']}}"  autocomplete="off" class="layui-input">
                 @endif
@@ -270,6 +292,19 @@
 @section('id',$id)
 @section('js')
     <script>
+        window.onload=function(){
+            var id = $("input[name='id']").val();
+            if (id!=0){
+                var baccarat = document.getElementById("baccarat");
+                var dragonTiger = document.getElementById('dragon_tiger');
+                var niuniu = document.getElementById('niuniu');
+                var sangong = document.getElementById('sangong');
+                var A89 = document.getElementById('A89');
+                if (baccarat.checked){
+                    baccarat.setAttribute("disabled","");
+                }
+            }
+        }
         layui.use(['form','jquery','layer'], function() {
             var form = layui.form
                 ,layer = layui.layer

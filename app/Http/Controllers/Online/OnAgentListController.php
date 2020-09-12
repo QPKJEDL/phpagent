@@ -29,14 +29,8 @@ class OnAgentListController extends Controller
         if(true == $request->has('nickname')){
             $sql->where('nickname','like','%'.HttpFilter($request->input('nickname')).'%');
         }
-        if ($user['data_permission']==1){//当前为所有数据权限
-            //条件
-            $map['parent_id']=0;
-            $sql->where($map);
-        }else{
-            $map['parent_id']=$user['id'];
-            $sql->where($map)->orWhere('id','=',$user['id']);
-        }
+        $map['parent_id']=$user['id'];
+        $sql->where($map)->orWhere('id','=',$user['id']);
         if (true==$request->has('limit'))
         {
             $limit = (int)$request->input('limit');
@@ -104,6 +98,7 @@ class OnAgentListController extends Controller
     {
         $agentInfo = (int)$id?User::find((int)$id):[];
         $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[] = $agentInfo['id'];
         $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {
@@ -154,6 +149,7 @@ class OnAgentListController extends Controller
     public function showUser($id,Request $request){
         $agentInfo = (int)$id?User::find((int)$id):[];
         $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[] = $agentInfo['id'];
         $bool = $this->whetherAffiliatedAgent($ancestors);
         if (!$bool)
         {

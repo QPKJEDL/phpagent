@@ -157,6 +157,7 @@ class HqUserController extends Controller
                                     if ($add){
                                         DB::commit();
                                         $this->unRedissLock((int)$data['id']);
+                                        $this->getCzAndDrawPostMessage($data['id'],1,$data['money']*100);
                                         return ['msg'=>'操作成功！','status'=>1];
                                     }else{
                                         DB::rollBack();
@@ -213,6 +214,7 @@ class HqUserController extends Controller
                                     if ($ls){
                                         DB::commit();
                                         $this->unRedissLock((int)$data['id']);
+                                        $this->getCzAndDrawPostMessage($data['id'],2,$data['money']*100);
                                         return ['msg'=>'操作成功','status'=>1];
                                     }else{
                                         DB::rollBack();
@@ -248,6 +250,43 @@ class HqUserController extends Controller
         }
     }
 
+    /**
+     * 充值提现推送
+     * @param $userId
+     * @param $type
+     * @param $balance
+     */
+    public function getCzAndDrawPostMessage($userId,$type,$balance)
+    {
+        $data['uid']=(int)$userId;
+        $data['appid']=(int)1;
+        $content = array();
+        $content['Cmd']=(int)31;
+        $user = UserAccount::where('user_id','=',$userId)->first();
+        $content['Money']=(float)$balance/100;
+        $content['Balance']=(float)$user['balance']/100;
+        $content['Type']=(int)$type;
+        $data['content']=json_encode($content);
+        $url = 'http://119.28.52.160:8210/postpeermessage';
+        $this->https_post_kf($url,$data);
+    }
+
+    //http 请求
+    private function https_post_kf($url, $data)
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        //curl_setopt($curl, CURLOPT_USERAGENT, "Dalvik/1.6.0 (Linux; U; Android 4.1.2; DROID RAZR HD Build/9.8.1Q-62_VQW_MR-2)");
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($curl);
+        if (curl_errno($curl)) {
+            return 'Errno' . curl_error($curl);
+        }
+        curl_close($curl);
+        return $result;
+    }
     /**
      * redis队列锁
      * @param $userId
@@ -298,6 +337,12 @@ class HqUserController extends Controller
         $data['user_id']=(int)$userId;
         $user = $userId?HqUser::find($userId):[];
         $data['nickname']=$user['nickname'];
+        $sj = $this->getAgentInfoById($user['agent_id']);
+        $data['agent_name']=$sj['nickname'];
+        $ancestors = explode(',',$sj['ancestors']);
+        $ancestors[] = $sj['id'];
+        $zs = $this->getAgentInfoById($ancestors[1]);
+        $data['fir_name']=$zs['nickname'];
         $data['order_sn']=$this->getrequestId();
         $data['score']=(int)$money;
         $data['bet_before']=(int)$before;
@@ -311,6 +356,17 @@ class HqUserController extends Controller
         $bill = new Billflow();
         $bill->setTable('user_billflow_'.$tableName);
         return $bill->insert($data);
+    }
+
+    /**
+     * 根据代理id获取信息
+     * @param $agentId
+     * @return User|mixed
+     */
+    public function getAgentInfoById($agentId)
+    {
+        $info = $agentId?User::find($agentId):[];
+        return $info;
     }
 
     /**
@@ -331,7 +387,20 @@ class HqUserController extends Controller
         $data['agent_name']=$agentInfo['nickname'];
         $data['user_id']=(int)$userId;
         $user = $userId?HqUser::find($userId):[];
+        $ancestors = explode(',',$agentInfo['ancestors']);
+        $ancestors[] = $agentInfo['id'];
+        $zs = $ancestors[1]?User::find($ancestors[1]):[];
         $data['user_name']=$user['nickname'];
+        if ($agentInfo['parent_id']==0)
+        {
+            $data['top_name']=$agentInfo['nickname'];
+        }
+        else
+        {
+            $sj = $agentInfo['parent_id']?User::find($agentInfo['parent_id']):[];
+            $data['top_name']=$sj['nickname'];
+        }
+        $data['fir_name']=$zs['nickname'];
         $data['money']=(int)$money;
         $data['bet_before']=(int)$before;
         $data['bet_after']=(int)$after;
@@ -362,71 +431,71 @@ class HqUserController extends Controller
         unset($data['id']);
         $agent = Auth::id()?User::find(Auth::id()):[];
         $bjl=json_decode($agent['bjlbets_fee'],true);//{"banker":"0.95","bankerPair":"11","player":"1","playerPair":"11","tie":"8"}
-        if ($bjl['banker']<$data['bjlbets_fee']['banker'] || $data['bjlbets_fee']['banker']<=0)
+        if ($bjl['banker']<$data['bjlbets_fee']['banker'] || $data['bjlbets_fee']['banker']<0.9)
+        {
+            return ['msg'=>'赔率错误不能低于0.9','status'=>0];
+        }
+        if ($bjl['player']<$data['bjlbets_fee']['player'] || $data['bjlbets_fee']['player']<=0.95)
+        {
+            return ['msg'=>'赔率错误不能低于0.95','status'=>0];
+        }
+        if ($bjl['playerPair']!=$data['bjlbets_fee']['playerPair'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($bjl['player']<$data['bjlbets_fee']['player'] || $data['bjlbets_fee']['player']<=0)
+        if ($bjl['tie']!=$data['bjlbets_fee']['tie'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($bjl['playerPair']<$data['bjlbets_fee']['playerPair'] || $data['bjlbets_fee']['playerPair']<=0)
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($bjl['tie']<$data['bjlbets_fee']['tie'] || $data['bjlbets_fee']['tie']<=0)
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($bjl['bankerPair']<$data['bjlbets_fee']['bankerPair'] || $data['bjlbets_fee']['bankerPair']<=0)
+        if ($bjl['bankerPair']!=$data['bjlbets_fee']['bankerPair'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
         $lh = json_decode($agent['lhbets_fee'],true);
-        if ($lh['dragon']<$data['lhbets_fee']['dragon'] || $data['lhbets_fee']['dragon']<=0)
+        if ($lh['dragon']!=$data['lhbets_fee']['dragon'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($lh['tie']<$data['lhbets_fee']['tie'] || $data['lhbets_fee']['tie']<=0)
+        if ($lh['tie']!=$data['lhbets_fee']['tie'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($lh['tiger']<$data['lhbets_fee']['tiger'] || $data['lhbets_fee']['tiger']<=0)
+        if ($lh['tiger']!=$data['lhbets_fee']['tiger'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
         $nn = json_decode($agent['nnbets_fee'],true);
-        if ($nn['Equal']<$data['nnbets_fee']['Equal'] || $data['nnbets_fee']['Equal']<=0)
+        if ($nn['Equal']!=$data['nnbets_fee']['Equal'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($nn['Double']<$data['nnbets_fee']['Double'] || $data['nnbets_fee']['Double']<=0)
+        if ($nn['Double']!=$data['nnbets_fee']['Double'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($nn['SuperDouble']<$data['nnbets_fee']['SuperDouble'] || $data['nnbets_fee']['SuperDouble']<=0)
+        if ($nn['SuperDouble']!=$data['nnbets_fee']['SuperDouble'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
         $sg = json_decode($agent['sgbets_fee'],true);
-        if ($sg['Equal']<$data['sgbets_fee']['Equal'] || $data['sgbets_fee']['Equal']<=0)
+        if ($sg['Equal']!=$data['sgbets_fee']['Equal'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($sg['Double']<$data['sgbets_fee']['Double'] || $data['sgbets_fee']['Double']<=0)
+        if ($sg['Double']!=$data['sgbets_fee']['Double'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($sg['SuperDouble']<$data['sgbets_fee']['SuperDouble'] || $data['sgbets_fee']['SuperDouble']<=0)
+        if ($sg['SuperDouble']!=$data['sgbets_fee']['SuperDouble'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
         $a89 = json_decode($agent['a89bets_fee'],true);
-        if ($a89['Equal']<$data['a89bets_fee']['Equal'] || $data['a89bets_fee']['Equal']<=0)
+        if ($a89['Equal']!=$data['a89bets_fee']['Equal'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }
-        if ($a89['SuperDouble']<$data['a89bets_fee']['SuperDouble'] || $data['a89bets_fee']['SuperDouble']<=0)
+        if ($a89['SuperDouble']!=$data['a89bets_fee']['SuperDouble'])
         {
             return ['msg'=>'赔率错误','status'=>0];
         }

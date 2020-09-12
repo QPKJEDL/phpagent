@@ -26,18 +26,18 @@ class AgentCzController extends Controller
             ->select('agent_users.username','user.account','agent_billflow.money','agent_billflow.user_id','agent_billflow.agent_name','agent_billflow.user_name','agent_billflow.bet_before','agent_billflow.bet_after','agent_billflow.status','agent_billflow.type','agent_billflow.remark','agent_billflow.creatime');
         if (true==$request->has('begin'))
         {
-            $begin = strtotime($request->input('begin'));
+            $begin = strtotime($request->input('begin'))+config('admin.beginTime');
         }else{
-            $begin = strtotime(date('Y-m-d',time()));
+            $begin = strtotime(date('Y-m-d',time())) + config('admin.beginTime');
             $request->offsetSet('begin',date('Y-m-d',time()));
         }
         if (true==$request->has('end'))
         {
-            $end = strtotime('+1day',strtotime($request->input('end')))-1;
+            $end = strtotime('+1day',strtotime($request->input('end')))+config('admin.beginTime');
         }
         else
         {
-            $end = strtotime('+1day',strtotime(date('Y-m-d',time())))-1;
+            $end = strtotime('+1day',strtotime(date('Y-m-d',time())))+config('admin.beginTime');
         }
         $sql->whereBetween('agent_billflow.creatime',[$begin,$end]);
         if (true==$request->has('username'))
@@ -74,21 +74,18 @@ class AgentCzController extends Controller
         }
         if (true==$request->has('begin'))
         {
-            $begin = strtotime($request->input('begin'));
-        }
-        else
-        {
-            $begin = strtotime('+1day',strtotime(date('Y-m-d',time())));
+            $begin = strtotime($request->input('begin'))+config('admin.beginTime');
+        }else{
+            $begin = strtotime(date('Y-m-d',time())) + config('admin.beginTime');
             $request->offsetSet('begin',date('Y-m-d',time()));
         }
         if (true==$request->has('end'))
         {
-            $end = strtotime('+1day',strtotime($request->input('end')));
+            $end = strtotime('+1day',strtotime($request->input('end')))+config('admin.beginTime');
         }
         else
         {
-            $end = strtotime('+1day',strtotime(date('Y-m-d',time())));
-            $request->offsetSet('end',date('Y-m-d',time()));
+            $end = strtotime('+1day',strtotime(date('Y-m-d',time())))+config('admin.beginTime');
         }
         $sql = AgentBill::query();
         $sql->leftJoin('agent_users','agent_users.id','=','agent_billflow.agent_id')

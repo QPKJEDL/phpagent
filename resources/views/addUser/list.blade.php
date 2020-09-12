@@ -126,7 +126,7 @@
               <div class="layui-form-mid">闲对：</div>
               <div class="layui-input-inline" style="width: 100px;">
                 @if($user['baccarat']==1)
-                <input type="number" name="bjlbets_fee[playerPair]" lay-verify="bplayerPair" placeholder="" data-v="{{$user['bjlbets_fee']['playerPair']}}" value="{{$user['bjlbets_fee']['playerPair']}}"  autocomplete="off" class="layui-input">
+                <input type="number" name="bjlbets_fee[playerPair]" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" lay-verify="bplayerPair" placeholder="" data-v="{{$user['bjlbets_fee']['playerPair']}}" value="{{$user['bjlbets_fee']['playerPair']}}"  autocomplete="off" class="layui-input">
                 @else
                 <input type="number" name="bjlbets_fee[playerPair]" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" placeholder="" value="{{$user['bjlbets_fee']['playerPair']}}"  autocomplete="off" class="layui-input">
                 @endif
@@ -134,7 +134,7 @@
               <div class="layui-form-mid">和：</div>
               <div class="layui-input-inline" style="width: 100px;">
                 @if($user['baccarat']==1)
-                <input type="number" name="bjlbets_fee[tie]" lay-verify="btie" placeholder="" data-v="{{$user['bjlbets_fee']['tie']}}" value="{{$user['bjlbets_fee']['tie']}}"  autocomplete="off" class="layui-input">
+                <input type="number" name="bjlbets_fee[tie]" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" lay-verify="btie" placeholder="" data-v="{{$user['bjlbets_fee']['tie']}}" value="{{$user['bjlbets_fee']['tie']}}"  autocomplete="off" class="layui-input">
                 @else
                 <input type="number" name="bjlbets_fee[tie]" placeholder="" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" value="{{$user['bjlbets_fee']['tie']}}"  autocomplete="off" class="layui-input">
                 @endif
@@ -150,7 +150,7 @@
               <div class="layui-form-mid">庄对：</div>
               <div class="layui-input-inline" style="width: 100px;">
                 @if($user['baccarat']==1)
-                <input type="number" name="bjlbets_fee[bankerPair]" lay-verify="bbankerPair" placeholder="" data-v="{{$user['bjlbets_fee']['bankerPair']}}" value="{{$user['bjlbets_fee']['bankerPair']}}"  autocomplete="off" class="layui-input">
+                <input type="number" name="bjlbets_fee[bankerPair]" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" lay-verify="bbankerPair" placeholder="" data-v="{{$user['bjlbets_fee']['bankerPair']}}" value="{{$user['bjlbets_fee']['bankerPair']}}"  autocomplete="off" class="layui-input">
                 @else
                 <input type="number" name="bjlbets_fee[bankerPair]" readonly style="border: 1px solid #DDD;background-color: #F5F5F5;color: #ACA899;" placeholder="" value="{{$user['bjlbets_fee']['bankerPair']}}"  autocomplete="off" class="layui-input">
                 @endif

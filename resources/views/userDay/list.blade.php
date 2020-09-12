@@ -73,14 +73,10 @@
                 <td class="hidden-xs">{{number_format($info['betMoney']/100,2)}}</td>
                 <td class="hidden-xs">{{number_format($info['getMoney']/100,2)}}</td>
                 <td class="hidden-xs">
-                    @if($info['userType']==1)
-                        -
-                    @else
-                        {{number_format($info['feeMoney']/100,2)}}
-                    @endif
+                    {{number_format($info['feeMoney']/100,2)}}
                 </td>
                 <td class="hidden-xs">
-                    @if($info['userType']==1)
+                    @if($info['userType']==2)
                         -
                     @else
                         {{number_format($info['betMoney']/100 * 0.009,2)}}
@@ -187,7 +183,7 @@
                 var nowDay = now.getDate();//当前日
                 var nowMonth = now.getMonth();//当前月
                 var nowYear = now.getFullYear();//当前年
-                var weekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek);
+                var weekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek + 1);
                 $("input[name='begin']").val(formatDate(weekStartDate))
                 $("input[name='end']").val(formatDate(now))
             });
@@ -206,8 +202,8 @@
                 var nowDay = now.getDate();            //当前日
                 var nowMonth = now.getMonth();         //当前月
                 var nowYear = now.getFullYear();           //当前年
-                var getUpWeekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek -7);
-                var getUpWeekEndDate = new Date(nowYear, nowMonth, nowDay + (6 - nowDayOfWeek - 7));
+                var getUpWeekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek -7 + 1);
+                var getUpWeekEndDate = new Date(nowYear, nowMonth, nowDay + (6 - nowDayOfWeek - 7) + 1);
                 $("input[name='begin']").val(formatDate(getUpWeekStartDate))
                 $("input[name='end']").val(formatDate(getUpWeekEndDate))
             });

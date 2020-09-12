@@ -87,11 +87,7 @@
                 </td>
                 <td class="hidden-xs">
                     @if($info['userType']==1)
-                        @if($info['feeMoney']<0)
-                            <span style="color: red;">{{number_format($info['feeMoney']/100,2)}}</span>
-                        @else
-                            {{number_format($info['feeMoney']/100,2)}}
-                        @endif
+                        {{number_format($info['feeMoney']/100,2)}}
                     @else
                         -
                     @endif
@@ -151,7 +147,9 @@
                 </td>
                 <td class="hidden-xs">
                     <div class="layui-inline">
-                        <button type="button" class="layui-btn layui-btn-xs agentDayInfo" data-id="{{$info['agent_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">代理日结</i></button>
+                        @if($info['agent_id']!=\Illuminate\Support\Facades\Auth::id())
+                            <button type="button" class="layui-btn layui-btn-xs agentDayInfo" data-id="{{$info['agent_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">代理日结</i></button>
+                        @endif
                         <button type="button" class="layui-btn layui-btn-xs userDayInfo" data-id="{{$info['agent_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">会员日结</i></button>
                     </div>
                 </td>
@@ -212,14 +210,13 @@
             $(".reset").click(function(){
                 $("input[name='begin']").val('');
                 $("select[name='desk_id']").val(''); 
-                $("input[name='boot']").val('');
+                $("input[name='end']").val('');
+                $("input[name='account']").val('');
             });
             //今天
             $("#today").click(function () {
                 var startDate = new Date(new Date(new Date().toLocaleDateString()).getTime());
                 var endDate = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 *60 *60*1000-1);
-                console.log(startDate)
-                console.log(endDate)
                 $("input[name='begin']").val(formatDate(startDate))
                 $("input[name='end']").val(formatDate(endDate))
             });
@@ -237,7 +234,7 @@
                 var nowDay = now.getDate();//当前日
                 var nowMonth = now.getMonth();//当前月
                 var nowYear = now.getFullYear();//当前年
-                var weekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek);
+                var weekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek + 1);
                 $("input[name='begin']").val(formatDate(weekStartDate))
                 $("input[name='end']").val(formatDate(now))
             });
@@ -256,8 +253,8 @@
                 var nowDay = now.getDate();            //当前日
                 var nowMonth = now.getMonth();         //当前月
                 var nowYear = now.getFullYear();           //当前年
-                var getUpWeekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek -7);
-                var getUpWeekEndDate = new Date(nowYear, nowMonth, nowDay + (6 - nowDayOfWeek - 7));
+                var getUpWeekStartDate = new Date(nowYear, nowMonth, nowDay - nowDayOfWeek -7 + 1);
+                var getUpWeekEndDate = new Date(nowYear, nowMonth, nowDay + (6 - nowDayOfWeek - 7) + 1);
                 $("input[name='begin']").val(formatDate(getUpWeekStartDate))
                 $("input[name='end']").val(formatDate(getUpWeekEndDate))
             });

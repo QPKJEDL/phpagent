@@ -14,13 +14,6 @@
         <input type="text" lay-verify="account" value="{{ $input['account'] or '' }}" name="account" placeholder="请输入代理账号" autocomplete="off" class="layui-input">
     </div>
     <div class="layui-inline">
-        <select name="userType">
-            <option value="">请选择账号类型</option>
-            <option value="1">线下</option>
-            <option value="2">线上</option>
-        </select>
-    </div>
-    <div class="layui-inline">
         <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formDemo">搜索</button>
         <button class="layui-btn layui-btn-normal" lay-submit name="excel" value="excel">导出EXCEL</button>
     </div>

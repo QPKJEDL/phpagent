@@ -110,7 +110,7 @@
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->nickname}}[{{$info->account}}]</td>
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->bill['bet_before']/100}}</td>
                 <td class="hidden-xs" style="font-size: 1px;">
-                    <button type="button" data-id="{{$info->id}}" data-value="{{$info->bet_money}}" class="layui-btn layui-btn-small layui-btn-normal result">查看结果</button>
+                    <button type="button" data-id="{{$info->id}}" data-value="{{$info->bet_money}}" class="layui-btn layui-btn-xs layui-btn-normal result">查看结果</button>
                 </td>
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->bill['bet_after']/100}}</td>
                 <td class="hidden-xs">

@@ -43,6 +43,8 @@
         <tr>
             <th class="hidden-xs">时间</th>
             <th class="hidden-xs">用户名称[账号]</th>
+            <th class="hidden-xs">直属上级[账号]</th>
+            <th class="hidden-xs">直属一级[账号]</th>
             <th class="hidden-xs">操作前金额</th>
             <th class="hidden-xs">充值提现金额</th>
             <th class="hidden-xs">操作后金额</th>
@@ -55,6 +57,8 @@
             <tr>
                 <td class="hidden-xs">{{$info->creatime}}</td>
                 <td class="hidden-xs">{{$info->nickname}}[{{$info->account}}]</td>
+                <td class="hidden-xs">{{$info->agent_name}}[{{$info->agent['sj']['username']}}]</td>
+                <td class="hidden-xs">{{$info->fir_name}}[{{$info->agent['zs']['username']}}]</td>
                 <td class="hidden-xs">{{number_format($info->bet_before/100,2)}}</td>
                 <td class="hidden-xs">
                     @if($info->bet_before > $info->bet_after)

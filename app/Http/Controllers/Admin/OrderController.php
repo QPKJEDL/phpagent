@@ -33,27 +33,33 @@ class OrderController extends Controller
         }
         $map = array();
         $request->offsetSet('a', 0);
-        if (true == $request->has('begin')) {
-            $startDate = HttpFilter($request->input('begin'));
-        } else {
-            $startDate = date('Y-m-d', time());
-            $request->offsetSet('begin', $startDate);
+        if (true==$request->has('begin'))
+        {
+            $startDate = $request->input('begin');
+            $begin = strtotime($request->input('begin'))+config('admin.beginTime');
+        }else{
+            $startDate = date('Y-m-d',time());
+            $begin = strtotime($startDate)+config('admin.beginTime');
+            $request->offsetSet('begin',$startDate);
         }
-        $startTime = strtotime($startDate);
-        if (true == $request->has('end')) {
-            $endDate = HttpFilter($request->input('end'));
-        } else {
-            $endDate = date('Y-m-d', time());
-            $request->offsetSet('end', $endDate);
+        if (true==$request->has('end'))
+        {
+            $endDate = $request->input('end');
+            $endDateTime = date('Y-m-d H:i:s',strtotime('+1day',strtotime($endDate)));
+        }else{
+            $endDate = date('Y-m-d',time());
+            $endDateTime = date('Y-m-d H:i:s',strtotime('+1day',strtotime($endDate)));
+            $request->offsetSet('end',$endDate);
         }
-        $endTime = strtotime('+1day', strtotime($endDate)) - 1;
-        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate, $endDate);
+        $endTime = strtotime('+1day', strtotime($endDate))+config('admin.beginTime');
+
+        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate, $endDateTime);
         if (Schema::hasTable('order_'.$dateArr[0])){
             //获取第一天的数据
             $order = new Order();
             $order->setTable('order_' . $dateArr[0]);
             $sql = $order->leftJoin('user', 'user.user_id', '=', 'order_' . $dateArr[0] . '.user_id')
-                ->select('order_' . $dateArr[0] . '.*', 'user.account', 'user.nickname', 'user.fee')->whereIn('user.agent_id', $idArr)->where($map)->whereBetween('order_' . $dateArr[0] . '.creatime', [$startTime, $endTime]);
+                ->select('order_' . $dateArr[0] . '.*', 'user.account', 'user.nickname', 'user.fee')->whereIn('user.agent_id', $idArr)->where($map)->whereBetween('order_' . $dateArr[0] . '.creatime', [$begin, $endTime]);
             if (true == $request->has('desk_id'))
             {
                 $sql->where('order_'.$dateArr[0].'.desk_id','=',(int)$request->input('desk_id'));
@@ -92,7 +98,7 @@ class OrderController extends Controller
                 $o = new Order();
                 $o->setTable('order_'.$dateArr[$i]);
                 $d = $o->leftJoin('user','user.user_id','=','order_'.$dateArr[$i].'.user_id')
-                    ->select('order_'.$dateArr[$i].'.*','user.account','user.nickname','user.fee')->whereIn('user.agent_id',$idArr)->where($map)->whereBetween('order_'.$dateArr[$i].'.creatime',[$startTime,$endTime]);
+                    ->select('order_'.$dateArr[$i].'.*','user.account','user.nickname','user.fee')->whereIn('user.agent_id',$idArr)->where($map)->whereBetween('order_'.$dateArr[$i].'.creatime',[$begin,$endTime]);
                 if (true == $request->has('desk_id'))
                 {
                     $d->where('order_'.$dateArr[$i].'.desk_id','=',(int)$request->input('desk_id'));

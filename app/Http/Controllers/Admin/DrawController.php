@@ -27,10 +27,12 @@ class DrawController extends Controller
         if (true==$request->has('end'))
         {
             $endDate = $request->input('end');
+            $endDateTime = date('Y-m-d H:i:s',strtotime('+1day',strtotime($endDate)));
         }
         else
         {
             $endDate = date('Y-m-d',time());
+            $endDateTime = date('Y-m-d H:i:s',strtotime('+1day',strtotime($endDate)));
             $request->offsetSet('end',date('Y-m-d',time()));
         }
         if (true==$request->has('account'))
@@ -41,7 +43,7 @@ class DrawController extends Controller
         {
             $map['user.user_type']=(int)$request->input('user_type');
         }
-        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate,$endDate);
+        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate,$endDateTime);
         //保存类型
         $status = array();
         if (true==$request->has('status'))
@@ -85,10 +87,31 @@ class DrawController extends Controller
         $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$datum)
         {
+
             $data[$key]->creatime=date('Y-m-d H:i:s',$datum->creatime);
+            $data[$key]->agent = $this->getSjAndZsAgentInfoByUserId($datum->user_id);
         }
         return view('draw.list',['limit'=>$limit,'list'=>$data,'input'=>$request->all()]);
     }
+
+    /**
+     * 根据userId获取直属上级和直属一级
+     * @param $userId
+     * @return array
+     */
+    public function getSjAndZsAgentInfoByUserId($userId)
+    {
+        $arr = array();
+        $userInfo = $userId?HqUser::find($userId):[];
+        $sj = $userInfo['agent_id']?User::find($userInfo['agent_id']):[];
+        $arr['sj']=$sj;
+        $ancestors = explode(',',$sj['ancestors']);
+        $ancestors[] = $sj['id'];
+        $zs = $ancestors[1]?User::find($ancestors[1]):[];
+        $arr['zs']=$zs;
+        return $arr;
+    }
+
     public function whetherAffiliatedAgent($ancestors)
     {
         $userId = Auth::id();
@@ -133,10 +156,12 @@ class DrawController extends Controller
         if (true==$request->has('end'))
         {
             $endDate = $request->input('end');
+            $endDateTime = date('Y-m-d H:i:s',strtotime('+1day',strtotime($endDate)));
         }
         else
         {
             $endDate = date('Y-m-d',time());
+            $endDateTime = date('Y-m-d H:i:s',strtotime('+1day',strtotime($endDate)));
             $request->offsetSet('end',date('Y-m-d',time()));
         }
 
@@ -144,7 +169,7 @@ class DrawController extends Controller
         {
             $map['user.user_type']=(int)$request->input('user_type');
         }
-        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate,$endDate);
+        $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate,$endDateTime);
         //保存类型
         $status = array();
         if (true==$request->has('status'))
@@ -168,13 +193,13 @@ class DrawController extends Controller
         $bill = new Billflow();
         $bill->setTable('user_billflow_'.$dateArr[0]);
         $sql = $bill->leftJoin('user','user_billflow_'.$dateArr[0].'.user_id','=','user.user_id')
-            ->select('user_billflow_'.$dateArr[0].'.*','user.account','user.nickname as nickName','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[0].'.status',$status);
+            ->select('user_billflow_'.$dateArr[0].'.*','user.account','user.nickname as nName','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[0].'.status',$status);
         for ($i=1;$i<count($dateArr);$i++)
         {
             $b = new Billflow();
             $b->setTable('user_billflow_'.$dateArr[$i]);
             $d = $b->leftJoin('user','user_billflow_'.$dateArr[$i].'.user_id','=','user.user_id')
-                ->select('user_billflow_'.$dateArr[$i].'.*','user.account','user.nickname as nickName','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[$i].'.status',$status);
+                ->select('user_billflow_'.$dateArr[$i].'.*','user.account','user.nickname as nName','user.agent_id')->whereIn('user.agent_id',$idArr)->where($map)->whereIn('user_billflow_'.$dateArr[$i].'.status',$status);
             $sql->unionAll($d);
         }
         if (true==$request->has('limit'))
@@ -189,6 +214,7 @@ class DrawController extends Controller
         foreach ($data as $key=>$datum)
         {
             $data[$key]->creatime=date('Y-m-d H:i:s',$datum->creatime);
+            $data[$key]->agent = $this->getSjAndZsAgentInfoByUserId($datum->user_id);
         }
         return view('draw.list',['limit'=>$limit,'list'=>$data,'input'=>$request->all()]);
     }

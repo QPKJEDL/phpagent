@@ -23,7 +23,6 @@ class OnAddAgentController extends Controller
 
     public function store(StoreRequest $request)
     {
-        return ['msg'=>'操作成功','status'=>1];
         $data = $request->all();
         $pattern = "/^\d{7}$/";
         if (!preg_match($pattern,$data['username']))
@@ -59,6 +58,6 @@ class OnAddAgentController extends Controller
 
     public function getUserAncestors($parentId){
         $info = $parentId?User::find($parentId):[];
-        return $info['parent_id'].','.$parentId;
+        return $info['ancestors'].','.$parentId;
     }
 }
