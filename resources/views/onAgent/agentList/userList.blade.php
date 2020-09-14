@@ -149,7 +149,7 @@
             $(".user").click(function(){
                 var id = $(this).attr('data-id');
                 var name = $(this).attr('data-name');
-                layer.open({
+                var index = layer.open({
                     type:2,
                     title:name + '在线充值提现',
                     shadeClose:true,
@@ -157,6 +157,7 @@
                     area:['60%','80%'],
                     content:'/admin/hqUser/czCord/' + id
                 });
+                layer.full(index);
             });
             form.on('switch(switchTest)',function(data){
                 var name = $(data.elem).attr('name');

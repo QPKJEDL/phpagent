@@ -12,8 +12,10 @@ use App\Models\AgentBlack;
 use App\Models\User;
 use App\Models\Log;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use PragmaRX\Google2FA\Google2FA;
+use Illuminate\Support\Facades\Session;
 class LoginController extends Controller
 {
     /*
@@ -70,6 +72,7 @@ class LoginController extends Controller
                 return redirect('/admin/login')->withErrors([trans('fzs.login.false_del')]);
             }
         }
+
         if($request->input('verity')==session('code'))return $this->doLogin($request);
         else return redirect('/admin/login')->withErrors([trans('fzs.login.false_verify')]);
     }
@@ -90,6 +93,9 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         Log::addLogs(trans('fzs.login.login_info'),'/admin/login',$user->id,$request->ip());
+        //Auth::logoutOtherDevices($request->input("password"));
+        User::where("id","=",$user["id"])->update(array("login_time"=>time()));
+        Session::put('AuthTime', time()); //存储验证码
         return $this->oriAuthenticated($request, $user);
     }
 

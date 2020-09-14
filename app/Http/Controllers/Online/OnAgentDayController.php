@@ -24,7 +24,6 @@ use Illuminate\View\View;
 class OnAgentDayController extends Controller
 {
     public function index(Request $request){
-        dump(1);
         $request->offsetSet('type',1);
         $map = array();
         $sql = UserRebate::query();
