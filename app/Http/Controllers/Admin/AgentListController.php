@@ -676,10 +676,46 @@ class AgentListController extends Controller
                 unset($data['A89']);
             }
         }
-        //获取修改前的日志
-        $info = $id?User::find($id):[];
-        if(!empty($data['is_allow'])){
-            $data['is_allow']=1;
+        $authUser = Auth::id()?User::find(Auth::id()):[];
+        if ($authUser['is_allow']==1)
+        {
+            if(!empty($data['is_allow'])){
+                $data['is_allow']=1;
+            }
+            else
+            {
+                $data['is_allow']=2;
+            }
+        }
+        else
+        {
+            unset($data['is_allow']);
+        }
+        if ($authUser['is_allow_draw']==1)
+        {
+            if (!empty($data['is_allow_draw']))
+            {
+                $data['is_allow_draw']=1;
+            }
+            else
+            {
+                $data['is_allow_draw']=2;
+            }
+        }
+        else
+        {
+            unset($data['is_allow_draw']);
+        }
+        if (!empty($data['is_allow_password']))
+        {
+            if ($authUser['is_allow_password']==1)
+            {
+                $data['is_allow_password']=2;
+            }
+            else
+            {
+                $data['is_allow_password']=1;
+            }
         }
         $count = User::where('id','=',$id)->update($data);
         if($count){
@@ -781,7 +817,8 @@ class AgentListController extends Controller
         {
             return ['msg'=>'您没有权限操作','status'=>0];
         }
-        return view('agentList.cz',['info'=>$data,'balance'=>Auth::user()['balance'],'id'=>$id]);
+        $user = Auth::id()?User::find(Auth::id()):[];
+        return view('agentList.cz',['info'=>$data,'balance'=>$user['balance'],'id'=>$id,'user'=>$user]);
     }
     /**
      * 插入代理流水

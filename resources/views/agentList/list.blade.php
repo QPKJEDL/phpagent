@@ -16,7 +16,7 @@
     </div>
 @endsection
 @section('table')
-    <table class="layui-table" lay-size="sm">
+    <table class="layui-table" lay-size="sm" id="table">
         <colgroup>
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
@@ -64,9 +64,11 @@
                         <button class="layui-btn layui-btn-xs @if($info['userCount']==0)layui-btn-disabled @else layui-btn-normal @endif user" data-id="{{$info['id']}}" data-name="{{htmlspecialchars($info['nickname'])}}" @if($info['userCount']==0) disabled @endif data-desc="下级会员"><i class="layui-icon">下级会员</i></button>
                         <button class="layui-btn layui-btn-xs @if($info['id']==$user['id'])layui-btn-disabled @elseif($info['agentCount']==0) layui-btn-disabled @else layui-btn-normal @endif agent" data-id="{{$info['id']}}"@if($info['id']==$user['id'])disabled @elseif($info['agentCount']==0) disabled @endif data-name="{{htmlspecialchars($info['nickname'])}}" data-desc="下级代理"><i class="layui-icon">下级代理</i></button>
                         @if($info['id']!=$user['id'])
-                            <button class="layui-btn layui-btn-xs layui-btn-normal cz" data-id="{{$info['id']}}" data-username="{{$info['username']}}" data-name="{{htmlspecialchars($info['nickname'])}}"><i class="layui-icon">充值提现</i></button>
+                            <button class="layui-btn layui-btn-xs layui-btn-normal cz" data-id="{{$info['id']}}" data-username="{{$info['username']}}" data-name="{{htmlspecialchars($info['nickname'])}}"><i class="layui-icon">@if($user['is_allow_password']==1)充值提现@else 充值 @endif</i></button>
                             <button class="layui-btn layui-btn-xs layui-btn-normal agentEdit" data-id="{{$info['id']}}" data-name="{{htmlspecialchars($info['nickname'])}}"><i class="layui-icon">账号编辑</i></button>
+                            @if($user['is_allow_password']==1)
                             <button class="layui-btn layui-btn-xs layui-btn-danger resetPwd" data-id="{{$info['id']}}" data-name="{{htmlspecialchars($info['nickname'])}}"><i class="layui-icon">修改密码</i></button>
+                            @endif
                         @endif
                     </div>
                 </td>
@@ -77,7 +79,7 @@
         @endif
         </tbody>
     </table>
-    <div class="page-wrap">
+    <div class="page-wrap" style="text-align: center;">
         <div id="demo"></div>
     </div>
 @endsection

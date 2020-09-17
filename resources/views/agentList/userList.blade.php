@@ -15,7 +15,7 @@
     </div>
 @endsection
 @section('table')
-    <table class="layui-table" lay-size="sm">
+    <table class="layui-table" lay-size="sm" id="table">
         <colgroup>
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
@@ -72,9 +72,11 @@
                 </td>
                 <td>
                     <div class="layui-inline">
-                        <button class="layui-btn layui-btn-xs layui-btn-normal user" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}" data-desc="充值提现"><i class="layui-icon">充值提现</i></button>
+                        <button class="layui-btn layui-btn-xs layui-btn-normal user" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}" data-desc="充值提现"><i class="layui-icon">@if(\Illuminate\Support\Facades\Auth::user()['is_allow_password']==1)充值提现@else 充值@endif</i></button>
                         <button class="layui-btn layui-btn-xs layui-btn-normal edit-btn" data-id="{{$info['user_id']}}" data-desc="账号编辑" data-url="{{url('/admin/agentList/userEdit/'.$info['user_id'])}}"><i class="layui-icon">账号编辑</i></button>
-                        <button class="layui-btn layui-btn-xs layui-btn-danger update" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">修改密码</i></button>
+                        @if(\Illuminate\Support\Facades\Auth::user()['is_allow_password']==1)
+                            <button class="layui-btn layui-btn-xs layui-btn-danger update" data-id="{{$info['user_id']}}" data-name="{{$info['nickname']}}"><i class="layui-icon">修改密码</i></button>
+                        @endif
                     </div>
                 </td>
             </tr>
@@ -84,7 +86,7 @@
         @endif
         </tbody>
     </table>
-    <div class="page-wrap">
+    <div class="page-wrap" style="text-align: center;">
         <div id="demo"></div>
     </div>
 @endsection

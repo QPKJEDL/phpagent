@@ -277,11 +277,27 @@
             </div>
         </div>
     </div>
-    {{--<div class="layui-form-item">
-        <div class="layui-input-block">
-            <input type="checkbox" name="is_allow" title="允许其直属会员在线充值" @if($info['is_allow']==1) checked="" @endif>
+    @if($user['is_allow']==1)
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_allow" title="是否允许其直属会员在线充值" @if($info['is_allow']==1) checked="checked" @endif>
+            </div>
         </div>
-    </div>--}}
+    @endif
+    @if($user['is_allow_draw']==1)
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_allow_draw" title="是否允许其直属会员在线提现" @if($info['is_allow_draw']==1) checked="checked" @endif>
+            </div>
+        </div>
+    @endif
+    @if($user['is_allow_password']==1)
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_allow_draw" title="是否限制代理提现和修改密码" @if($info['is_allow_password']==1) checked="checked" @endif>
+            </div>
+        </div>
+    @endif
     <div class="layui-form-item layui-form-text">
         <label class="layui-form-label">备注：</label>
         <div class="layui-input-inline">
@@ -296,10 +312,6 @@
             var id = $("input[name='id']").val();
             if (id!=0){
                 var baccarat = document.getElementById("baccarat");
-                var dragonTiger = document.getElementById('dragon_tiger');
-                var niuniu = document.getElementById('niuniu');
-                var sangong = document.getElementById('sangong');
-                var A89 = document.getElementById('A89');
                 if (baccarat.checked){
                     baccarat.setAttribute("disabled","");
                 }

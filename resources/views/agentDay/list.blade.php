@@ -15,6 +15,7 @@
     <div class="layui-inline">
         <button class="layui-btn layui-btn-normal" lay-submit lay-filter="formDemo">搜索</button>
         <button class="layui-btn layui-btn-normal reset" lay-submit>重置</button>
+        <button class="layui-btn layui-btn-normal" lay-submit name="excel" value="excel">导出EXCEL</button>
     </div>
     <br>
     <div class="layui-btn-group">
@@ -27,8 +28,10 @@
     </div>
 @endsection
 @section('table')
-    <table class="layui-table" lay-size="sm">
+    <table class="layui-table" lay-size="sm" id="table">
         <colgroup>
+            <col class="hidden-xs" width="100">
+            <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
             <col class="hidden-xs" width="100">
@@ -57,6 +60,8 @@
             <th class="hidden-xs">打赏金额</th>
             <th class="hidden-xs">百/龙/牛/三/A</th>
             <th class="hidden-xs">洗码费</th>
+            <th class="hidden-xs">抽水比例</th>
+            <th class="hidden-xs">抽水收益</th>
             <th class="hidden-xs">占股</th>
             <th class="hidden-xs">占股收益</th>
             <th class="hidden-xs">总收益</th>
@@ -87,7 +92,11 @@
                 </td>
                 <td class="hidden-xs">
                     @if($info['userType']==1)
-                        {{number_format($info['feeMoney']/100,2)}}
+                        @if($info['feeMoney']<0)
+                            <span style="color: red;">{{number_format($info['feeMoney']/100,2)}}</span>
+                        @else
+                            {{number_format($info['feeMoney']/100,2)}}
+                        @endif
                     @else
                         -
                     @endif
@@ -95,7 +104,7 @@
                 <td class="hidden-xs">{{number_format($info['reward']/100,2)}}</td>
                 <td class="hidden-xs">
                     @if($info['userType']==1)
-                        {{$info['fee']['baccarat']}}/{{$info['fee']['dragonTiger']}}/{{$info['fee']['niuniu']}}/{{$info['fee']['sangong']}}/{{$info['fee']['A89']}}
+                        {{$info['fee']['baccarat']}}/{{$info['fee']['dragonTiger']}}/{{$info['fee'] ['niuniu']}}/{{$info['fee']['sangong']}}/{{$info['fee']['A89']}}
                     @else
                         -
                     @endif
@@ -111,7 +120,32 @@
                         -
                     @endif
                 </td>
-                <td class="hidden-xs">{{$info['proportion']}}%</td>
+                <td class="hidden-xs">
+                    @if($info['userType']==2)
+                        {{isset($info['pump'])?$info['pump']:"-"}}%
+                    @else
+                        -
+                    @endif
+                </td>
+                <td class="hidden-xs">
+                    @if($info['userType']==2)
+                        @if($info['feeMoney']<0)
+                            <span style="color: red;">{{number_format($info['feeMoney']/100,2)}}</span>
+                        @else
+                            {{number_format($info['feeMoney']/100,2)}}
+                        @endif
+                    @else
+                        -
+                    @endif
+                </td>
+                <td class="hidden-xs">
+                    @if($info['userType']==1)
+                        {{$info['proportion']}}%
+                    @else
+                        -
+                    @endif
+                </td>
+
                 <td class="hidden-xs">
                     @if($info['userType']==1)
                         @if($info['zg']<0)
@@ -135,22 +169,16 @@
                     @endif
                 </td>
                 <td class="hidden-xs">
-                    @if($info['userType']==1)
-                        @if($info['gs']<0)
-                            <span style="color:red;">{{number_format($info['gs']/100,2)}}</span>
-                        @else
-                            {{number_format($info['gs']/100,2)}}
-                        @endif
+                    @if($info['gs']<0)
+                        <span style="color:red;">{{number_format($info['gs']/100,2)}}</span>
                     @else
                         {{number_format($info['gs']/100,2)}}
                     @endif
                 </td>
                 <td class="hidden-xs">
                     <div class="layui-inline">
-                        @if($info['agent_id']!=\Illuminate\Support\Facades\Auth::id())
-                            <button type="button" class="layui-btn layui-btn-xs agentDayInfo" data-id="{{$info['agent_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">代理日结</i></button>
-                        @endif
-                        <button type="button" class="layui-btn layui-btn-xs userDayInfo" data-id="{{$info['agent_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">会员日结</i></button>
+                        <button type="button" class="layui-btn layui-btn-xs agentDayInfo @if($info['isExist']==0 || $info['isExist']==1) layui-btn-disabled @endif @if($info['agent_id']==\Illuminate\Support\Facades\Auth::id()) layui-btn-disabled @endif" @if($info['isExist']==0 || $info['isExist']==1) disabled @endif @if($info['agent_id']==\Illuminate\Support\Facades\Auth::id()) disabled @endif data-id="{{$info['agent_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">代理日结</i></button>
+                        <button type="button" class="layui-btn layui-btn-xs userDayInfo @if($info['is_exist_hqUser']==0) layui-btn-disabled @endif" @if($info['is_exist_hqUser']==0) disabled @endif data-id="{{$info['agent_id']}}" data-name="{{$info['nickname']}}" data-desc="详情"><i class="layui-icon">会员日结</i></button>
                     </div>
                 </td>
             </tr>

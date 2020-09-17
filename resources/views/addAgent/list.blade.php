@@ -311,17 +311,33 @@
             </textarea>
         </div>
     </div>
-    {{--<div class="layui-form-item">
-        <div class="layui-input-block">
-            <input type="checkbox" name="is_allow" title="是否允许其直属会员在线充值">
+    @if($user['is_allow']==1)
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_allow" title="是否允许其直属会员在线充值">
+            </div>
         </div>
-    </div>--}}
+    @endif
+    @if($user['is_allow_draw']==1)
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_allow_draw" title="是否允许其直属会员在线提现">
+            </div>
+        </div>
+    @endif
+    @if($user['is_allow_password']==1)
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_allow_password" title="限制代理提现和修改密码">
+            </div>
+        </div>
+    @endif
     <div class="layui-form-item">
         <div class="layui-input-block">
           <button type="submit" class="layui-btn" lay-submit="" lay-filter="formDemo">立即提交</button>
           <button type="reset" class="layui-btn layui-btn-primary">重置</button>
         </div>
-      </div>
+    </div>
 </form>
 @endsection
 @section('js')

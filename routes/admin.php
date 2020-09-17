@@ -114,6 +114,22 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     //根据userId查询充值提现记录
     Route::get('/hquser/getRecordByUserId/{id}','DrawController@getRecordByUserId');
 
+    //推广列表
+    Route::resource('/promoteList','PromoteListController');
+    //推广设置
+    Route::resource('/promoteSettings','PromoteSettingsController');
+    //修改红包发放记录页面
+    Route::get('/promote/updateInfo','PromoteSettingsController@updateInfo');
+    //修改保存红包发放
+    Route::post('/promote/update','PromoteSettingsController@update');
+
+    //修改联系信息
+    Route::get('/promote/contact','PromoteSettingsController@updateContactInformation');
+    //修改保存联系信息
+    Route::post('/promote/updateContact','PromoteSettingsController@saveContactInformation');
+
+    //红包领取记录
+    Route::get('/getRedPackageRecord','PromoteListController@getRedPackageRecord');
 });
 Route::group(['namespace'=>"Online",'middleware'=>['auth','permission']],function (){
     Route::resource('/onAddAgent','OnAddAgentController');//新增下级代理

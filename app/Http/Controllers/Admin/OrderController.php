@@ -157,12 +157,15 @@ class OrderController extends Controller
                 $data[$key]->result=$this->getDragonTigerJson($winner);
                 $data[$key]->bet_money=$this->getDragonTieTiger($datum->bet_money);
             }else if($data[$key]->game_type==3){
+                $data[$key]->winner = json_decode($winner,true);
                 $data[$key]->result=$this->getFullParseJson($winner);
                 $data[$key]->bet_money=$this->getNiuNiuBetMoney($datum->bet_money);
             }else if($data[$key]->game_type==4){
+                $data[$key]->winner = json_decode($winner,true);
                 $data[$key]->result = $this->getSanGongResult($winner);
                 $data[$key]->bet_money=$this->getSanGongMoney($datum->bet_money);
             }else if($data[$key]->game_type==5){
+                $data[$key]->winner = json_decode($winner,true);
                 $data[$key]->result=$this->getA89Result($winner);
                 $data[$key]->bet_money=$this->getA89BetMoney($datum->bet_money);
             }

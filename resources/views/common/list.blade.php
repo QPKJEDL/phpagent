@@ -10,6 +10,12 @@
     <script src="/static/tools/layui/layui.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/admin/js/common.js?fsfd=1" type="text/javascript" charset="utf-8"></script>
     <script src="/static/admin/js/qrcode.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/tools/js/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+    <style>
+        #table tbody .selected{
+            background-color: #e2e2e2;
+        }
+    </style>
 </head>
 <body>
 <div class="wrap-container clearfix">
@@ -28,5 +34,10 @@
     </div>
 </div>
 </body>
+<script type="text/javascript">
+    $("#table tbody tr").click(function () {
+        $(this).addClass('selected').siblings().removeClass('selected').end();
+    });
+</script>
 @yield('js')
 </html>

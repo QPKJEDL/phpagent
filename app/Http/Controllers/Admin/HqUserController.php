@@ -267,7 +267,7 @@ class HqUserController extends Controller
         $content['Balance']=(float)$user['balance']/100;
         $content['Type']=(int)$type;
         $data['content']=json_encode($content);
-        $url = 'http://119.28.52.160:8210/postpeermessage';
+        $url = 'http://119.28.60.221:8210/postpeermessage';
         $this->https_post_kf($url,$data);
     }
 

@@ -28,8 +28,18 @@ layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'elemen
 		var chl = list[0];
 		var chlID = $(chl).attr('data-id');
 		var isActive = $(".layui-tab-title").find('li[lay-id="'+chlID+'"]');
+		/*if(chlID==2){
+
+		}*/
 		if (isActive.length>0){
-			element.tabChange('menuTab',chlID);
+			//element.tabChange('menuTab',chlID);
+			element.tabDelete('menuTab',chlID);
+			element.tabAdd('menuTab',{
+				title: $(chl).attr('data-title'),//标题
+				content:'<iframe frameborder="0" style="width: 100%; height: calc(100vh - 157px)" name="'+$(chl).attr('data-title')+'" src="'+$(chl).attr('data-url')+'"></iframe>',//内容
+				id:chlID
+			});
+			element.tabChange('menuTab',chlID);	//添加完成切换到该选项卡
 		}else {
 			element.tabAdd('menuTab',{
 				title: $(chl).attr('data-title'),//标题
@@ -52,7 +62,7 @@ layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'elemen
 		var title = $(this).attr('data-title');//获取标题
 		var isActive = $(".layui-tab-title").find("li[lay-id=" + id + "]");
 		if(isActive.length>0){
-			if (id!=0 && id!=14)
+			if (id!=0 && id!=29)
 			{
 				element.tabDelete('menuTab',id);
 				element.tabAdd('menuTab',{

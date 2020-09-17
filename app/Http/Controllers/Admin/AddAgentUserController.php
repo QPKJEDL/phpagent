@@ -218,11 +218,48 @@ class AddAgentUserController extends Controller
         $data['a89bets_fee']=json_encode($data['a89bets_fee']);
         $data['ancestors']= $this->getUserAncestors(Auth::id());
         $data['created_at']=date('Y-m-d H:i:s',time());
-        if (!empty($data['is_allow']))
+        if ($agentInfo['is_allow']==1)
         {
-             $data['is_allow']=1;
-        }else{
-            $data['is_allow']=0;
+            if (!empty($data['is_allow']))
+            {
+                $data['is_allow']=1;
+            }else{
+                $data['is_allow']=2;
+            }
+        }
+        else
+        {
+            unset($data['is_allow']);
+        }
+        if ($agentInfo['is_allow_draw']==1)
+        {
+            if (!empty($data['is_allow_draw']))
+            {
+                $data['is_allow_draw']=1;
+            }
+            else
+            {
+                $data['is_allow_draw']=2;
+            }
+        }
+        else
+        {
+            unset($data['is_allow_draw']);
+        }
+        if ($agentInfo['is_allow_password']==1)
+        {
+            if (!empty($data['is_allow_password']))
+            {
+                $data['is_allow_password']=2;
+            }
+            else
+            {
+                $data['is_allow_password']=1;
+            }
+        }
+        else
+        {
+            $data['is_allow_password']=2;
         }
         $count = User::insertGetId($data);
         if($count){

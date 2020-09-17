@@ -11,7 +11,9 @@
     <div class="layui-form-item">
         <div class="layui-input-block">
             <input type="radio" name="type" value="1" title="充值" lay-filter="type" checked="">
+            @if($user['is_allow_password']==1)
             <input type="radio" name="type" value="2" title="提现" lay-filter="type">
+            @endif
         </div>
     </div>
 
@@ -132,6 +134,7 @@
                             dataType:'json',
                             success:function(res){
                                 if(res.status == 1){
+                                    $("input[name='money']").val('')
                                     layer.msg(res.msg,{icon:6});
                                     var index = layer.open({
                                         type:2,
@@ -176,6 +179,7 @@
                             dataType:'json',
                             success:function(res){
                                 if(res.status == 1){
+                                    $("input[name='money']").val('')
                                     layer.msg(res.msg,{icon:6});
                                     var index = layer.open({
                                         type:2,
