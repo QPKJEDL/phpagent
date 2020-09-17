@@ -8,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRequest;
 use App\Models\RedPackage;
 use App\Models\RedPackageList;
+use BaconQrCode\Encoder\QrCode;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
 /**
@@ -23,7 +25,7 @@ class PromoteSettingsController extends Controller
     {
         RedPackage::insertRedPackage();
         $info = RedPackage::where(['agent_id'=>Auth::id()])->first();
-        return view('promote.settings',['info'=>$info,'money'=>RedPackageList::getRedPackageSumMoneyByAgentId(Auth::id()),'count'=>RedPackageList::getRedPackageSumCountByAgentId(Auth::id())]);
+        return view('promote.settings',['info'=>$info,'url'=>config('admin.url'),'money'=>RedPackageList::getRedPackageSumMoneyByAgentId(Auth::id()),'count'=>RedPackageList::getRedPackageSumCountByAgentId(Auth::id())]);
     }
 
     /**
@@ -43,28 +45,38 @@ class PromoteSettingsController extends Controller
      */
     public function update(StoreRequest $request)
     {
-        $data = $request->all();
-        if ((int)$data['money']<=0)
+        DB::beginTransaction();
+        try {
+            $info = RedPackage::where('agent_id','=',Auth::id())->lockForUpdate()->first();
+            $data = $request->all();
+            if ((int)$data['money']<=0)
+            {
+                return ['msg'=>'单个红包金额不能小于0','status'=>0];
+            }
+            if ((int)$data['num']<=0)
+            {
+                return ['msg'=>'红包数量不能小于0','status'=>0];
+            }
+            $arr = array();
+            $arr['hb_money']=(int)$data['money']*100;
+            $arr['hb_num']=(int)$data['num'];
+            $arr['hb_count']=(int)$data['num'];
+            $arr['hb_balance']=(int)$data['money']*100 * (int)$data['num'];
+            $result = RedPackage::where('agent_id','=',Auth::id())->update($arr);
+            if ($result!==false)
+            {
+                DB::commit();
+                return ['msg'=>'操作成功','status'=>1];
+            }
+            else
+            {
+                DB::rollback();
+                return ['msg'=>'操作失败','status'=>0];
+            }
+        }catch (\Exception $exception)
         {
-            return ['msg'=>'单个红包金额不能小于0','status'=>0];
-        }
-        if ((int)$data['num']<=0)
-        {
-            return ['msg'=>'红包数量不能小于0','status'=>0];
-        }
-        $arr = array();
-        $arr['hb_money']=(int)$data['money']*100;
-        $arr['hb_num']=(int)$data['num'];
-        $arr['hb_count']=(int)$data['num'];
-        $arr['hb_balance']=(int)$data['money']*100 * (int)$data['num'];
-        $result = RedPackage::where('agent_id','=',Auth::id())->update($arr);
-        if ($result!==false)
-        {
-            return ['msg'=>'操作成功','status'=>1];
-        }
-        else
-        {
-            return ['msg'=>'操作失败','status'=>1];
+            DB::rollback();
+            return ['msg'=>'操作失败','status'=>0];
         }
     }
 

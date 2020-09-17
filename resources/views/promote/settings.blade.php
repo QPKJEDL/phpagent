@@ -96,14 +96,37 @@
                     <strong>H5推广连接：</strong>
                 </td>
                 <td>
-                    <cite id="_phone" style="font-style: normal">{{$info['code']}}</cite>
+                    <cite id="_phone" style="font-style: normal"><input type="text" readonly disabled id="href" value="{{$url}}">&nbsp;  <button type="button" id="copy" class="layui-btn layui-btn-primary layui-btn-xs">复制连接</button></cite>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;" colspan="2">
+                    <div id="qrcode"></div>
+                    <br/>
+                    <h2>立即扫码激活领取红包</h2>
+                    <br/>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" id="download">保存二维码</button>
                 </td>
             </tr>
         </tbody>
     </table>
 @endsection
 @section('js')
+    <script type="text/javascript" src="/static/tools/js/utf.js"></script>
+    <script type="text/javascript" src="/static/tools/js/jquery.qrcode.js"></script>
     <script>
+        window.onload=function(){
+            var url = "{{$url}}";
+            var qrcode = $("#qrcode").qrcode({
+                render:'canvas',
+                text:url,
+                width:'200',
+                height:'200',
+                background:'#ffffff',
+                foreground:'#000000',
+                src:'/static/tools/img/logos.png'
+            });
+        }
         layui.use(['form', 'jquery','laydate', 'layer'], function() {
             var form = layui.form,
                 $ = layui.jquery,
@@ -111,6 +134,38 @@
                 layer = layui.layer
             ;
             form.render();
+            $("#download").click(function () {
+                var canvas = $("#qrcode").find('canvas').get(0);
+                try {//解决IE转base64时缓存不足,canvas转blob下载
+                    var blob = canvas.msToBlob();
+                    navigator.msSaveBlob(blob, '推广二维码.png');
+                }catch(e){
+                    var url = canvas.toDataURL('image/png');
+                    var a = document.createElement('a')
+                    a.setAttribute('href',url)
+                    a.setAttribute('download','')
+                    document.body.appendChild(a)
+                    a.click();
+                }
+            });
+            function getBlob(base64){
+                var mimeString = base64.split(',')[0].split(":")[1].split(';')[0];//mime类型
+                var byteString = atob(base64.split(',')[1]);//base64解码
+                var arrayBuffer = new ArrayBuffer(byteString.length);//创建缓冲数组
+                var intArray = new Uint8Array(arrayBuffer)//创建视图
+                for(var i=0;i<byteString.length;i+=1){
+                    intArray[i] = byteString.charCodeAt(i)
+                }
+                return new Blob([intArray],{
+                    type:mimeString
+                })
+            }
+            $("#copy").click(function () {
+                var span = document.getElementById('href');
+                span.select();
+                document.execCommand("Copy");
+                alert('复制成功');
+            });
             //修改发放红包
             $("#update").click(function () {
                 layer.open({
