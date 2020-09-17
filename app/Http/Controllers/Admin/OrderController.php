@@ -170,7 +170,7 @@ class OrderController extends Controller
                 $data[$key]->bet_money=$this->getA89BetMoney($datum->bet_money);
             }
         }
-        return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'game'=>Game::getGameByType(),'input'=>$request->all(),'limit'=>$limit]);
+        return view('order.list',['min'=>config('admin.minDate'),'list'=>$data,'desk'=>$this->getDeskList(),'game'=>Game::getGameByType(),'input'=>$request->all(),'limit'=>$limit]);
     }
     public function whetherAffiliatedAgent($ancestors)
     {

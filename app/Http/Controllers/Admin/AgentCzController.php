@@ -194,6 +194,7 @@ class AgentCzController extends Controller
         else
         {
             $end = strtotime('+1day',strtotime(date('Y-m-d',time())))+config('admin.beginTime');
+            $request->offsetSet('end',date('Y-m-d',time()));
         }
         $sql = AgentBill::query()->select('creatime',DB::raw('2 as user_type'),'agent_id as user_id','agent_name as nickname','top_name as agent_name',
             'fir_name','money','bet_before','bet_after','create_by','status','type as pay_type',DB::raw('0 as business_id'),DB::raw('0 as business_name'));
@@ -247,7 +248,7 @@ class AgentCzController extends Controller
             }
             $data[$key]->creUser = $datum->create_by?User::find($datum->create_by):[];
         }
-        return view('agentCz.list',['list'=>$data,'input'=>$request->all(),'limit'=>$limit,'business'=>Pay::getAllPayList()]);
+        return view('agentCz.list',['list'=>$data,'input'=>$request->all(),'limit'=>$limit,'business'=>Pay::getAllPayList(),'min'=>config('admin.minDate')]);
     }
     public function whetherAffiliatedAgent($ancestors)
     {

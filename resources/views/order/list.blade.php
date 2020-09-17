@@ -225,11 +225,17 @@
                 layer = layui.layer,
                 laypage = layui.laypage
             ;
+            var date = new Date();
+            var max = date.getFullYear()+'-'+(date.getMonth()+1) +'-'+date.getDate();
             laydate.render({
-                elem:"#begin"
+                elem:"#begin",
+                min:"{{$min}}",
+                max:max
             });
             laydate.render({
-                elem:"#end"
+                elem:"#end",
+                min:"{{$min}}",
+                max:max
             });
             var count = {{$list->total()}};
             var curr = {{$list->currentPage()}};
