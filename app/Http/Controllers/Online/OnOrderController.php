@@ -137,7 +137,7 @@ class OnOrderController extends Controller
         {
             $limit = 10;
         }
-        $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->paginate($limit)->appends($request->all());
+        $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->orderBy('creatime','desc')->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$datum)
         {
             $data[$key]->fee = json_decode($datum->fee,true);

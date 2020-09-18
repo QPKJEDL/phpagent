@@ -375,7 +375,10 @@ class UserDayEndController extends Controller
                 {
                     if ($v['user_type']==1)
                     {
-                        $info['feeMoney']=$info['feeMoney'] + $this->bjlPump($value);
+                        if ($value['game_type']==1)
+                        {
+                            $info['feeMoney']=$info['feeMoney'] + $this->bjlPump($value);
+                        }
                     }
                     else
                     {

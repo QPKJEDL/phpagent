@@ -110,7 +110,7 @@
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->nickname}}[{{$info->account}}]</td>
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->bill['bet_before']/100}}</td>
                 <td class="hidden-xs" style="font-size: 1px;">
-                    <button type="button" data-id="{{$info->id}}" data-value="{{$info->bet_money}}" class="layui-btn layui-btn-xs layui-btn-normal result">查看结果</button>
+                    {{$info->bet_money}}
                 </td>
                 <td class="hidden-xs" style="font-size: 1px;">{{$info->bill['bet_after']/100}}</td>
                 <td class="hidden-xs">
@@ -186,7 +186,29 @@
             laydate.render({
                 elem:"#end"
             });
-
+            var count = {{$list->total()}};
+            var curr = {{$list->currentPage()}};
+            var limit = {{$limit}};
+            var url = "";
+            //分页
+            laypage.render({
+                elem: 'demo'
+                ,count: count
+                ,curr:curr
+                ,limit:limit
+                ,limits:[10,50,100,150]
+                ,layout: ['count', 'prev', 'page', 'next', 'limit', 'refresh', 'skip']
+                ,jump: function(obj,first){
+                    if(url.indexOf("?") >= 0){
+                        url = url.split("?")[0] + "?page=" + obj.curr + "&limit="+ obj.limit + "&" +$("form").serialize();
+                    }else{
+                        url = url + "?page=" + obj.curr + "&limit="+obj.limit;
+                    }
+                    if (!first){
+                        location.href = url;
+                    }
+                }
+            });
             $(".reset").click(function(){
                 $("input[name='begin']").val('');
                 $("select[name='desk_id']").val('');

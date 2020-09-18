@@ -140,7 +140,7 @@ class OrderController extends Controller
         {
             $limit = 10;
         }
-        $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->paginate($limit)->appends($request->all());
+        $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->orderBy('creatime','desc')->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$datum)
         {
             $data[$key]->fee = json_decode($datum->fee,true);
@@ -298,7 +298,7 @@ class OrderController extends Controller
         {
             $limit = 10;
         }
-        $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->paginate($limit)->appends($request->all());
+        $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->orderBy('creatime','desc')->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$datum)
         {
             $data[$key]->fee = json_decode($datum->fee,true);
@@ -315,17 +315,20 @@ class OrderController extends Controller
                 $data[$key]->result=$this->getDragonTigerJson($winner);
                 $data[$key]->bet_money=$this->getDragonTieTiger($datum->bet_money);
             }else if($data[$key]->game_type==3){
+                $data[$key]->winner = json_decode($winner,true);
                 $data[$key]->result=$this->getFullParseJson($winner);
                 $data[$key]->bet_money=$this->getNiuNiuBetMoney($datum->bet_money);
             }else if($data[$key]->game_type==4){
+                $data[$key]->winner = json_decode($winner,true);
                 $data[$key]->result = $this->getSanGongResult($winner);
                 $data[$key]->bet_money=$this->getSanGongMoney($datum->bet_money);
             }else if($data[$key]->game_type==5){
+                $data[$key]->winner = json_decode($winner,true);
                 $data[$key]->result=$this->getA89Result($winner);
                 $data[$key]->bet_money=$this->getA89BetMoney($datum->bet_money);
             }
         }
-        return view('order.list',['list'=>$data,'desk'=>$this->getDeskList(),'game'=>Game::getGameByType(),'input'=>$request->all(),'limit'=>$limit]);
+        return view('order.list',['min'=>config('admin.minDate'),'list'=>$data,'desk'=>$this->getDeskList(),'game'=>Game::getGameByType(),'input'=>$request->all(),'limit'=>$limit]);
     }
     /**
      * 根据开始时间结束时间获取中间得时间段
