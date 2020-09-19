@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use App\Models\AgentBill;
 use App\Models\Billflow;
+use App\Models\CaiWu;
 use App\Models\HqUser;
 use App\Models\Pay;
 use App\Models\User;
@@ -73,13 +74,6 @@ class AgentCzController extends Controller
         }
         $dataSql = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->where($map);
         $dataSql->whereRaw('creatime BETWEEN '.strtotime($startDate).' and '.(strtotime($endDateTime)-1).'');
-        if (true==$request->has('create_by'))
-        {
-            if ($request->input('create_by')==0)
-            {
-                $dataSql->whereRaw('create_by != 0');
-            }
-        }
         if (true==$request->has('account'))
         {
             $arr = array();
@@ -108,7 +102,32 @@ class AgentCzController extends Controller
         if (true==$request->has('status'))
         {
             $status = (int)$request->input('status');
-            $dataSql->whereRaw('status = '.$status.'');
+            if ($status==1)
+            {
+                $dataSql->whereRaw('status = '.$status.'');
+            }
+            elseif ($status==2)
+            {
+                $dataSql->whereRaw('status ='.$status.' and pay_type = 0');
+            }
+            elseif ($status==3)
+            {
+                $dataSql->whereRaw('status ='.$status.' and pay_type = 1');
+            }
+        }
+        if (true==$request->has('create_by'))
+        {
+            if ($request->input('create_by')==0)
+            {
+                $idArr = CaiWu::query()->select('id')->get()->toArray();
+                $user = array();
+                foreach ($idArr as $k=>$v)
+                {
+                    $user[] = $v['id'];
+                }
+                $str = implode(',',$user);
+                $dataSql->whereRaw('create_by in ('.$str.')');
+            }
         }
         $data =$dataSql->orderBy('creatime','desc')->paginate($limit);
         foreach ($data as $key=>$datum)
@@ -150,7 +169,7 @@ class AgentCzController extends Controller
                     }
                 }
             }
-            $data[$key]->creUser = $datum->create_by?User::find($datum->create_by):[];
+            $data[$key]->creUser = $datum->create_by?CaiWu::find($datum->create_by):[];
         }
         return view('agentCz.list',['list'=>$data,'input'=>$request->all(),'limit'=>$limit,'business'=>Pay::getAllPayList(),'min'=>config('admin.minDate')]);
     }

@@ -862,6 +862,7 @@ class AgentListController extends Controller
         $data['type']=$type;
         $data['remark']=$remark;
         $data['creatime']=time();
+        $data['create_by']=Auth::user()['username'];
         return AgentBill::insert($data);
     }
     public function agentCzSave(StoreRequest $request){
@@ -895,16 +896,9 @@ class AgentListController extends Controller
                             if ($count){
                                 $a = DB::table('agent_users')->where('id','=',$user['id'])->decrement('balance',$data['money']*100);
                                 if ($a){
-                                    $c = $this->insertAgentBillFlow($user['id'],0,-$data['money']*100,$user['balance'],$user['balance']-$data['money']*100,$data['type'],$data['payType'],$user['username'].'[给'.$agent['username'].'充值扣除]');
-                                    if ($c){
-                                        DB::commit();
-                                        $this->unRedissLock($agent['id']);
-                                        return ['msg'=>'操作成功','status'=>1];
-                                    }else{
-                                        DB::rollBack();
-                                        $this->unRedissLock($agent['id']);
-                                        return ['msg'=>'操作失败','status'=>0];
-                                    }
+                                    DB::commit();
+                                    $this->unRedissLock($agent['id']);
+                                    return ['msg'=>'操作成功','status'=>1];
                                 }else{
                                     DB::rollBack();
                                     $this->unRedissLock($agent['id']);
@@ -947,16 +941,9 @@ class AgentListController extends Controller
                             if ($count){
                                 $a = DB::table('agent_users')->where('id','=',$user['id'])->increment('balance',$data['money']*100);
                                 if ($a){
-                                    $n = $this->insertAgentBillFlow($user['id'],0,$data['money']*100,$user['balance'],$user['balance']+$data['money']*100,$data['type'],$data['payType'],$user['username'].'[对'.$agent['username'].'提现到账]');
-                                    if ($n){
-                                        DB::commit();
-                                        $this->unRedissLock($agent['id']);
-                                        return ['msg'=>'操作成功','status'=>1];
-                                    }else{
-                                        DB::rollBack();
-                                        $this->unRedissLock($agent['id']);
-                                        return ['msg'=>'操作失败','status'=>0];
-                                    }
+                                    DB::commit();
+                                    $this->unRedissLock($agent['id']);
+                                    return ['msg'=>'操作成功','status'=>1];
                                 }else{
                                     DB::rollBack();
                                     $this->unRedissLock($agent['id']);

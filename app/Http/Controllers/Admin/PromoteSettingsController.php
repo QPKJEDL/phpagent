@@ -49,7 +49,7 @@ class PromoteSettingsController extends Controller
         try {
             $info = RedPackage::where('agent_id','=',Auth::id())->lockForUpdate()->first();
             $data = $request->all();
-            if ((int)$data['money']<=0)
+            if ((float)$data['money']<=0)
             {
                 return ['msg'=>'单个红包金额不能小于0','status'=>0];
             }
@@ -58,10 +58,10 @@ class PromoteSettingsController extends Controller
                 return ['msg'=>'红包数量不能小于0','status'=>0];
             }
             $arr = array();
-            $arr['hb_money']=(int)$data['money']*100;
+            $arr['hb_money']=(float)$data['money']*100;
             $arr['hb_num']=(int)$data['num'];
             $arr['hb_count']=(int)$data['num'];
-            $arr['hb_balance']=(int)$data['money']*100 * (int)$data['num'];
+            $arr['hb_balance']=(float)$data['money']*100 * (int)$data['num'];
             $result = RedPackage::where('agent_id','=',Auth::id())->update($arr);
             if ($result!==false)
             {
