@@ -106,7 +106,7 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/agentDraw','AgentDrawController');//代理提现查询
     Route::resource('/agentCz','AgentCzController');//代理充值查询
 
-    Route::resource('/qrocde','QrcodeController');//会员注册二维码
+    //Route::resource('/qrocde','QrcodeController');//会员注册二维码
 
     //根据代理id查询充值提现记录
     Route::get('/agent/getRecordById/{id}','AgentCzController@getRecordById');

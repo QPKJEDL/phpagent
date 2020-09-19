@@ -96,7 +96,7 @@
                     <strong>H5推广连接：</strong>
                 </td>
                 <td>
-                    <cite id="_phone" style="font-style: normal"><input type="text" readonly disabled id="href" value="{{$url}}">&nbsp;  <button type="button" id="copy" class="layui-btn layui-btn-primary layui-btn-xs">复制连接</button></cite>
+                    <cite id="_phone" style="font-style: normal"><input type="text" readonly disabled id="href" value="{{$url.$info['code']}}" style="width: 230px;">&nbsp;  <button type="button" id="copy" class="layui-btn layui-btn-primary layui-btn-xs">复制连接</button></cite>
                 </td>
             </tr>
             <tr>
@@ -116,7 +116,7 @@
     <script type="text/javascript" src="/static/tools/js/jquery.qrcode.js"></script>
     <script>
         window.onload=function(){
-            var url = "{{$url}}";
+            var url = "{{$url.$info['code']}}";
             var qrcode = $("#qrcode").qrcode({
                 render:'canvas',
                 text:url,

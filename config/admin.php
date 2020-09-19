@@ -50,5 +50,6 @@ return [
     'zhu_img'                       =>'http://119.28.226.32:8787/',
     'beginTime'                     =>'28800',
     'minDate'                       => '2020-09-09',
-    'url'                           => 'https://www.baidu.com'
+    'url'                           => 'http://119.28.70.220:8234/?code=',
+    'register'                      => 'http://119.28.70.220:8234/'
 ];

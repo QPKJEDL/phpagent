@@ -25,6 +25,7 @@ class PromoteListController extends Controller
         {
             $map['user.account']=HttpFilter($request->input('account'));
         }
+        $map['redpackage_list.agent_id']=Auth::id();
         $sql = RedPackageList::query();
         $sql->leftJoin('user','user.user_id','=','redpackage_list.user_id')
             ->leftJoin('user_account','redpackage_list.user_id','=','user_account.user_id')

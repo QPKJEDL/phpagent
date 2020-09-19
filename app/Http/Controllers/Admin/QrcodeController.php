@@ -12,6 +12,6 @@ class QrcodeController extends Controller
 {
     public function index(Request $request)
     {
-        return view('qrcode.list',['id'=>Auth::id()]);
+        return view('qrcode.list',['id'=>Auth::id(),'url'=>config('admin.register').'?aid='.Auth::id()]);
     }
 }
