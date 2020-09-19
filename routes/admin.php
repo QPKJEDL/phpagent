@@ -28,14 +28,14 @@ use Illuminate\Http\Request;
 Route::get('/verify',                   'Admin\HomeController@verify');
 //登陆模块
 Route::group(['namespace'  => "Auth"], function () {
-    Route::get('/userRegister/{id}','HqUserRegisterController@userRegister');//会员注册页面
-    Route::post('/userSave','HqUserRegisterController@userSave');//会员保存
+    //Route::get('/userRegister/{id}','HqUserRegisterController@userRegister');//会员注册页面
+    //Route::post('/userSave','HqUserRegisterController@userSave');//会员保存
     Route::get('/agentRegister/{id}',        'OnAgentActController@actAgent');//代理激活页面
     Route::post('/actAgent','OnAgentActController@actSave');//代理激活
     Route::get('/register',             'BindController@index');    //绑定谷歌验证码
     Route::post('/valAccount',          'BindController@checkAccount'); //效验账号是否存在
     Route::post('/valUser',             'BindController@checkUserLogin');//效验账号密码的真实性
-    Route::post('/sendSMS',             'BindController@sendSMS');//发送验证码
+    //Route::post('/sendSMS',             'BindController@sendSMS');//发送验证码
     Route::post('/bindCode',            'BindController@bindCode');//绑定加效验
     Route::get('/login',                'LoginController@showLoginForm')->name('login');//登录
     Route::post('/login',               'LoginController@login');
@@ -106,7 +106,7 @@ Route::group(['namespace' => "Admin",'middleware' => ['auth', 'permission']], fu
     Route::resource('/agentDraw','AgentDrawController');//代理提现查询
     Route::resource('/agentCz','AgentCzController');//代理充值查询
 
-    //Route::resource('/qrocde','QrcodeController');//会员注册二维码
+    Route::resource('/qrocde','QrcodeController');//会员注册二维码
 
     //根据代理id查询充值提现记录
     Route::get('/agent/getRecordById/{id}','AgentCzController@getRecordById');
