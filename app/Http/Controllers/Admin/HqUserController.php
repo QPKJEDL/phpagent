@@ -415,98 +415,101 @@ class HqUserController extends Controller
         }
         unset($data['_token']);
         unset($data['id']);
-        $agent = Auth::id()?User::find(Auth::id()):[];
-        $bjl=json_decode($agent['bjlbets_fee'],true);//{"banker":"0.95","bankerPair":"11","player":"1","playerPair":"11","tie":"8"}
-        if ($bjl['banker']<$data['bjlbets_fee']['banker'] || $data['bjlbets_fee']['banker']<0.9)
+        if ($userInfo['user_type']==1)
         {
-            return ['msg'=>'赔率错误不能低于0.9','status'=>0];
+            $agent = Auth::id()?User::find(Auth::id()):[];
+            $bjl=json_decode($agent['bjlbets_fee'],true);//{"banker":"0.95","bankerPair":"11","player":"1","playerPair":"11","tie":"8"}
+            if ($bjl['banker']<$data['bjlbets_fee']['banker'] || $data['bjlbets_fee']['banker']<0.9)
+            {
+                return ['msg'=>'赔率错误不能低于0.9','status'=>0];
+            }
+            if ($bjl['player']<$data['bjlbets_fee']['player'] || $data['bjlbets_fee']['player']<=0.95)
+            {
+                return ['msg'=>'赔率错误不能低于0.95','status'=>0];
+            }
+            if ($bjl['playerPair']!=$data['bjlbets_fee']['playerPair'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($bjl['tie']!=$data['bjlbets_fee']['tie'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($bjl['bankerPair']!=$data['bjlbets_fee']['bankerPair'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            $lh = json_decode($agent['lhbets_fee'],true);
+            if ($lh['dragon']!=$data['lhbets_fee']['dragon'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($lh['tie']!=$data['lhbets_fee']['tie'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($lh['tiger']!=$data['lhbets_fee']['tiger'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            $nn = json_decode($agent['nnbets_fee'],true);
+            if ($nn['Equal']!=$data['nnbets_fee']['Equal'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($nn['Double']!=$data['nnbets_fee']['Double'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($nn['SuperDouble']!=$data['nnbets_fee']['SuperDouble'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            $sg = json_decode($agent['sgbets_fee'],true);
+            if ($sg['Equal']!=$data['sgbets_fee']['Equal'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($sg['Double']!=$data['sgbets_fee']['Double'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($sg['SuperDouble']!=$data['sgbets_fee']['SuperDouble'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            $a89 = json_decode($agent['a89bets_fee'],true);
+            if ($a89['Equal']!=$data['a89bets_fee']['Equal'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            if ($a89['SuperDouble']!=$data['a89bets_fee']['SuperDouble'])
+            {
+                return ['msg'=>'赔率错误','status'=>0];
+            }
+            $bjl['player']=intval($data['bjlbets_fee']['player'] * 100);
+            $bjl['playerPair']=intval($data['bjlbets_fee']['playerPair'] * 100);
+            $bjl['tie']=intval($data['bjlbets_fee']['tie'] * 100);
+            $bjl['banker']=intval($data['bjlbets_fee']['banker'] *100);
+            $bjl['bankerPair']=intval($data['bjlbets_fee']['bankerPair'] * 100);
+            $data['bjlbets_fee']=json_encode($bjl);
+            $lh['dragon']=intval($data['lhbets_fee']['dragon'] * 100);
+            $lh['tie']=intval($data['lhbets_fee']['tie'] *100);
+            $lh['tiger']=intval($data['lhbets_fee']['tiger']*100);
+            $data['lhbets_fee']=json_encode($lh);
+            $nn['Equal']=intval($data['nnbets_fee']['Equal'] *100);
+            $nn['Double']=intval($data['nnbets_fee']['Double'] *100);
+            $nn['SuperDouble']=intval($data['nnbets_fee']['SuperDouble']*100);
+            $data['nnbets_fee']=json_encode($nn);
+            $sg['Equal']=intval($data['sgbets_fee']['Equal']*100);
+            $sg['Double']=intval($data['sgbets_fee']['Double']*100);
+            $sg['SuperDouble']=intval($data['sgbets_fee']['SuperDouble']*100);
+            $data['sgbets_fee']=json_encode($sg);
+            $a89['Equal']=intval($data['a89bets_fee']['Equal']*100);
+            $a89['Double']=95;
+            $a89['SuperDouble']=intval($data['a89bets_fee']['SuperDouble']*100);
+            $data['a89bets_fee']=json_encode($a89);
         }
-        if ($bjl['player']<$data['bjlbets_fee']['player'] || $data['bjlbets_fee']['player']<=0.95)
-        {
-            return ['msg'=>'赔率错误不能低于0.95','status'=>0];
-        }
-        if ($bjl['playerPair']!=$data['bjlbets_fee']['playerPair'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($bjl['tie']!=$data['bjlbets_fee']['tie'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($bjl['bankerPair']!=$data['bjlbets_fee']['bankerPair'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        $lh = json_decode($agent['lhbets_fee'],true);
-        if ($lh['dragon']!=$data['lhbets_fee']['dragon'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($lh['tie']!=$data['lhbets_fee']['tie'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($lh['tiger']!=$data['lhbets_fee']['tiger'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        $nn = json_decode($agent['nnbets_fee'],true);
-        if ($nn['Equal']!=$data['nnbets_fee']['Equal'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($nn['Double']!=$data['nnbets_fee']['Double'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($nn['SuperDouble']!=$data['nnbets_fee']['SuperDouble'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        $sg = json_decode($agent['sgbets_fee'],true);
-        if ($sg['Equal']!=$data['sgbets_fee']['Equal'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($sg['Double']!=$data['sgbets_fee']['Double'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($sg['SuperDouble']!=$data['sgbets_fee']['SuperDouble'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        $a89 = json_decode($agent['a89bets_fee'],true);
-        if ($a89['Equal']!=$data['a89bets_fee']['Equal'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        if ($a89['SuperDouble']!=$data['a89bets_fee']['SuperDouble'])
-        {
-            return ['msg'=>'赔率错误','status'=>0];
-        }
-        $bjl['player']=intval($data['bjlbets_fee']['player'] * 100);
-        $bjl['playerPair']=intval($data['bjlbets_fee']['playerPair'] * 100);
-        $bjl['tie']=intval($data['bjlbets_fee']['tie'] * 100);
-        $bjl['banker']=intval($data['bjlbets_fee']['banker'] *100);
-        $bjl['bankerPair']=intval($data['bjlbets_fee']['bankerPair'] * 100);
-        $data['bjlbets_fee']=json_encode($bjl);
-        $lh['dragon']=intval($data['lhbets_fee']['dragon'] * 100);
-        $lh['tie']=intval($data['lhbets_fee']['tie'] *100);
-        $lh['tiger']=intval($data['lhbets_fee']['tiger']*100);
-        $data['lhbets_fee']=json_encode($lh);
-        $nn['Equal']=intval($data['nnbets_fee']['Equal'] *100);
-        $nn['Double']=intval($data['nnbets_fee']['Double'] *100);
-        $nn['SuperDouble']=intval($data['nnbets_fee']['SuperDouble']*100);
-        $data['nnbets_fee']=json_encode($nn);
-        $sg['Equal']=intval($data['sgbets_fee']['Equal']*100);
-        $sg['Double']=intval($data['sgbets_fee']['Double']*100);
-        $sg['SuperDouble']=intval($data['sgbets_fee']['SuperDouble']*100);
-        $data['sgbets_fee']=json_encode($sg);
-        $a89['Equal']=intval($data['a89bets_fee']['Equal']*100);
-        $a89['Double']=95;
-        $a89['SuperDouble']=intval($data['a89bets_fee']['SuperDouble']*100);
-        $data['a89bets_fee']=json_encode($a89);
         if (!empty($data['is_show'])){
             $data['is_show']=1;
         }else{

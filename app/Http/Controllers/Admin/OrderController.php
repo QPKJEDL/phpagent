@@ -89,6 +89,13 @@ class OrderController extends Controller
                 $account = explode(',',HttpFilter($request->input('account')));
                 $sql->whereIn('user.account',$account);
             }
+            if ($dateArr[0]==date('Ymd',time()))
+            {
+                if (Auth::user()['is_realTime']!=1)
+                {
+                    $sql->whereRaw('order_'.$dateArr[0].'.status in (1,2,3,4)');
+                }
+            }
             $sql->orderBy('order_'.$dateArr[0].'.creatime','desc');
         }
         for($i=1;$i<count($dateArr);$i++)
@@ -128,6 +135,13 @@ class OrderController extends Controller
                     $account = explode(',',HttpFilter($request->input('account')));
                     $d->whereIn('user.account',$account);
                 }
+                if ($dateArr[$i]==date('Ymd',time()))
+                {
+                    if (Auth::user()['is_realTime']!=1)
+                    {
+                        $d->whereRaw('order_'.$dateArr[$i].'.status in (1,2,3,4)');
+                    }
+                }
                 $d->orderBy('order_'.$dateArr[$i].'.creatime','desc');
                 $sql->unionAll($d);
             }
@@ -138,7 +152,7 @@ class OrderController extends Controller
         }
         else
         {
-            $limit = 10;
+            $limit = config('admin.limit');
         }
         $data = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->orderBy('creatime','desc')->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$datum)

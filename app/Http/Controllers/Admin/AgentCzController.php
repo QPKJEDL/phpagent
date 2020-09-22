@@ -70,7 +70,7 @@ class AgentCzController extends Controller
         }
         else
         {
-            $limit = 10;
+            $limit = config('admin.limit');
         }
         $dataSql = DB::table(DB::raw("({$sql->toSql()}) as a"))->mergeBindings($sql->getQuery())->where($map);
         $dataSql->whereRaw('creatime BETWEEN '.strtotime($startDate).' and '.(strtotime($endDateTime)-1).'');

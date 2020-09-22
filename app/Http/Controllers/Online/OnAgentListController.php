@@ -37,7 +37,7 @@ class OnAgentListController extends Controller
         }
         else
         {
-            $limit = 10;
+            $limit = config('admin.limit');
         }
         $data = $sql->orderBy('created_at','asc')->paginate($limit)->appends($request->all());
         foreach ($data as $key=>$value)
@@ -114,7 +114,15 @@ class OnAgentListController extends Controller
         if (true==$request->has('nickname')){
             $sql->where('nickname','like','%'.$request->input('nickname').'%');
         }
-        $data = $sql->orderBy('created_at','asc')->paginate(10)->appends($request->all());
+        if (true==$request->has('limit'))
+        {
+            $limit = (int)$request->input('limit');
+        }
+        else
+        {
+            $limit = config('admin.limit');
+        }
+        $data = $sql->orderBy('created_at','asc')->paginate($limit)->appends($request->all());
         foreach($data as $key=>$value){
             $data[$key]['agentCount']=$this->getAgentCount($value['id']);
             $data[$key]['userCount']=$this->getAgentUserCount($value['id']);
@@ -173,7 +181,7 @@ class OnAgentListController extends Controller
         }
         else
         {
-            $limit = 10;
+            $limit = config('admin.limit');
         }
         $data = $sql->paginate($limit)->appends($request->all());
         foreach($data as $key=>$value){

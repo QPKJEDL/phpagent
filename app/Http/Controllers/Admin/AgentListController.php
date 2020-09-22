@@ -53,7 +53,7 @@ class AgentListController extends Controller
         }
         else
         {
-            $limit = 10;
+            $limit = config('admin.limit');
         }
         $data = $sql->orderBy('created_at','asc')->paginate($limit)->appends($request->all());
         foreach($data as $key=>$value){
@@ -113,7 +113,7 @@ class AgentListController extends Controller
         }
         else
         {
-            $limit = 10;
+            $limit = config('admin.limit');
         }
         $sql = User::where($map);
         if (true==$request->has('nickname')){
@@ -248,7 +248,7 @@ class AgentListController extends Controller
         }
         else
         {
-            $limit = 10;
+            $limit = config('admin.limit');
         }
         $data = $sql->paginate($limit)->appends($request->all());
         foreach($data as $key=>&$value){

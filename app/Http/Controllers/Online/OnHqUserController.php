@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Online;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreRequest;
 use App\Models\Czrecord;
 use App\Models\HqUser;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class OnHqUserController extends Controller
         }
         else
         {
-            $limit = 10;
+            $limit = config('admin.limit');
         }
         $data = $sql->paginate($limit)->appends($request->all());
         foreach($data as $key=>$value){
@@ -50,5 +51,11 @@ class OnHqUserController extends Controller
     public function getUserCzCord($userId){
         $data = Czrecord::where('user_id',$userId)->orderBy('creatime','desc')->first();
         return $data;
+    }
+
+    public function update(StoreRequest $request)
+    {
+        $data = $request->all();
+        dump($data);
     }
 }

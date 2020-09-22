@@ -92,28 +92,7 @@
             </div>
         </div>
     </div>
-    @if($user['baccarat']==1 || $user['dragon_tiger']==1 || $user['niuniu']==1 || $user['sangong']==1 || $user['A89']==1)
-        <div class="layui-form-item">
-            <label class="layui-form-label">抽水权限：</label>
-            <div class="layui-input-block">
-                @if($user['baccarat']==1)
-                    <input type="checkbox" id="baccarat" name="baccarat" lay-skin="primary" title="百家乐" {{isset($info['baccarat'])&&$info['baccarat']==1?'checked':''}}>
-                @endif
-                @if($user['dragon_tiger']==1)
-                    <input type="checkbox" id="dragon_tiger" name="dragon_tiger" lay-skin="primary" title="龙虎" {{isset($info['dragon_tiger'])&&$info['dragon_tiger']==1?'checked':''}}>
-                @endif
-                @if($user['niuniu']==1)
-                    <input type="checkbox" id="niuniu" name="niuniu" lay-skin="primary" title="牛牛" {{isset($info['niuniu'])&&$info['niuniu']==1?'checked':''}}>
-                @endif
-                @if($user['sangong']==1)
-                    <input type="checkbox" id="sangong" name="sangong" lay-skin="primary" title="三公" {{isset($info['sangong'])&&$info['sangong']==1?'checked':''}}>
-                @endif
-                @if($user['A89']==1)
-                    <input type="checkbox" id="A89" name="A89" lay-skin="primary" title="A89" {{isset($info['A89'])&&$info['A89']==1?'checked':''}}>
-                @endif
-            </div>
-        </div>
-    @endif
+
     <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
         <legend>百家乐游戏赔率</legend>
     </fieldset>
@@ -277,6 +256,28 @@
             </div>
         </div>
     </div>
+    @if($user['baccarat']==1 || $user['dragon_tiger']==1 || $user['niuniu']==1 || $user['sangong']==1 || $user['A89']==1)
+        <div class="layui-form-item">
+            <label class="layui-form-label">抽水权限：</label>
+            <div class="layui-input-block">
+                @if($user['baccarat']==1)
+                    <input type="checkbox" id="baccarat" name="baccarat" title="百家乐" {{isset($info['baccarat'])&&$info['baccarat']==1?'checked':''}}>
+                @endif
+                @if($user['dragon_tiger']==1)
+                    <input type="checkbox" id="dragon_tiger" name="dragon_tiger" lay-skin="primary" title="龙虎" {{isset($info['dragon_tiger'])&&$info['dragon_tiger']==1?'checked':''}}>
+                @endif
+                @if($user['niuniu']==1)
+                    <input type="checkbox" id="niuniu" name="niuniu" lay-skin="primary" title="牛牛" {{isset($info['niuniu'])&&$info['niuniu']==1?'checked':''}}>
+                @endif
+                @if($user['sangong']==1)
+                    <input type="checkbox" id="sangong" name="sangong" lay-skin="primary" title="三公" {{isset($info['sangong'])&&$info['sangong']==1?'checked':''}}>
+                @endif
+                @if($user['A89']==1)
+                    <input type="checkbox" id="A89" name="A89" lay-skin="primary" title="A89" {{isset($info['A89'])&&$info['A89']==1?'checked':''}}>
+                @endif
+            </div>
+        </div>
+    @endif
     @if($user['is_allow']==1)
         <div class="layui-form-item">
             <div class="layui-input-block">
