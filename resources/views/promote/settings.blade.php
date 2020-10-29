@@ -96,7 +96,7 @@
                     <strong>H5推广连接：</strong>
                 </td>
                 <td>
-                    <cite id="_phone" style="font-style: normal"><input type="text" readonly disabled id="href" value="{{$url.$info['code']}}" style="width: 230px;">&nbsp;  <button type="button" id="copy" class="layui-btn layui-btn-primary layui-btn-xs">复制连接</button></cite>
+                    <cite id="_phone" style="font-style: normal"><input type="text" readonly id="href" value="{{$url.$info['code']}}" style="width: 230px;">&nbsp;  <button type="button" id="copy" class="layui-btn layui-btn-primary layui-btn-xs">复制连接</button></cite>
                 </td>
             </tr>
             <tr>
@@ -162,6 +162,7 @@
             }
             $("#copy").click(function () {
                 var span = document.getElementById('href');
+                console.log(span.value);
                 span.select();
                 document.execCommand("Copy");
                 alert('复制成功');

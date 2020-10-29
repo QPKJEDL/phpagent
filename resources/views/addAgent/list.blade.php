@@ -439,12 +439,23 @@
                                 //获取到当前选中的tab选项卡
                                 var index = topWindow.find('#nav').children(':first').children('li[class="layui-this"]');
                                 index.removeClass('layui-this');
-                                isActive.addClass('layui-this');
+                                isActive.remove();
                                 var indexHtml = topWindow.find('#nav').children(':last').children('div[class="layui-tab-item layui-show"]');
                                 indexHtml.removeClass('layui-show');
                                 //获取iframe数组
                                 var iframe = topWindow.find('#nav').children(':last').children();
-                                $(iframe[a]).addClass('layui-show')
+                                $(iframe[a]).remove();
+                                var id = 2;
+                                var url = "{{url('/admin/agentList')}}";
+                                var title = '代理列表';
+                                var tabUL = topWindow.find('#nav').children(':first');
+                                var str = '<li lay-id="'+id+'" class="layui-this">'+title+'<i class="layui-icon layui-unselect layui-tab-close" onclick="tabClose(this)">ဆ</i></li>';
+                                tabUL.append(str);
+                                var indexHtml = topWindow.find('#nav').children(':last').children('div[class="layui-tab-item layui-show"]');
+                                indexHtml.removeClass('layui-show');
+                                var tabDiv = topWindow.find('#nav').children(':last');
+                                var str1 = '<div class="layui-tab-item layui-show"><iframe frameborder="0" style="width: 100%;height: calc(100vh - 157px)" name="'+title+'" src="'+url+'"></iframe></div>';
+                                tabDiv.append(str1)
                             }else{
                                 var id = 2;
                                 var url = "{{url('/admin/agentList')}}";

@@ -16,7 +16,7 @@
 <body style="height: 500px;">
     <div class="larry-wrapper">
         <!-- 顶部统计数据预览 -->
-        <div class="layui-row">
+        <div class="layui-row" id="homeTop">
             <div class="layui-col-xs3">
                 <section>
                     <div class="layui-col-xs1"  style="border: 1px solid black; height: 100px; width: 100px;background-color: #1aa094">

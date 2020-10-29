@@ -75,7 +75,7 @@
                 <td class="hidden-xs">全部</td>
                 <td class="hidden-xs">{{$info['nickname']}}</td>
                 <td class="hidden-xs">{{$info['username']}}</td>
-                <td class="hidden-xs">{{number_format($info['washMoney']/100,2)}}</td>
+                <td class="hidden-xs">{{number_format($info['betMoney']/100,2)}}</td>
                 <td class="hidden-xs">
                     @if($info['getMoney']<0)
                         <span style="color: red;">{{number_format($info['getMoney']/100,2)}}</span>
@@ -84,10 +84,10 @@
                     @endif
                 </td>
                 <td class="hidden-xs">
-                    @if($info['betMoney']<0)
-                        <span style="color: red;">{{number_format($info['betMoney']/100,2)}}</span>
+                    @if($info['washMoney']<0)
+                        <span style="color: red;">{{number_format($info['washMoney']/100,2)}}</span>
                     @else
-                        {{number_format($info['betMoney']/100,2)}}
+                        {{number_format($info['washMoney']/100,2)}}
                     @endif
                 </td>
                 <td class="hidden-xs">

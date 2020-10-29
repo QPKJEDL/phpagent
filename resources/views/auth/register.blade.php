@@ -25,7 +25,7 @@
                 </div>
                 <div class="layui-form-item">
                     <div class="layui-inline">
-                        <input type="text" name="code" lay-verify="code" placeholder="验证码（写死的1111）" autocomplete="off" class="layui-input">
+                        <input type="text" name="code" lay-verify="code" placeholder="验证码" autocomplete="off" class="layui-input">
                     </div>
                     <div class="layui-inline">
                         <input type="button" class="layui-btn layui-btn-sm" id="sendMsg" style="float: right;" onclick="buttoncss(this)" value="点击发送">
@@ -70,7 +70,7 @@
         $ = layui.jquery;
         form.verify({
             phoneNumber:function (value) {
-                var test=/^[1][3,4,5,7,8][0-9]{9}$/;
+                var test=/^1[3456789]\d{9}$/;
                 if(!test.test(value)){
                     return '请输入正确的手机号'
                 }
@@ -106,7 +106,7 @@
     //按钮样式
     function buttoncss(_this) {
         var account = document.getElementById('phone_number').value;
-        var test=/^[1][3,4,5,7,8][0-9]{9}$/;
+        var test=/^1[3456789]\d{9}$/;
         if(!test.test(account)){
             alert('请输入正确的手机号')
             return false;
