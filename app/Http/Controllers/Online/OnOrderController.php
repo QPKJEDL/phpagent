@@ -178,7 +178,7 @@ class OnOrderController extends Controller
                 $data[$key]->bet_money=$this->getA89BetMoney($datum->bet_money);
             }
         }
-        return view('onAgent.onOrder.list',['list'=>$data,'desk'=>$this->getDeskList(),'limit'=>$limit,'game'=>Game::getGameByType(),'input'=>$request->all()]);
+        return view('onAgent.onOrder.list',['min'=>config('admin.minDate'),'list'=>$data,'desk'=>$this->getDeskList(),'limit'=>$limit,'game'=>Game::getGameByType(),'input'=>$request->all()]);
     }
 
     public function getOrderListByUserId($id,$begin,$end,Request $request){
@@ -534,7 +534,7 @@ class OnOrderController extends Controller
         } else {
             $arr['x3result'] = "";
         }
-        if ($data['x4result'] == "win") {
+        /*if ($data['x4result'] == "win") {
             $arr['x4result'] = "闲4";
         } else {
             $arr['x4result'] = "";
@@ -548,7 +548,7 @@ class OnOrderController extends Controller
             $arr['x6result'] = "闲6";
         } else {
             $arr['x6result'] = "";
-        }
+        }*/
         return $arr;
     }
 

@@ -130,7 +130,7 @@
                         @elseif($info->game_type==4)
                             @if($info->result['bankernum']=="")
                                 {{$info->result['x1result']}}&nbsp;{{$info->result['x2result']}}&nbsp;{{$info->result['x3result']}}
-                                {{$info->result['x4result']}}&nbsp;{{$info->result['x5result']}}&nbsp;{{$info->result['x6result']}}
+                                {{--{{$info->result['x4result']}}&nbsp;{{$info->result['x5result']}}&nbsp;{{$info->result['x6result']}}--}}
                             @else
                                 {{$info->result['bankernum']}}
                             @endif
@@ -179,12 +179,17 @@
                 layer = layui.layer,
                 laypage = layui.laypage
             ;
-            //日期组件加载
+            var date = new Date();
+            var max = date.getFullYear()+'-'+(date.getMonth()+1) +'-'+date.getDate();
             laydate.render({
-                elem:"#begin"
+                elem:"#begin",
+                min:"{{$min}}",
+                max:max
             });
             laydate.render({
-                elem:"#end"
+                elem:"#end",
+                min:"{{$min}}",
+                max:max
             });
             var count = {{$list->total()}};
             var curr = {{$list->currentPage()}};

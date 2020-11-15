@@ -49,7 +49,7 @@ return [
     'min_date'                      =>'2019-12-12',
     'zhu_img'                       =>'http://119.28.226.32:8787/',
     'beginTime'                     =>'28800',
-    'minDate'                       => '2020-09-09',
+    'minDate'                       => '2020-10-27',
     'url'                           => 'http://mobile.zbzx6088.com/?code=',
     'register'                      => 'http://mobile.zbzx6088.com/',
     'limit'                         =>'100'

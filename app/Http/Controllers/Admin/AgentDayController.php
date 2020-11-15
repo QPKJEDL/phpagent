@@ -29,7 +29,7 @@ class AgentDayController extends Controller
         $sql = UserRebate::query();
         $sql->leftJoin('agent_users','agent_users.id','=','user_rebate.agent_id')
             ->select('user_rebate.agent_id','agent_users.id','agent_users.nickname','agent_users.username','agent_users.fee','agent_users.userType','agent_users.proportion','agent_users.pump',
-                DB::raw('SUM(washMoney) as washMoney'),DB::raw('SUM(getMoney) as getMoney'),DB::raw('SUM(betMoney) as betMoney'),DB::raw('SUM(feeMoney) as feeMoney'));
+                DB::raw('SUM(hq_user_rebate.washMoney) as washMoney'),DB::raw('SUM(hq_user_rebate.getMoney) as getMoney'),DB::raw('SUM(hq_user_rebate.betMoney) as betMoney'),DB::raw('SUM(hq_user_rebate.feeMoney) as feeMoney'));
         if (true==$request->has('begin'))
         {
             $begin = strtotime($request->input('begin')) + config('admin.beginTime');
@@ -47,7 +47,7 @@ class AgentDayController extends Controller
             $begin = strtotime(date('Y-m-d',time()))+config('admin.beginTime');
             $end = strtotime('+1day',$begin)+config('admin.beginTime');
             $request->offsetSet('begin',date('Y-m-d',$begin));
-            $request->offsetSet('end',date('Y-m-d',$end));
+            $request->offsetSet('end',date('Y-m-d',$begin));
         }
         if (true==$request->has('account'))
         {
@@ -223,7 +223,7 @@ class AgentDayController extends Controller
         $sql = UserRebate::query();
         $sql->leftJoin('agent_users','agent_users.id','=','user_rebate.agent_id')
             ->select('user_rebate.agent_id','agent_users.nickname','agent_users.username','agent_users.fee','agent_users.userType','agent_users.proportion','agent_users.pump',
-                DB::raw('SUM(washMoney) as washMoney'),DB::raw('SUM(getMoney) as getMoney'),DB::raw('SUM(betMoney) as betMoney'),DB::raw('SUM(feeMoney) as feeMoney'));
+                DB::raw('SUM(hq_user_rebate.washMoney) as washMoney'),DB::raw('SUM(hq_user_rebate.getMoney) as getMoney'),DB::raw('SUM(hq_user_rebate.betMoney) as betMoney'),DB::raw('SUM(hq_user_rebate.feeMoney) as feeMoney'));
         $agentIdArray = User::query()->select('id')->where('id','=',$id)->orWhere('parent_id','=',$id)->get()->toArray();
         $begin = strtotime($beginDate)+config('admin.beginTime');
         $end = strtotime('+1day',strtotime($endDate)) + config('admin.beginTime');
@@ -410,7 +410,7 @@ class AgentDayController extends Controller
         $data = $dataSql->leftJoin('user','user.user_id','=','user_rebate.user_id')
             ->leftJoin('user_account','user_account.user_id','=','user_rebate.user_id')
             ->select('user_rebate.user_id','user.nickname','user.account','user_account.balance',DB::raw('SUM(betNum) as betNum'),
-                DB::raw('SUM(washMoney) as washMoney'),DB::raw('SUM(betMoney) as betMoney'),DB::raw('SUM(getMoney) as getMoney'),DB::raw('SUM(feeMoney) as feeMoney'),'user_rebate.userType')->groupBy('user_rebate.user_id')->get()->toArray();
+                DB::raw('SUM(hq_user_rebate.washMoney) as washMoney'),DB::raw('SUM(hq_user_rebate.betMoney) as betMoney'),DB::raw('SUM(hq_user_rebate.getMoney) as getMoney'),DB::raw('SUM(hq_user_rebate.feeMoney) as feeMoney'),'user_rebate.userType')->groupBy('user_rebate.user_id')->get()->toArray();
         if (count($data)==0)
         {
             foreach ($orderData as $key=>$v)
@@ -1206,7 +1206,7 @@ class AgentDayController extends Controller
                 }
             }
         }
-        if ($winner['x4result']=="win")
+        /*if ($winner['x4result']=="win")
         {
             $x4Num = $this->sConvertNumbers($winner['x4num']);
             if (!empty($betMoney['x4_equal']))
@@ -1307,7 +1307,7 @@ class AgentDayController extends Controller
                     $money = $money + (1 - $userInfo['sgbets_fee']['SuperDouble']/100) * $betMoney['x6_Super_Double'] * $agentInfo['pump']/100;
                 }
             }
-        }
+        }*/
         return $money;
     }
 

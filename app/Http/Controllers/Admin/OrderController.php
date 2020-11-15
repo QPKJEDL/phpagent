@@ -54,6 +54,7 @@ class OrderController extends Controller
         $endTime = strtotime('+1day', strtotime($endDate))+config('admin.beginTime');
 
         $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate, $endDateTime);
+
         if (Schema::hasTable('order_'.$dateArr[0])){
             //获取第一天的数据
             $order = new Order();
@@ -186,6 +187,21 @@ class OrderController extends Controller
         }
         return view('order.list',['min'=>config('admin.minDate'),'list'=>$data,'desk'=>$this->getDeskList(),'game'=>Game::getGameByType(),'input'=>$request->all(),'limit'=>$limit]);
     }
+
+    public function getTable($dateArr)
+    {
+        $a = 0;
+        for ($i = 0;$i<count($dateArr);$i++)
+        {
+            if (Schema::hasTable('order_'.$dateArr[$i]))
+            {
+                $a = $i;
+                break;
+            }
+        }
+        return $a;
+    }
+
     public function whetherAffiliatedAgent($ancestors)
     {
         $userId = Auth::id();
@@ -228,35 +244,36 @@ class OrderController extends Controller
         }
         $endTime = strtotime('+1day',strtotime($endDate))-1;
         $dateArr = $this->getDateTimePeriodByBeginAndEnd($startDate,$endDate);
-        if (Schema::hasTable('order_'.$dateArr[0])){
+        $a = $this->getTable($dateArr);
+        if (Schema::hasTable('order_'.$dateArr[$a])){
             //获取第一天的数据
             $order = new Order();
-            $order->setTable('order_' . $dateArr[0]);
-            $sql = $order->leftJoin('user', 'user.user_id', '=', 'order_' . $dateArr[0] . '.user_id')
-                ->select('order_' . $dateArr[0] . '.*', 'user.account', 'user.nickname', 'user.fee')->where($map)->whereBetween('order_' . $dateArr[0] . '.creatime', [$startTime, $endTime]);
+            $order->setTable('order_' . $dateArr[$a]);
+            $sql = $order->leftJoin('user', 'user.user_id', '=', 'order_' . $dateArr[$a] . '.user_id')
+                ->select('order_' . $dateArr[$a] . '.*', 'user.account', 'user.nickname', 'user.fee')->where($map)->whereBetween('order_' . $dateArr[$a] . '.creatime', [$startTime, $endTime]);
             if (true == $request->has('desk_id'))
             {
-                $sql->where('order_'.$dateArr[0].'.desk_id','=',(int)$request->input('desk_id'));
+                $sql->where('order_'.$dateArr[$a].'.desk_id','=',(int)$request->input('desk_id'));
             }
             if (true==$request->has('type'))
             {
-                $sql->where('order_'.$dateArr[0].'.game_type','=',(int)$request->input('type'));
+                $sql->where('order_'.$dateArr[$a].'.game_type','=',(int)$request->input('type'));
             }
             if (true==$request->has('status'))
             {
-                $sql->where('order_'.$dateArr[0].'.status','=',(int)$request->input('status'));
+                $sql->where('order_'.$dateArr[$a].'.status','=',(int)$request->input('status'));
             }
             if (true==$request->has('boot_num'))
             {
-                $sql->where('order_'.$dateArr[0].'.boot_num','=',(int)$request->input('boot_num'));
+                $sql->where('order_'.$dateArr[$a].'.boot_num','=',(int)$request->input('boot_num'));
             }
             if (true==$request->has('pave_num'))
             {
-                $sql->where('order_'.$dateArr[0].'.pave_num','=',(int)$request->input('pave_num'));
+                $sql->where('order_'.$dateArr[$a].'.pave_num','=',(int)$request->input('pave_num'));
             }
             if (true==$request->has('orderSn'))
             {
-                $sql->where('order_'.$dateArr[0].'.order_sn','=',(int)$request->input('orderSn'));
+                $sql->where('order_'.$dateArr[$a].'.order_sn','=',(int)$request->input('orderSn'));
             }
             if (true==$request->has('account'))
             {
@@ -264,7 +281,7 @@ class OrderController extends Controller
                 $sql->whereIn('user.account',$account);
             }
         }
-        for($i=1;$i<count($dateArr);$i++)
+        for($i=$a+1;$i<count($dateArr);$i++)
         {
             if (Schema::hasTable('order_'.$dateArr[$i]))
             {
